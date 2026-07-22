@@ -48,7 +48,7 @@ export const defaultContent: {
 
   about: {
     heading: 'about\nme!',
-    name: 'Sophie Van Schil',
+    name: 'Bryanna Plaisir',
     bio:
       "Hello! I'm Sophie Van Schil and I'm 20 years old. I specialize in interface design, which allows me to work with software like WordPress, Elementor, Visual Studio Code, and Figma. I'm always looking for new tricks and innovative designs to boost my creativity!",
     skills: [
@@ -68,14 +68,14 @@ export const defaultContent: {
     photoWindow: {
       title: 'MEET-BRYANNA',
       imageUrl: BryHeadshot ,
-      alt: 'Portrait of Sophie',
+      alt: 'Portrait of Bryanna',
     },
     socials: {
       title: 'SOCIALS',
       links: [
-        { id: 'ig', glyph: 'IG', handle: '@s0ph1ed1gital' },
-        { id: 'be', glyph: 'Be', handle: 'Sophie Van Schil' },
-        { id: 'pi', glyph: 'Pi', handle: '@s0ph1ed1gital' },
+        { id: 'ig', glyph: 'IG', handle: '@b_bry3' },
+        { id: 'ln', glyph: 'Ln', handle: 'Bryanna Plaisir' },
+        { id: 'pi', glyph: 'Gh', handle: 'brieCheese3999' },
       ],
     },
   },
