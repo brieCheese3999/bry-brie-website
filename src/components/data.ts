@@ -1,46 +1,46 @@
 import BryHeadshot from '../assets/bryanna/BryannaHeadshot.jpg'
+import Guatemala1 from '../assets/photos/GUATEMALA_1.jpg'
+import Guatemala2 from '../assets/photos/GUATEMALA_2.jpg'
+import Guatemala3 from '../assets/photos/GUATEMALA_3.jpg'
+import Guatemala4 from '../assets/photos/GUATEMALA_4.jpg'
+import Guatemala5 from '../assets/photos/GUATEMALA_5.jpg'
+import NYC13 from '../assets/photos/NYC_13.jpg'
+import Guatemala7 from '../assets/photos/GUATEMALA_7.jpg'
+import Guatemala8 from '../assets/photos/GUATEMALA_8.jpg'
+import Guatemala9 from '../assets/photos/GUATEMALA_9.jpg'
+import Guatemala10 from '../assets/photos/GUATEMALA_10.jpg'
+import Guatemala11 from '../assets/photos/GUATEMALA_11.jpg'
+import Guatemala12 from '../assets/photos/GUATEMALA_12.jpg'
+import Hawaii1 from '../assets/photos/HAWAII_1.jpg'
+import Hawaii2 from '../assets/photos/HAWAII_2.jpg'
+import Hawaii3 from '../assets/photos/HAWAII_3.jpg'
+import Hawaii4 from '../assets/photos/HAWAII_4.jpg'
+
 
 export const defaultContent: {
   ceramics: {
     heading: string;
     intro: string;
-    items: ({ id: string; label: string } | { id: string; label: string } | { id: string; label: string } | {
-      id: string;
-      label: string
-    } | { id: string; label: string } | { id: string; label: string })[];
+    items: ({ id: string; alt?: string; label: string })[];
     sectionLabel: string
   };
   about: {
-    skills: ({ id: string; label: string } | { id: string; label: string } | { id: string; label: string } | {
-      id: string;
-      label: string
-    } | { id: string; label: string } | { id: string; label: string } | { id: string; label: string })[];
-    education: ({ school: string; detail: string; years: string } | {
-      school: string;
-      detail: string;
-      years: string
-    } | { school: string; detail: string; years: string })[];
+    skills: { id: string; label: string }[];
+    education: {years: string; school: string; majors: string[]; minor: string }
     heading: string;
     name: string;
     bio: string;
     socials: {
-      links: ({ glyph: string; handle: string; id: string } | { glyph: string; handle: string; id: string } | {
-        glyph: string;
-        handle: string;
-        id: string
-      })[];
-      title: string
+      links: ({ glyph: string; handle: string; id: string })[];
+      title: string | never
     };
-    photoWindow: { imageUrl: any; alt: string; title: string }
+    photoWindow: { imageUrl: any; alt: string; title: string | never}
   };
   windowTitle: string;
   photos: {
     heading: string;
     intro: string;
-    items: ({ id: string; label: string } | { id: string; label: string } | { id: string; label: string } | {
-      id: string;
-      label: string
-    } | { id: string; label: string } | { id: string; label: string })[];
+    items: ({ id: string; label: string; alt?: string; img: any})[];
     sectionLabel: string
   }
 } = {
@@ -50,8 +50,7 @@ export const defaultContent: {
     heading: 'about\nme!',
     name: 'Bryanna Plaisir',
     bio:
-      "Hello! I'm Sophie Van Schil and I'm 20 years old. I specialize in interface design, which allows me to work with software like WordPress, Elementor, Visual Studio Code, and Figma. I'm always looking for new tricks and innovative designs to boost my creativity!",
-    skills: [
+      "Hi, I'm Bryanna, a software engineer with  experience across fintech and AI startups. I've worked on large-scale data migrations, distributed database upgrades, Kubernetes infrastructure, observability systems, and full-stack API development. I'm fluent in Go, Java, and Python, and I've built production systems on both AWS and GCP. I enjoy working on complex, high-impact infrastructure problems and building systems that are reliable at scale.\n\n Outside of engineering, I'm an avid biker and enjoy exploring New York City. I also spend my free time baking, from sourdough bread to cookies, and have recently taken up ceramics, focusing on hand-building techniques.",skills: [
       { id: 'fg', label: 'Fg' },
       { id: 'ae', label: 'Ae' },
       { id: 'pr', label: 'Pr' },
@@ -60,11 +59,8 @@ export const defaultContent: {
       { id: 'wp', label: 'Wp' },
       { id: 'vs', label: 'VS' },
     ],
-    education: [
-      { years: '2022–', school: 'AP Hogeschool', detail: 'bachelor Grafische Digitale Media' },
-      { years: '2021–2022', school: 'KU Leuven', detail: 'bachelor Criminology (not completed)' },
-      { years: '2016–2021', school: 'SJI Kontich', detail: 'Economy-modern languages' },
-    ],
+    education: { years: '2017–2021', school: 'University of Wisconsin-Madison', majors: ['Applied Mathematics' ,'Theatre'], minor: 'Computer Science'}
+    ,
     photoWindow: {
       title: 'MEET-BRYANNA',
       imageUrl: BryHeadshot ,
@@ -85,12 +81,22 @@ export const defaultContent: {
     intro: 'A few frames from behind the lens — street, film, and studio work, sorted loosely by roll.',
     sectionLabel: 'GALLERY',
     items: [
-      { id: 'p1', label: 'img_01.jpg' },
-      { id: 'p2', label: 'img_02.jpg' },
-      { id: 'p3', label: 'img_03.jpg' },
-      { id: 'p4', label: 'img_04.jpg' },
-      { id: 'p5', label: 'img_05.jpg' },
-      { id: 'p6', label: 'img_06.jpg' },
+      { id: 'gu1', img: Guatemala1 , label: "Antigua, Guatemala (2023)", alt: "Antigua, Guatemala (2023) - Town Square" },
+      { id: 'gu2', img: Guatemala2 , label: "Antigua, Guatemala (2023)", alt: "Antigua, Guatemala (2023) - Tapestry Shop " },
+      { id: 'gu3', img: Guatemala3 , label: "Late Atilitan, Guatemala (2023)", alt:"Late Atilitan, Guatemala (2023) - Sunset " },
+      { id: 'gu4', img: Guatemala4 , label: "Antigua, Guatemala (2023)", alt: "Antigua, Guatemala (2023) - Sunset (2) " },
+      { id: 'gu5', img: Guatemala5 , label: "Antigua, Guatemala (2023)", alt: "Antigua, Guatemala (2023) - Sunset (3) " },
+      { id: 'nyc13', img: NYC13 , label: "New York City (2023)", alt: "New York City (2023) - Friends"  },
+      { id: 'gu7', img: Guatemala7 , label: "Antigua, Guatemala (2023)" , alt: "Antigua, Guatemala (2023)" },
+      { id: 'gu8', img: Guatemala8 , label: "Antigua, Guatemala (2023)", alt: "Antigua, Guatemala (2023) - Cathedral " },
+      { id: 'gu9', img: Guatemala9 , label: "Acatenango, Guatemala (2023)", alt: "Acatenango, Guatemala (2023) - Clouds" },
+      { id: 'gu10', img: Guatemala10 , label: "Acatenango, Guatemala (2023)", alt: "Acatenango, Guatemala (2023) - Volcano " },
+      { id: 'gu11', img: Guatemala11 , label: "Acatenango, Guatemala (2023)", alt:"Acatenango, Guatemala (2023) - Forest " },
+      { id: 'gu12', img: Guatemala12 , label: "Antigua, Guatemala (2023)", alt:"Antigua, Guatemala (2023) - Sunset (4) " },
+      { id: 'hw1', img: Hawaii1 , label: "Maui, Hawaii (2025)", alt: "Maui, Hawaii (2025) - Sunset" },
+      { id: 'hw2', img: Hawaii2 , label: "Maui, Hawaii (2025)", alt: "Maui, Hawaii (2025) - Clouds" },
+      { id: 'hw3', img: Hawaii3 , label: "Maui, Hawaii (2025)", alt:"Maui, Hawaii (2025) - Whale Watching" },
+      { id: 'hw4', img: Hawaii4 , label: "Maui, Hawaii (2025)", alt:"Maui, Hawaii (2025)" },
     ],
   },
 

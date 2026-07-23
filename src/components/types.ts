@@ -8,7 +8,8 @@ export interface SkillIcon {
 export interface EducationItem {
   years: string;
   school: string;
-  detail: string;
+  majors: string[];
+  minor: string;
 }
 
 export interface AboutContent {
@@ -16,14 +17,14 @@ export interface AboutContent {
   name: string;
   bio: string;
   skills: SkillIcon[];
-  education: EducationItem[];
+  education: EducationItem;
   photoWindow: {
-    title: string & never;
+    title: string;
     imageUrl: string;
     alt: string;
   };
   socials: {
-    title: string & never;
+    title: string;
     links: SocialLink[];
   };
 }
@@ -31,7 +32,7 @@ export interface AboutContent {
 export interface GalleryItem {
   id: string;
   label: string;
-  imageUrl?: string;
+  img: any;
   alt?: string;
 }
 

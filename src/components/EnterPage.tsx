@@ -1,6 +1,6 @@
 import React from "react";
 import {useNavigate} from "react-router-dom";
-import PixelateImage from "./PixelateImage.tsx";
+import PixelateImage from "./Background/PixelateImage.tsx";
 import background from "../../public/background/background.png";
 interface HomePageProps {
 

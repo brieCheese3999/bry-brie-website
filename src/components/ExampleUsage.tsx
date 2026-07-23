@@ -6,8 +6,8 @@
  */
 
 import React from "react";
-import PixelateImage from "./PixelateImage";
-import ScrollPixelReveal from "./ScrollPixelReveal";
+import PixelateImage from "./Background/PixelateImage.tsx";
+import ScrollPixelReveal from "./Background/ScrollPixelReveal.tsx";
 import { usePixelate } from "../hooks/usePixelate.ts";
 
 // --- Example 1: Direct import (recommended for local assets) ---
