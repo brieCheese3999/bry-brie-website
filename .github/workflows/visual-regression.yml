@@ -1,0 +1,44 @@
+# Save as .github/workflows/visual-regression.yml
+#
+# Runs the responsive layout matrix (responsive.spec.ts) on every PR.
+# Uses Playwright's official Docker image so screenshot baselines are
+# generated/compared in the same environment every time — running this
+# locally on macOS vs. in CI on Linux WILL produce different pixels
+# otherwise (font rendering differs), which causes false-positive failures.
+
+name: Visual Regression
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  responsive-check:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.48.0-jammy
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run responsive visual regression suite
+        run: npx playwright test responsive.spec.ts
+        env:
+          CI: true
+
+      - name: Upload failure report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

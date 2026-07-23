@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
-import { usePixelate } from "../hooks/usePixelate";
-import type { PixelateMode } from  "../hooks/usePixelate";
+import { usePixelate } from "../../hooks/usePixelate.ts";
+import type { PixelateMode } from "../../hooks/usePixelate.ts";
 
 interface PixelateImageProps {
   /** Image source — imported asset or URL string */

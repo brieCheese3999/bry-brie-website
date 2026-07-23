@@ -1,6 +1,6 @@
 import React, { CSSProperties, useState } from "react";
 import { useInView } from "react-intersection-observer";
-import PixelateImage from "./PixelateImage";
+import PixelateImage from "./PixelateImage.tsx";
 
 interface ScrollPixelRevealProps {
   /** Image source — use an imported asset or a URL string */

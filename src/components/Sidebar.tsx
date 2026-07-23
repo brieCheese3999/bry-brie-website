@@ -1,4 +1,5 @@
-import React, { useState, CSSProperties } from "react";
+import React, { useState } from "react";
+import type { CSSProperties } from "react";
 import calendarIcon from '../assets/sidebar/calendar.png'
 import letterIcon from '../assets/sidebar/letter.png'
 import musicIcon from '../assets/sidebar/music.png'
@@ -116,11 +117,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const sidebarPositionStyle: CSSProperties =
     side === "left" ? { left: "20px" } : { right: "20px" };
-
-  const tooltipPositionStyle: CSSProperties =
-    side === "left"
-      ? { left: "calc(100% + 10px)" }
-      : { right: "calc(100% + 10px)" };
 
   return (
     <nav

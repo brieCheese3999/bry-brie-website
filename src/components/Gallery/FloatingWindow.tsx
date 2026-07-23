@@ -1,7 +1,6 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { TitleBar } from './TitleBar';
-import type { WindowPosition } from './types';
-import {Modal} from "@react95/core";
+import { TitleBar } from './TitleBar.tsx';
+import type { WindowPosition } from '../types.ts';
 
 export interface FloatingWindowProps {
   title: string;

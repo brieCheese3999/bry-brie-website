@@ -1,8 +1,7 @@
 import React from "react";
 import styled from 'styled-components';
-import {useNavigate} from "react-router-dom";
-import PixelateImage from "./PixelateImage.tsx";
-import background from "../../public/background/background.png";
+import PixelateImage from "../Background/PixelateImage.tsx";
+import background from "../../../public/background/background.png";
 import Win95Portfolio from "./Win95Portfolio.tsx";
 interface HomePageProps {
 
@@ -11,7 +10,6 @@ interface HomePageProps {
 const PageWrapper = styled.div`
   position: relative;
   width: 100%;
-  min-height: 100vh;
   overflow: hidden;
 `;
 
@@ -24,7 +22,6 @@ const BackgroundLayer = styled.div`
 const ForegroundLayer = styled.div`
   position: relative;
   z-index: 1;
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,7 +36,7 @@ const HomePage: React.FC<HomePageProps> = ({}) => {
                     src={background}
                     alt="background"
                     width="100%"
-                    height="100vh"
+                    height="100%"
                     mode="oscillate"
                     pixelMin={15}
                     pixelMax={25}

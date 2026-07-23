@@ -1,10 +1,8 @@
 import React from 'react';
 import './App.css';
-import HomePage from "./components/HomePage";
+import HomePage from "./components/Home/HomePage.tsx";
 import { createGlobalStyle } from 'styled-components';
 import {BrowserRouter as Router,Route, Routes} from "react-router-dom";
-import EnterPage from "./components/EnterPage.tsx";
-import AboutPage from "./components/AboutMe.tsx";
 
 // Define global styles, including font face
 const GlobalStyle = createGlobalStyle`
@@ -28,9 +26,7 @@ const App: React.FC = () => {
         <GlobalStyle/>
           <Router>
             <Routes>
-                <Route path="/" element={<EnterPage />} />
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
+                <Route path="/" element={<HomePage />} />
             </Routes>
           </Router>
       </div>

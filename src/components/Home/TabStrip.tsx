@@ -1,9 +1,10 @@
 import React from 'react';
-import type { TabId } from './types';
+import type { TabId } from '../types';
 import {Tabs, Tab} from "@react95/core";
-import {AboutPanel} from "./AboutPanel.tsx";
-import type {Win95PortfolioContent} from "./types";
-import {GalleryPanel} from "./GalleryPanel.tsx";
+import {AboutPanel} from "../About/AboutPanel.tsx";
+import type {Win95PortfolioContent} from "../types";
+import {GalleryPanel} from "../Gallery/GalleryPanel.tsx";
+import { useResponsiveMode } from '../useResponsiveMode';
 
 
 export interface TabDefinition {
@@ -18,9 +19,9 @@ export interface TabStripProps {
 
 export const TabStrip: React.FC<TabStripProps> = ({ tabs , content}) => {
   return (
-    <Tabs width="1000px" defaultActiveTab="about">
+    <Tabs defaultActiveTab="photos">
       {tabs.map((tab) => (
-        <Tab title={tab.id} key={tab.id}>
+        <Tab title={tab.id} key={tab.id} style={{fontSize:"24px"}}>
           {tab.id === "about" && <AboutPanel content={content.about} />}
           {tab.id === 'photos' && <GalleryPanel content={content.photos} />}
           {tab.id === 'ceramics' && <GalleryPanel content={content.ceramics} />}
