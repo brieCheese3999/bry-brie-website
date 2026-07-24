@@ -8,12 +8,14 @@ import { defineConfig } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: 1,
 
   // Fail the CI build if someone leaves `.only` in a commit.
   forbidOnly: !!process.env.CI,
 
   retries: process.env.CI ? 1 : 0,
+  timeout: 60_000,
 
   // If your dev server needs a moment to boot in CI before Playwright
   // starts hitting it, this handles that automatically.

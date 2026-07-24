@@ -3,7 +3,7 @@ import { TabStrip } from './TabStrip.tsx';
 import type { TabDefinition } from './TabStrip';
 import { defaultContent } from '../data';
 import type { Win95PortfolioContent } from '../types';
-import { Frame, List, Modal, TaskBar} from '@react95/core';
+import { Frame, List, Modal } from '@react95/core';
 import {Mmsys113} from '@react95/icons';
 import { useResponsiveMode } from '../useResponsiveMode';
 import { useResponsiveScale } from '../useResponsiveScale';
@@ -27,7 +27,7 @@ export interface Win95PortfolioProps {
 // (text, icons, floating windows) scales together proportionally, preserving
 // the exact original arrangement.
 const DESIGN_WIDTH = 1600;
-const DESIGN_HEIGHT = 800;
+const DESIGN_HEIGHT = 600;
 
 // A single scale factor (from useResponsiveScale, based on window width) is
 // applied to both width and height, so the scaled stage always keeps the
@@ -49,30 +49,10 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
   const rawScale = useResponsiveScale(DESIGN_WIDTH);
   const scale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
 
-  const taskbarRef = React.useRef<HTMLDivElement>(null);
-  const [taskbarHeight, setTaskbarHeight] = React.useState(36);
-
-
-  React.useEffect(() => {
-        const el = taskbarRef.current;
-        if (!el) return;
-
-        const observer = new ResizeObserver(([entry]) => {
-            setTaskbarHeight(entry.contentRect.height);
-        });
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, []);
-
     if (!isDesktop) {
     return (
-      <div className="win95-mobile-root"
-           style={{ paddingBottom: taskbarHeight }}
-      >
+      <div className="win95-mobile-root">
         <TabStrip tabs={TABS} content={content} />
-          <div ref={taskbarRef} style={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
-              <TaskBar />
-          </div>
       </div>
     );
   }
@@ -88,6 +68,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
       >
         <div
           style={{
+            width: DESIGN_WIDTH * scale,
             flexShrink: 0,
           }}
         >
@@ -97,7 +78,8 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
               width: DESIGN_WIDTH,
               minHeight: DESIGN_HEIGHT,
               transform: `scale(${scale})`,
-              transformOrigin: 'top left'
+              transformOrigin: 'top left',
+                padding:"80px",
             }}
           >
             <Frame>
@@ -116,9 +98,6 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
           </div>
         </div>
       </div>
-        <div ref={taskbarRef}>
-            <TaskBar />
-        </div>
     </>
   );
 };

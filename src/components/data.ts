@@ -1,3 +1,4 @@
+import type {ClipArtContent, Win95PortfolioContent} from './types'
 import BryHeadshot from '../assets/bryanna/BryannaHeadshot.jpg'
 import Guatemala1 from '../assets/photos/GUATEMALA_1.jpg'
 import Guatemala2 from '../assets/photos/GUATEMALA_2.jpg'
@@ -15,35 +16,10 @@ import Hawaii1 from '../assets/photos/HAWAII_1.jpg'
 import Hawaii2 from '../assets/photos/HAWAII_2.jpg'
 import Hawaii3 from '../assets/photos/HAWAII_3.jpg'
 import Hawaii4 from '../assets/photos/HAWAII_4.jpg'
+import Toto from '../assets/background/Toto.png'
+import TotoLicking from '../assets/background/Toto lick copy.png'
 
-
-export const defaultContent: {
-  ceramics: {
-    heading: string;
-    intro: string;
-    items: ({ id: string; alt?: string; label: string })[];
-    sectionLabel: string
-  };
-  about: {
-    skills: { id: string; label: string }[];
-    education: {years: string; school: string; majors: string[]; minor: string }
-    heading: string;
-    name: string;
-    bio: string;
-    socials: {
-      links: ({ glyph: string; handle: string; id: string })[];
-      title: string | never
-    };
-    photoWindow: { imageUrl: any; alt: string; title: string | never}
-  };
-  windowTitle: string;
-  photos: {
-    heading: string;
-    intro: string;
-    items: ({ id: string; label: string; alt?: string; img: any})[];
-    sectionLabel: string
-  }
-} = {
+export const defaultContent: Win95PortfolioContent = {
   windowTitle: 'PORTFOLIO.EXE',
 
   about: {
@@ -105,12 +81,50 @@ export const defaultContent: {
     intro: "Wheel-thrown and hand-built pieces, glazed in small batches. Most are one-offs — what's shown is what's left.",
     sectionLabel: 'PIECES',
     items: [
-      { id: 'c1', label: 'bowl_01' },
-      { id: 'c2', label: 'vase_02' },
-      { id: 'c3', label: 'mug_03' },
-      { id: 'c4', label: 'plate_04' },
-      { id: 'c5', label: 'vase_05' },
-      { id: 'c6', label: 'bowl_06' },
+      {
+        id: 'c1', label: 'bowl_01',
+        img: undefined
+      },
+      {
+        id: 'c2', label: 'vase_02',
+        img: undefined
+      },
+      {
+        id: 'c3', label: 'mug_03',
+        img: undefined
+      },
+      {
+        id: 'c4', label: 'plate_04',
+        img: undefined
+      },
+      {
+        id: 'c5', label: 'vase_05',
+        img: undefined
+      },
+      {
+        id: 'c6', label: 'bowl_06',
+        img: undefined
+      },
     ],
-  }
+  },
 };
+
+export const defaultClipArt: ClipArtContent = {
+    items: [{
+      id: "toto-1",
+      img: Toto,
+      alt: "Toto flopped over",
+      left: "0%",
+      right: "0%",
+      width: "350px",
+
+    },{
+      id: "toto-2",
+      img: TotoLicking,
+      alt: "Toto licking",
+      bottom: "0%",
+      right: "50%",
+      width: "250px",
+      zIndex: 10
+    }]
+}
