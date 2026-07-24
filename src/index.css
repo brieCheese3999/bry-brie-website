@@ -1,15 +1,15 @@
-html{
+html {
   min-height: 100%;
+  overflow: auto;
   background-image: url('/background/background-pixelated.png');
   background-size: cover;
-  background-position: center top;
-    background-attachment: fixed;
   background-repeat: no-repeat;
-  overflow-x: auto;
+  background-position: center top;
 }
 
 body {
- margin: 0;
+  margin: 0;
+  height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
   'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif;

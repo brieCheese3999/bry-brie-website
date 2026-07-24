@@ -1,5 +1,5 @@
-// Lightbox.tsx
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Modal, Button, Frame } from "@react95/core";
 
 interface LightboxItem {
@@ -21,14 +21,6 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
     const goPrev = () => onNavigate((currentIndex - 1 + items.length) % items.length);
     const goNext = () => onNavigate((currentIndex + 1) % items.length);
 
-    const modalWidth = 530; // matches your Modal's width="500px"
-    const modalHeight = 700; // estimate/measure your content height
-
-    const centeredPosition = {
-        x: window.innerWidth / 2 - modalWidth / 2,
-        y: window.innerHeight / 2 - modalHeight / 2,
-    };
-    // optional: arrow-key navigation, escape to close
     React.useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
             if (e.key === "ArrowLeft") goPrev();
@@ -39,30 +31,50 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
         return () => window.removeEventListener("keydown", handleKey);
     }, [currentIndex, items.length]);
 
-    return (
+    const isMobile = window.innerWidth <= 768;
+
+    return createPortal(
         <div
             style={{
                 position: "fixed",
-                top: 0,
-                left: 0,
-                background: "rgba(0,0,0,0.5)",
+                inset: 0,
+                background: "rgba(0, 0, 0, 0.85)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 zIndex: 9999,
             }}
-            onClick={onClose} // click the dimmed backdrop to close
+            onClick={onClose}
         >
-            <div onClick={(e) => e.stopPropagation()}>
-                <Modal
-                    title={item.label}
-                    minWidth="530px"
-                    minHeight="700px"
-                    dragOptions={{ defaultPosition: {x: centeredPosition.x, y: centeredPosition.y} }}
-                >
+            <style>{`
+                .lightbox-wrapper [role="dialog"] {
+                    position: relative !important;
+                    top: auto !important;
+                    left: auto !important;
+                    margin: 0 auto;
+                }
+            `}</style>
+            <div
+                className="lightbox-wrapper"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                    maxWidth: isMobile ? "95vw" : "530px",
+                    maxHeight: "90vh",
+                    width: "100%",
+                }}
+            >
+                <Modal title={item.label}>
                     <Modal.Content boxShadow="$in" bgColor="white" p="6px">
                         <Frame display="flex" flexDirection="column" alignItems="center" gap="5px">
-                            <img src={item.img} alt={item.label} style={{ maxWidth: "100%", maxHeight: "80vh" }} />
+                            <img
+                                src={item.img}
+                                alt={item.label}
+                                style={{
+                                    maxWidth: "100%",
+                                    maxHeight: isMobile ? "60vh" : "70vh",
+                                    objectFit: "contain",
+                                }}
+                            />
                             <Frame display="flex" flexDirection="row" gap="8px">
                                 <Button onClick={goPrev}>&lt; Prev</Button>
                                 <Button onClick={onClose}>Close</Button>
@@ -72,6 +84,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                     </Modal.Content>
                 </Modal>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };

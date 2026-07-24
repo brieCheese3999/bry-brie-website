@@ -1,13 +1,15 @@
 import React from 'react';
 import type { AboutContent } from '../types.ts';
 import {Fieldset, Frame, Modal, TextArea, Input, Button, List, Dropdown} from "@react95/core";
-import {CdMusic, Copy, Cut, Fax, Faxcover108, FileFont2, Fontext3, Notepad, Print, Shell3224, Spellchk, Write1} from "@react95/icons";
+import {CdMusic, Copy, Cut, Fax, Faxcover108, FileFont2,
+    FilePick, Fontext3, Mail, Msrating109, Notepad, Print, Printer, Shell32142, Shell3224, Signup, Spellchk,
+    Wab321014, Winpopup3, Wmsui323911, Wordpad, Write1} from "@react95/icons";
 import { useResponsiveMode } from '../useResponsiveMode.ts';
 
 const buttonStyle: React.CSSProperties = {
-    width: 25,
-    height: 25,
-    minWidth: 25,      // stops Button from growing to fit its content
+    width: 40,
+    height: 40,
+    minWidth: 40,      // stops Button from growing to fit its content
     padding: 0,        // react95 Buttons default to extra padding — kill it
     display: 'flex',
     alignItems: 'center',
@@ -51,7 +53,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       </Frame>
       </Fieldset>
 
-      <Fieldset width="800px" legend="EDUCATION" className="win95-section-label" style={{
+      <Fieldset width="500px" legend="EDUCATION" className="win95-section-label" style={{
           marginBottom: '1em'
       }}>
           <Frame display="flex" flexDirection="column">
@@ -61,11 +63,11 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           <br/>
           <span className="win95-school">Majors: </span>
           {content.education.majors.map((major) => (
-          <span key={major}>[{major}] </span>
+          <span className="win95-major" key={major}>[{major}] </span>
           ))}
           <br/>
           <span className="win95-school">Minor:</span>
-          <span> [{content.education.minor}]</span>
+          <span className="win95-major"> [{content.education.minor}]</span>
 
       </div>
 
@@ -73,7 +75,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       </Fieldset>
 
       <Modal style={{fontSize:"20px"}} id="photo-modal" title={content.photoWindow.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 950, y: -15 } }}>
-          <Modal.Content width="350px" boxShadow="$in" bgColor="white" p="16px">
+          <Modal.Content width="450px" boxShadow="$in" bgColor="white" p="16px">
               <Frame as="div" display="flex" flexDirection="column" gap="8px">
                   <img src={content.photoWindow.imageUrl} alt={content.photoWindow.alt}/>
               </Frame>
@@ -81,7 +83,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       </Modal>
 
       <Modal id="socials-modal" title={content.socials.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 600, y: 380 } }}>
-          <Modal.Content minWidth="270px" minHeight="112px">
+          <Modal.Content minWidth="310px" minHeight="142px">
               <Frame  display="flex" bgColor="$material" boxShadow="$out" flexDirection="column" padding="$4" gap="$7">
                   {content.socials.links.map((link) => (
                       <Frame key={link.handle} as="div" display="flex" bgColor="white" boxShadow="$in" flexDirection="row" padding="$4">
@@ -93,7 +95,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       </Modal>
 
 
-      <Modal minWidth="150px" minHeight="300px" id="contact-modal" title="CONTACT ME" titleBarOptions={<Modal.Minimize />} buttons={[{
+      <Modal minWidth="750px" minHeight="400px" id="contact-modal" title="CONTACT ME" titleBarOptions={<Modal.Minimize />} buttons={[{
           value: 'Send',
           onClick: handleButtonClick
       }]} menu={[{
@@ -123,67 +125,87 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       },{
           name: 'Help',
           list: <List/>
-      }]}  dragOptions={{ defaultPosition: { x: 740, y: 530 } }}>
+      }]}  dragOptions={{ defaultPosition: { x: 740, y: 630 } }}>
           <Frame  flexWrap="wrap" display="flex" bgColor="$material"  flexDirection="row" padding="$4" gap="$4">
+              <Button key="music" style={buttonStyle}>
+                  <Mail variant="32x32_4"/>
+              </Button>
           <Button key="music" style={buttonStyle}>
-              <CdMusic variant="16x16_4"/>
+              <CdMusic variant="32x32_4"/>
           </Button>
           <Button key="copy" style={buttonStyle}>
-              <Copy variant="16x16_4"/>
+              <FilePick variant="32x32_4"/>
           </Button>
           <Button key="cut" style={buttonStyle}>
-              <Cut variant="16x16_4"/>
+              <Shell32142 variant="32x32_4"/>
           </Button>
           <Button key="faxcover" style={buttonStyle}>
-              <Faxcover108 variant="16x16_1"/>
+              <Faxcover108 variant="32x32_4"/>
           </Button>
           <Button key="fax" style={{...buttonStyle, marginLeft: 10}}>
-              <Fax variant="16x16_4"/>
+              <Fax variant="32x32_4"/>
           </Button>
           <Button key="filefont" style={buttonStyle}>
-              <FileFont2 variant="16x16_4"/>
+              <FileFont2 variant="32x32_4"/>
           </Button>
           <Button  key="fonttext" style={buttonStyle}>
-              <Fontext3 variant="16x16_4"/>
+              <Fontext3 variant="32x32_4"/>
           </Button>
           <Button key="notepad" style={{...buttonStyle, marginLeft: 10}}>
-              <Notepad variant="16x16_4"/>
+              <Notepad variant="32x32_4"/>
           </Button>
           <Button  key="print" style={buttonStyle}>
-              <Print variant="16x16_4"/>
+              <Wordpad variant="32x32_4"/>
           </Button>
           <Button key="shell" style={buttonStyle}>
-              <Shell3224 variant="16x16_4"/>
+              <Shell3224 variant="32x32_4"/>
           </Button>
           <Button key="spellchk" style={buttonStyle}>
-              <Spellchk variant="16x16_4"/>
+              <Winpopup3 variant="32x32_4"/>
           </Button>
           <Button key="write1" style={buttonStyle}>
-              <Write1 variant="16x16_4"/>
+              <Write1 variant="32x32_4"/>
+          </Button>
+          <Button key="write1" style={buttonStyle}>
+              <Wmsui323911 variant="32x32_4"/>
+          </Button>
+          <Button key="write1" style={buttonStyle}>
+              <Wab321014 variant="32x32_4"/>
+          </Button>
+          <Button key="write1" style={buttonStyle}>
+              <Signup variant="32x32_4"/>
           </Button>
           </Frame>
 
           <Frame  display="flex">
-          <Dropdown width="11px" height="22px" minWidth="0px" options={['Normal']}  style={{ fontSize: '12px' }}/>
-              <Dropdown  width="11px" height="22px"  minWidth="5px"  marginLeft="10px" options={['Arial']}  style={{ fontSize: '12px' }}/>
-              <Dropdown  width="5px" height="22px"  minWidth="0px" marginLeft="10px"  options={['10']}  style={{ fontSize: '12px' }} />
-      </Frame>
+              <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Dropdown width="11px" minWidth="0px" options={['Normal']}  style={{ fontSize: '15px' }}/>
+              <Dropdown  width="11px"  minWidth="5px"  marginLeft="10px" options={['Arial']}  style={{ fontSize: '15px' }}/>
+              <Dropdown  width="5px"  minWidth="0px" marginLeft="10px" marginRight={"8px"}  options={['10']}  style={{ fontSize: '15px' }} />
+                  <Button key="write1" style={buttonStyle}>
+                      <Printer variant="32x32_4"/>
+                  </Button>
+                  <Button key="write1" style={buttonStyle}>
+                      <Msrating109 variant="32x32_4"/>
+                  </Button>
+              </div>
+          </Frame>
           <Modal.Content >
               <Frame display="flex" flexDirection="column">
                   <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                      <Button style={{ minWidth: 40,  minHeight: 20,  padding: 4, marginRight: 10, marginBottom: 6}}>To...</Button>
-                      <span>bryannaplaisir@gmail.com</span>
+                      <Button style={{ minWidth: 45, fontSize: "15px",  padding: 4, marginRight: 15, marginBottom: 6}}>To...</Button>
+                      <span style={{fontSize: "17px"}}>bryannaplaisir@gmail.com</span>
                   </Frame>
                   <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                      <Button style={{ minWidth: 40, height: 25, padding: 4, marginRight: 10, marginBottom: 6 }}>Cc...</Button>
-                      <Input style={{ flex: 1 ,width: 70, minWidth: 70, height: 25, padding: 4, marginRight: 10, marginBottom: 6}} />
+                      <Button style={{ minWidth: 45, fontSize: "15px", padding: 4, marginRight: 15, marginBottom: 6 }}>Cc...  </Button>
+                      <Input style={{ flex: 1 ,width: 70, fontSize: "15px",  minWidth: 70, padding: 4, marginRight: 10, marginBottom: 6}} />
                   </Frame>
 
                   <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                      <span  style={{ minWidth: 40, display: 'inline-block',  marginRight: 10 }}>Subject:</span>
-                      <Input style={{ flex: 1,width: 70, minWidth: 70, height: 25,padding: 4, marginRight: 10, marginBottom: 10 }} />
+                      <span  style={{ minWidth: 40, fontSize: "15px", display: 'inline-block',  marginRight: 10 }}>Subject:</span>
+                      <Input style={{ flex: 1, minWidth: 70,padding: 4, marginRight: 10, marginBottom: 10 }} />
                   </Frame>
-                 <TextArea display="flex"></TextArea>
+                 <TextArea style={{minHeight:"200px", fontSize: "15px"}} display="flex"></TextArea>
               </Frame>
           </Modal.Content>
       </Modal>

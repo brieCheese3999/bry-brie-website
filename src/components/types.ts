@@ -20,7 +20,7 @@ export interface AboutContent {
   education: EducationItem;
   photoWindow: {
     title: string;
-    imageUrl: string;
+    imageUrl: any;
     alt: string;
   };
   socials: {
@@ -41,6 +41,22 @@ export interface GalleryContent {
   intro: string;
   sectionLabel: string;
   items: GalleryItem[];
+}
+
+export interface ClipArtItem {
+  id: string;
+  img: any;
+  alt: string;
+  top?: string;
+  left?: string;
+  right?: string;
+  bottom?: string;
+  width?: string;
+  zIndex?: number;
+}
+
+export interface ClipArtContent {
+  items: ClipArtItem[];
 }
 
 export interface SocialLink {

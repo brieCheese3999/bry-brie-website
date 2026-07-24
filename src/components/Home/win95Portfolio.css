@@ -272,13 +272,18 @@
 }
 .win95-edu-item .win95-yrs {
   color: #666;
-  font-size: 11px;
+  font-size: 17px;
   display: block;
 }
 .win95-edu-item .win95-school {
   font-weight: 700;
-  font-size: 13px;
+  font-size: 17px;
 }
+
+.win95-edu-item .win95-major {
+  font-size: 17px;
+}
+
 .win95-gallery-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
