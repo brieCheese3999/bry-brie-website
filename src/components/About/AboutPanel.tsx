@@ -1,35 +1,102 @@
-import React from 'react';
-import type { AboutContent } from '../types.ts';
+import React, { useState } from 'react';
+import type {AboutContent, SkillGroup, SkillIcon} from '../types.ts';
 import {Fieldset, Frame, Modal, TextArea, Input, Button, List, Dropdown} from "@react95/core";
-import {CdMusic, Copy, Cut, Fax, Faxcover108, FileFont2,
-    FilePick, Fontext3, Mail, Msrating109, Notepad, Print, Printer, Shell32142, Shell3224, Signup, Spellchk,
+import {CdMusic, Fax, Faxcover108, FileFont2,
+    FilePick, Fontext3, Mail, Msrating109, Notepad, Printer, Shell32142, Shell3224, Signup,
     Wab321014, Winpopup3, Wmsui323911, Wordpad, Write1} from "@react95/icons";
 import { useResponsiveMode } from '../useResponsiveMode.ts';
+import emailjs from '@emailjs/browser';
+
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID ?? '';
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID ?? '';
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY ?? '';
 
 const buttonStyle: React.CSSProperties = {
     width: 40,
     height: 40,
-    minWidth: 40,      // stops Button from growing to fit its content
-    padding: 0,        // react95 Buttons default to extra padding — kill it
+    minWidth: 40,
+    padding: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0,     // keeps buttons from squishing unevenly
+    flexShrink: 0,
 };
-const handleButtonClick = (e: React.MouseEvent<HTMLLIElement>) => alert(e.currentTarget.value);
 
-/**
- * Desktop/tablet rendering: the original Windows-95-desktop layout, with
- * photo/socials/contact rendered as floating, draggable windows at fixed
- * pixel coordinates. Scaled to fit the viewport by the parent (Win95Portfolio)
- * via useResponsiveScale — left entirely as-is here.
- */
-const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => (
+const SKILL_GROUP_ORDER: SkillGroup[] = ['Backend', 'Frontend', 'Data & Cloud'];
+
+const groupSkills = (skills: SkillIcon[]) =>
+    SKILL_GROUP_ORDER
+        .map((group) => ({ group, items: skills.filter((s) => s.group === group) }))
+        .filter((g) => g.items.length > 0);
+
+const SkillsGrid: React.FC<{ skills: SkillIcon[] }> = ({ skills }) => (
+    <div className="win95-skill-groups">
+        {groupSkills(skills).map(({ group, items }) => (
+            <div key={group} className="win95-skill-group">
+                <span className="win95-skill-group-label">{group}</span>
+                <div className="win95-skill-tile-row">
+                    {items.map((skill) => {
+                        const Icon = skill.icon;
+                        return (
+                            <div
+                                key={skill.id}
+                                className="win95-skill-tile"
+                                title={skill.note ? `${skill.label} (${skill.note})` : skill.label}
+                            >
+                                <span className="win95-skill-tile-icon">
+                                    <Icon size={32} color={skill.color} />
+                                </span>
+                                <span className="win95-skill-tile-label">{skill.label}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        ))}
+    </div>
+);
+
+
+const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
+  const [senderEmail, setSenderEmail] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [sendStatus, setSendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+
+  const handleSend = () => {
+    if (!senderEmail.trim() || !message.trim()) {
+      alert('Please fill in your email and message.');
+      return;
+    }
+
+    setSendStatus('sending');
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      from_email: senderEmail,
+      subject: subject || '(No subject)',
+      message,
+    }, EMAILJS_PUBLIC_KEY)
+      .then(() => {
+        setSendStatus('sent');
+        setSenderEmail('');
+        setSubject('');
+        setMessage('');
+        setTimeout(() => setSendStatus('idle'), 3000);
+      })
+      .catch(() => {
+        setSendStatus('error');
+        setTimeout(() => setSendStatus('idle'), 3000);
+      });
+  };
+
+  const sendButtonLabel =
+    sendStatus === 'sending' ? 'Sending...' :
+    sendStatus === 'sent' ? 'Sent!' :
+    sendStatus === 'error' ? 'Failed' : 'Send';
+
+  return (
   <div style={{ position: 'relative'}}>
   <Frame>
-      <Fieldset  width="800px" legend={content.heading} className="win95-pixel-heading" style={{
-          marginBottom: '1em'
-      }}>
+      <Fieldset  width="800px" legend={content.heading} className="win95-pixel-heading">
           <Frame display="flex" flexDirection="column">
               <div className="win95-icon-row">
                   <h2 className="win95-subject-name">{content.name}</h2>
@@ -39,23 +106,13 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           </Frame>
       </Fieldset>
 
-      <Fieldset width="800px" legend="SKILLS" className="win95-section-label" style={{
-          marginBottom: '1em'
-      }}>
+      <Fieldset width="700px" legend="SKILLS" className="win95-section-label">
           <Frame display="flex" flexDirection="column">
-    <div className="win95-icon-row">
-      {content.skills.map((skill) => (
-        <div key={skill.id} className="win95-icon-chip win95-raised">
-          {skill.label}
-        </div>
-      ))}
-    </div>
-      </Frame>
+              <SkillsGrid skills={content.skills} />
+          </Frame>
       </Fieldset>
 
-      <Fieldset width="500px" legend="EDUCATION" className="win95-section-label" style={{
-          marginBottom: '1em'
-      }}>
+      <Fieldset width="500px" legend="EDUCATION" className="win95-section-label">
           <Frame display="flex" flexDirection="column">
       <div className="win95-edu-item">
         <span className="win95-yrs">{content.education.years}</span>
@@ -96,8 +153,8 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
 
 
       <Modal minWidth="750px" minHeight="400px" id="contact-modal" title="CONTACT ME" titleBarOptions={<Modal.Minimize />} buttons={[{
-          value: 'Send',
-          onClick: handleButtonClick
+          value: sendButtonLabel,
+          onClick: handleSend
       }]} menu={[{
           name: 'File',
           list: <List/>
@@ -127,10 +184,10 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           list: <List/>
       }]}  dragOptions={{ defaultPosition: { x: 740, y: 630 } }}>
           <Frame  flexWrap="wrap" display="flex" bgColor="$material"  flexDirection="row" padding="$4" gap="$4">
-              <Button key="music" style={buttonStyle}>
+              <Button key="mail" style={buttonStyle}>
                   <Mail variant="32x32_4"/>
               </Button>
-          <Button key="music" style={buttonStyle}>
+          <Button key="cdmusic" style={buttonStyle}>
               <CdMusic variant="32x32_4"/>
           </Button>
           <Button key="copy" style={buttonStyle}>
@@ -163,16 +220,16 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           <Button key="spellchk" style={buttonStyle}>
               <Winpopup3 variant="32x32_4"/>
           </Button>
-          <Button key="write1" style={buttonStyle}>
+          <Button key="write1a" style={buttonStyle}>
               <Write1 variant="32x32_4"/>
           </Button>
-          <Button key="write1" style={buttonStyle}>
+          <Button key="wmsui" style={buttonStyle}>
               <Wmsui323911 variant="32x32_4"/>
           </Button>
-          <Button key="write1" style={buttonStyle}>
+          <Button key="wab" style={buttonStyle}>
               <Wab321014 variant="32x32_4"/>
           </Button>
-          <Button key="write1" style={buttonStyle}>
+          <Button key="signup" style={buttonStyle}>
               <Signup variant="32x32_4"/>
           </Button>
           </Frame>
@@ -182,10 +239,10 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           <Dropdown width="11px" minWidth="0px" options={['Normal']}  style={{ fontSize: '15px' }}/>
               <Dropdown  width="11px"  minWidth="5px"  marginLeft="10px" options={['Arial']}  style={{ fontSize: '15px' }}/>
               <Dropdown  width="5px"  minWidth="0px" marginLeft="10px" marginRight={"8px"}  options={['10']}  style={{ fontSize: '15px' }} />
-                  <Button key="write1" style={buttonStyle}>
+                  <Button key="printer" style={buttonStyle}>
                       <Printer variant="32x32_4"/>
                   </Button>
-                  <Button key="write1" style={buttonStyle}>
+                  <Button key="msrating" style={buttonStyle}>
                       <Msrating109 variant="32x32_4"/>
                   </Button>
               </div>
@@ -197,21 +254,38 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
                       <span style={{fontSize: "17px"}}>bryannaplaisir@gmail.com</span>
                   </Frame>
                   <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                      <Button style={{ minWidth: 45, fontSize: "15px", padding: 4, marginRight: 15, marginBottom: 6 }}>Cc...  </Button>
-                      <Input style={{ flex: 1 ,width: 70, fontSize: "15px",  minWidth: 70, padding: 4, marginRight: 10, marginBottom: 6}} />
+                      <Button style={{ minWidth: 45, fontSize: "15px", padding: 4, marginRight: 15, marginBottom: 6 }}>From</Button>
+                      <Input
+                        type="email"
+                        placeholder="your@email.com"
+                        value={senderEmail}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenderEmail(e.target.value)}
+                        style={{ flex: 1 ,width: 70, fontSize: "15px",  minWidth: 70, padding: 4, marginRight: 10, marginBottom: 6}}
+                      />
                   </Frame>
 
                   <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
                       <span  style={{ minWidth: 40, fontSize: "15px", display: 'inline-block',  marginRight: 10 }}>Subject:</span>
-                      <Input style={{ flex: 1, minWidth: 70,padding: 4, marginRight: 10, marginBottom: 10 }} />
+                      <Input
+                        value={subject}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
+                        style={{ flex: 1, minWidth: 70,padding: 4, marginRight: 10, marginBottom: 10 }}
+                      />
                   </Frame>
-                 <TextArea style={{minHeight:"200px", fontSize: "15px"}} display="flex"></TextArea>
+                 <TextArea
+                   value={message}
+                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
+                   placeholder="Write your message here..."
+                   style={{minHeight:"200px", fontSize: "15px"}}
+                   display="flex"
+                 />
               </Frame>
           </Modal.Content>
       </Modal>
   </Frame>
   </div>
-);
+  );
+};
 
 /**
  * Mobile rendering: everything from DesktopAboutPanel, but as a single
@@ -234,13 +308,7 @@ const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => (
     </Fieldset>
 
     <Fieldset legend="SKILLS" className="win95-section-label win95-mobile-fieldset">
-      <div className="win95-icon-row">
-        {content.skills.map((skill) => (
-          <div key={skill.id} className="win95-icon-chip win95-raised">
-            {skill.label}
-          </div>
-        ))}
-      </div>
+      <SkillsGrid skills={content.skills} />
     </Fieldset>
 
     <Fieldset legend="EDUCATION" className="win95-section-label win95-mobile-fieldset">

@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from "react";
+import React, {type CSSProperties, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import PixelateImage from "./PixelateImage.tsx";
 

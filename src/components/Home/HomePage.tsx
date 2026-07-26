@@ -9,7 +9,7 @@ import type {ClipArtContent} from "../types.ts";
 import {TaskBar} from "@react95/core";
 
 interface HomePageProps {
-    content: ClipArtContent;
+    content?: ClipArtContent;
 }
 
 const PageWrapper = styled.div`
@@ -34,7 +34,14 @@ const ForegroundLayer = styled.div`
   padding: 24px;
 `;
 
-const ClipArtLayer = styled.div`
+const ClipArtBackLayer = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+`;
+
+const ClipArtFrontLayer = styled.div`
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -42,6 +49,9 @@ const ClipArtLayer = styled.div`
 `;
 
 const HomePage: React.FC<HomePageProps> = ({ content = defaultClipArt }) => {
+    const backItems = content.items.filter(item => item.layer !== 'front');
+    const frontItems = content.items.filter(item => item.layer === 'front');
+
     return (
         <>
             <PageWrapper>
@@ -52,18 +62,21 @@ const HomePage: React.FC<HomePageProps> = ({ content = defaultClipArt }) => {
                         width="100%"
                         height="100%"
                         mode="oscillate"
-                        pixelMin={15}
-                        pixelMax={25}
+                        pixelMin={4}
+                        pixelMax={10}
                         cycleDuration={160000}
                         style={{objectFit: "cover"}}
                     />
                 </BackgroundLayer>
+                <ClipArtBackLayer>
+                    <ClipArt content={{ items: backItems }}/>
+                </ClipArtBackLayer>
                 <ForegroundLayer>
                     <Win95Portfolio/>
                 </ForegroundLayer>
-                <ClipArtLayer>
-                    <ClipArt content={content}/>
-                </ClipArtLayer>
+                <ClipArtFrontLayer>
+                    <ClipArt content={{ items: frontItems }}/>
+                </ClipArtFrontLayer>
             </PageWrapper>
             <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999 }}>
                 <TaskBar />

@@ -1,8 +1,16 @@
+import type { IconType } from 'react-icons';
+
 export type TabId = 'about' | 'photos' | 'ceramics';
+
+export type SkillGroup = 'Backend' | 'Frontend' | 'Data & Cloud';
 
 export interface SkillIcon {
   id: string;
   label: string;
+  icon: IconType;
+  group: SkillGroup;
+  color?: string;
+  note?: string;
 }
 
 export interface EducationItem {
@@ -53,6 +61,9 @@ export interface ClipArtItem {
   bottom?: string;
   width?: string;
   zIndex?: number;
+  speed?: number;
+  layer?: 'front' | 'back';
+  fixed?: boolean;
 }
 
 export interface ClipArtContent {
