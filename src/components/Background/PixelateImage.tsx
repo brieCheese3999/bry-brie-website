@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React, {type CSSProperties } from "react";
 import { usePixelate } from "../../hooks/usePixelate.ts";
 import type { PixelateMode } from "../../hooks/usePixelate.ts";
 
