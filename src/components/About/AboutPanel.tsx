@@ -293,7 +293,42 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
  * scale-to-fit wrapper. Each "window" becomes a plain Fieldset section
  * that flows naturally with the page, so it works at any width.
  */
-const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => (
+const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
+  const [senderEmail, setSenderEmail] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [sendStatus, setSendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+
+  const handleSend = () => {
+    if (!senderEmail.trim() || !message.trim()) {
+      alert('Please fill in your email and message.');
+      return;
+    }
+    setSendStatus('sending');
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      from_email: senderEmail,
+      subject: subject || '(No subject)',
+      message,
+    }, EMAILJS_PUBLIC_KEY)
+      .then(() => {
+        setSendStatus('sent');
+        setSenderEmail('');
+        setSubject('');
+        setMessage('');
+        setTimeout(() => setSendStatus('idle'), 3000);
+      })
+      .catch(() => {
+        setSendStatus('error');
+        setTimeout(() => setSendStatus('idle'), 3000);
+      });
+  };
+
+  const sendButtonLabel =
+    sendStatus === 'sending' ? 'Sending...' :
+    sendStatus === 'sent' ? 'Sent!' :
+    sendStatus === 'error' ? 'Failed' : 'Send';
+
+  return (
   <div className="win95-mobile-stack">
     <Fieldset legend={content.heading} className="win95-pixel-heading win95-mobile-fieldset">
       <h2 className="win95-subject-name">{content.name}</h2>
@@ -338,18 +373,47 @@ const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => (
     </Fieldset>
 
     <Fieldset legend="CONTACT ME" className="win95-section-label win95-mobile-fieldset">
-      {/* Desktop shows a full fake mail-client toolbar for flavor; on mobile
-          that's a lot of tiny unusable icons, so this collapses to the one
-          thing that actually matters: a working way to email you. */}
-      <a
-        className="win95-mobile-contact-button win95-raised"
-        href="mailto:bryannaplaisir@gmail.com"
-      >
-        Email me
-      </a>
+      <Frame display="flex" flexDirection="column" gap="$4">
+        <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
+          <span style={{ minWidth: 50, fontSize: '14px' }}>To:</span>
+          <span style={{ fontSize: '14px' }}>bryannaplaisir@gmail.com</span>
+        </Frame>
+        <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
+          <span style={{ minWidth: 50, fontSize: '14px' }}>From:</span>
+          <Input
+            type="email"
+            placeholder="your@email.com"
+            value={senderEmail}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenderEmail(e.target.value)}
+            style={{ flex: 1, fontSize: '14px', padding: 4 }}
+          />
+        </Frame>
+        <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
+          <span style={{ minWidth: 50, fontSize: '14px' }}>Subject:</span>
+          <Input
+            value={subject}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
+            style={{ flex: 1, fontSize: '14px', padding: 4 }}
+          />
+        </Frame>
+        <TextArea
+          value={message}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
+          placeholder="Write your message here..."
+          style={{ minHeight: '120px', fontSize: '14px' }}
+        />
+        <Button
+          onClick={handleSend}
+          disabled={sendStatus === 'sending'}
+          style={{ alignSelf: 'flex-end', fontSize: '14px', padding: '4px 16px' }}
+        >
+          {sendButtonLabel}
+        </Button>
+      </Frame>
     </Fieldset>
   </div>
-);
+  );
+};
 
 export const AboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
   const { isMobile } = useResponsiveMode();

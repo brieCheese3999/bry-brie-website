@@ -50,7 +50,7 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
         if (content.items.length <= 1) return;
         const timer = setInterval(() => {
             setModalIndex((prev) => (prev + 1) % content.items.length);
-        }, 60_000);
+        }, 30_000);
         return () => clearInterval(timer);
     }, [content.items.length]);
 

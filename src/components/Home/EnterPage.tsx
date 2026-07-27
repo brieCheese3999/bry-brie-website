@@ -2,7 +2,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import PixelateImage from "../Background/PixelateImage.tsx";
 import ManilaFolder from "./ManilaFolder.tsx";
-import background from "../../assets/public/background/background.png";
+
+// Served from Vite's public/ directory (public/background/background.png)
+const background = "/background/background.png";
 
 const EnterPage: React.FC = () => {
     const navigate = useNavigate();

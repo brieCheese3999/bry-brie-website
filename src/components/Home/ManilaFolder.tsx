@@ -11,13 +11,10 @@ interface ManilaFolderProps {
   height?: number;
 }
 
-const Wrapper = styled.button<{ $width: number; $height: number }>`
+const Wrapper = styled.div<{ $width: number; $height: number }>`
   position: relative;
   width: ${({ $width }) => $width}px;
   height: ${({ $height }) => $height}px;
-  border: none;
-  background: none;
-  padding: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 
@@ -79,10 +76,17 @@ const ManilaFolder: React.FC<ManilaFolderProps> = ({
 
   return (
     <Wrapper
-      type="button"
+      role="button"
+      tabIndex={0}
       $width={width}
       $height={height}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       onFocus={() => setOpen(true)}
@@ -91,16 +95,21 @@ const ManilaFolder: React.FC<ManilaFolderProps> = ({
     >
       <Tab $open={open} />
       <Body $open={open}>
-          <PeekingFace />
-          <Modal style={{minWidth: "13%"}} titleBarOptions={<Modal.Minimize />}>
-              <Modal.Content >
-                  <span style={{paddingBottom:"8px"}}>DO YOU LOVE CATS?</span>
-                  <div>
-                  <Button style={{marginRight: "10px"}}>YES</Button>
-                  <Button>NO</Button>
-                  </div>
-              </Modal.Content>
-          </Modal>
+          {/* Stop clicks inside the peeking modals from bubbling up and
+              triggering the folder's navigation, so their own buttons work.
+              Clicking the folder itself still enters. */}
+          <div onClick={(e) => e.stopPropagation()} style={{ display: "contents" }}>
+            <PeekingFace />
+            <Modal style={{minWidth: "13%"}} titleBarOptions={<Modal.Minimize />}>
+                <Modal.Content >
+                    <span style={{paddingBottom:"8px"}}>DO YOU LOVE CATS?</span>
+                    <div>
+                    <Button style={{marginRight: "10px"}}>YES</Button>
+                    <Button>NO</Button>
+                    </div>
+                </Modal.Content>
+            </Modal>
+          </div>
       </Body>
     </Wrapper>
   );

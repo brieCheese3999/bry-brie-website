@@ -92,7 +92,7 @@ const PixelateImage: React.FC<PixelateImageProps> = ({
 
                                                        // oscillate
                                                        pixelMin = 4,
-                                                       pixelMax = 20,
+                                                       pixelMax = 10,
                                                        cycleDuration = 3000,
 
                                                        // style

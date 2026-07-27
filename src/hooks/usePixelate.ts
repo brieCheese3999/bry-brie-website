@@ -122,7 +122,7 @@ export function usePixelate(
       pixelMax = 20,
       cycleDuration = 3000,
     }: UsePixelateOptions = {}
-): React.RefObject<HTMLCanvasElement> {
+): React.RefObject<HTMLCanvasElement | null> {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
