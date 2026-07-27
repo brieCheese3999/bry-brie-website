@@ -20,7 +20,7 @@ const TAB_CONTENT_MIN_HEIGHT = 950;
 
 export const TabStrip: React.FC<TabStripProps> = ({ tabs , content}) => {
   return (
-    <Tabs defaultActiveTab="about">
+    <Tabs defaultActiveTab="about" className="r95-light">
       {tabs.map((tab) => (
         <Tab title={tab.id} key={tab.id} style={{fontSize:"24px"}}>
           <div style={{ minHeight: TAB_CONTENT_MIN_HEIGHT }}>

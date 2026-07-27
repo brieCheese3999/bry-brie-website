@@ -92,7 +92,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
           >
             <div className="website-modals-behind">
               {positions.map((pos, i) => (
-                <Modal key={i} id={`website-modal-${i}`} icon={<Mmsys113 variant="32x32_4" />} title="BRIE CHEESE WEBSITE!!"
+                <Modal key={i} className="r95-light" id={`website-modal-${i}`} icon={<Mmsys113 variant="32x32_4" />} title="BRIE CHEESE WEBSITE!!"
                   hasWindowButton={false} titleBarOptions={<Modal.Minimize />} menu={[{
                     name: 'File',
                     list: <List/>

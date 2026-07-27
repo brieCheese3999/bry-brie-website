@@ -80,7 +80,7 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
                     </Frame>
                 </Fieldset>
                 {content.items.length > 0 && (
-                    <Modal width="26%" height="35%" dragOptions={{ defaultPosition: { x: 870, y: 97 } }}>
+                    <Modal width="26%" height="35%" dragOptions={{ defaultPosition: { x: 870, y: 130 } }}>
                         <Modal.Content style={{ overflow: 'hidden' }}>
                             <img
                                 src={content.items[modalIndex].img}

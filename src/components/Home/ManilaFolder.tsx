@@ -57,7 +57,7 @@ const Body = styled.div<{ $open: boolean }>`
 `;
 
 const PeekingFace: React.FC<{}> = () => (
-  <Modal style={{overflow: "hidden"}} title="BRYANNA'S PORTFOLIO" titleBarOptions={<Modal.Minimize />}>
+  <Modal className="r95-light" style={{overflow: "hidden"}} title="BRYANNA'S PORTFOLIO" titleBarOptions={<Modal.Minimize />}>
     <Modal.Content>
     <div style={{display: "flex", alignItems: "center", justifyContent: "center", width: "400px", height: "250px", overflow: "hidden"}}>
       <img style={{ height: "250px", objectFit: "cover"}} src={bg} alt={"me! as a drawing"}/>
@@ -100,7 +100,7 @@ const ManilaFolder: React.FC<ManilaFolderProps> = ({
               Clicking the folder itself still enters. */}
           <div onClick={(e) => e.stopPropagation()} style={{ display: "contents" }}>
             <PeekingFace />
-            <Modal style={{minWidth: "13%"}} titleBarOptions={<Modal.Minimize />}>
+            <Modal className="r95-light" style={{minWidth: "13%"}} titleBarOptions={<Modal.Minimize />}>
                 <Modal.Content >
                     <span style={{paddingBottom:"8px"}}>DO YOU LOVE CATS?</span>
                     <div>

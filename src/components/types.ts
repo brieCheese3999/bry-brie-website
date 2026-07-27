@@ -73,6 +73,8 @@ export interface ClipArtContent {
 export interface SocialLink {
   id: string;
   glyph: string;
+  icon?: IconType;
+  color?: string;
   handle: string;
   url?: string;
 }

@@ -105,7 +105,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           </Frame>
       </Fieldset>
 
-      <Fieldset width="700px" legend="SKILLS" className="win95-section-label">
+      <Fieldset width="800px" legend="SKILLS" className="win95-section-label">
           <Frame display="flex" flexDirection="column">
               <SkillsGrid skills={content.skills} />
           </Frame>
@@ -141,15 +141,18 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       <Modal  style={{fontSize:"15px"}} id="socials-modal" title={content.socials.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 670, y: 520 } }}>
           <Modal.Content minWidth="330px" minHeight="150px">
               <Frame  display="flex" bgColor="$material" boxShadow="$out" flexDirection="column" padding="$6" gap="$7">
-                  {content.socials.links.map((link) => (
+                  {content.socials.links.map((link) => {
+                      const Icon = link.icon;
+                      return (
                       <Frame key={link.handle} as="div" className="win95-social-modal-row" display="flex" bgColor="white" boxShadow="$in" flexDirection="row" alignItems="center" padding="$6">
-                          <span  className="win95-social-glyph">{link.glyph}</span>   {link.url ? (
+                          <span  className="win95-social-glyph">{Icon ? <Icon size={20} color={link.color} /> : link.glyph}</span>   {link.url ? (
                             <a className="win95-social-link" href={link.url} target="_blank" rel="noopener noreferrer">{link.handle}</a>
                           ) : (
                             link.handle
                           )}
                       </Frame>
-                  ))}
+                      );
+                  })}
               </Frame>
           </Modal.Content>
       </Modal>
@@ -366,16 +369,19 @@ const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
 
     <Fieldset legend={content.socials.title} className="win95-section-label win95-mobile-fieldset">
       <div className="win95-mobile-social-list">
-        {content.socials.links.map((link) => (
+        {content.socials.links.map((link) => {
+          const Icon = link.icon;
+          return (
           <div key={link.handle} className="win95-social-row">
-            <span className="win95-social-glyph">{link.glyph}</span>
+            <span className="win95-social-glyph">{Icon ? <Icon size={20} color={link.color} /> : link.glyph}</span>
             {link.url ? (
               <a className="win95-social-link" href={link.url} target="_blank" rel="noopener noreferrer">{link.handle}</a>
             ) : (
               <span>{link.handle}</span>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
     </Fieldset>
 

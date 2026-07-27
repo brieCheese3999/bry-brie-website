@@ -21,3 +21,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
   monospace;
 }
+
+/*
+ * Lighter grey for react95 surfaces. react95 draws every "material" surface
+ * (Modal bodies, Tabs, tab bodies, etc.) from the single --r95-color-material
+ * variable, so overriding it on a wrapper cascades to the component and its
+ * children. Applied via className="r95-light" on Modals and the Tabs strip
+ * so the rest of the UI (taskbar, buttons outside modals) keeps the default.
+ */
+.r95-light {
+  --r95-color-material: #dadde2;
+}

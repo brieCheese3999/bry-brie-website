@@ -8,7 +8,7 @@
   --face: #c0c0c0;
   --face-light: #dfdfdf;
   --white: #ffffff;
-  --shadow: #808080;
+  --shadow: #f3d573;
   --dark: #0a0a0a;
   --titlebar-start: #000080;
   --titlebar-end: #1084d0;
@@ -240,7 +240,7 @@
   font-weight: normal;
   line-height: 1.9;
   color: #222;
-  max-width: 52ch;
+  max-width: 70ch;
   margin: 16px 0 24px;
 }
 .win95-section-label {
@@ -276,10 +276,8 @@
 }
 
 .win95-skill-group-label {
-  font-family: var(--ui-font);
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
-  color: #666;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: block;
@@ -307,13 +305,13 @@
 }
 
 .win95-skill-tile:hover {
-  background: rgba(0, 0, 128, 0.12);
+  background: #f3d573;
   border: 1px dotted #000080;
 }
 
 .win95-skill-tile:hover .win95-skill-tile-label {
-  background: #000080;
-  color: #fff;
+  background: transparent;
+  font-size: 15px;
 }
 
 .win95-skill-tile-icon {
@@ -326,14 +324,13 @@
 }
 
 .win95-skill-tile-label {
-  font-family: var(--ui-font);
-  font-size: 11px;
+  font-size: 15px;
+  font-weight: 490;;
   text-align: center;
-  color: var(--ink);
   line-height: 1.2;
-  padding: 1px 3px;
+  padding: 1px 5px;
   word-break: break-word;
-  max-width: 80px;
+  max-width: 100px;
 }
 
 .win95-edu-item {

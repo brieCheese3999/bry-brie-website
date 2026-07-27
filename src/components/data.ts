@@ -51,8 +51,10 @@ import {
   SiMysql,
   SiMinio,
   SiTerraform,
+  SiInstagram,
+  SiGithub,
 } from 'react-icons/si'
-import { FaAws } from 'react-icons/fa'
+import { FaAws, FaLinkedin } from 'react-icons/fa'
 import { TbDatabase } from 'react-icons/tb'
 
 
@@ -63,7 +65,7 @@ export const defaultContent: Win95PortfolioContent = {
     heading: 'about\nme!',
     name: 'Bryanna Plaisir',
     bio:
-      "Hi, I'm Bryanna, a software engineer with  experience across fintech and AI startups. I've worked on large-scale data migrations, distributed database upgrades, Kubernetes infrastructure, observability systems, and full-stack API development. I'm fluent in Go, Java, and Python, and I've built production systems on both AWS and GCP. I enjoy working on complex, high-impact infrastructure problems and building systems that are reliable at scale.\n\n Outside of engineering, I'm an avid biker and enjoy exploring New York City. I also spend my free time baking, from sourdough bread to cookies, and have recently taken up ceramics, focusing on hand-building techniques.",skills: [
+      "Hi, I'm Bryanna, a software engineer with  experience across fintech and AI startups. I've worked on large-scale data migrations, distributed database upgrades, Kubernetes infrastructure, observability systems, and full-stack API development. I'm fluent in Python, Java, Typescript and Go, and I've built and managed production systems on both AWS and GCP.\n\n Outside of engineering, I'm an avid biker and enjoy biking around New York City. I also love baking sourdough bread and trying out new cookie recipes! One hobby thatI've recently taken up is ceramics, with a focus on hand-building techniques.",skills: [
       { id: 'go', label: 'Go', icon: SiGo, group: 'Backend', color: '#00ADD8' },
       { id: 'java', label: 'Java', icon: SiOpenjdk, group: 'Backend', color: '#E76F00', note: 'Spring Boot, Hibernate' },
       { id: 'python', label: 'Python', icon: SiPython, group: 'Backend', color: '#3776AB', note: 'Pandas, Flask, Boto3' },
@@ -92,9 +94,9 @@ export const defaultContent: Win95PortfolioContent = {
     socials: {
       title: 'SOCIALS',
       links: [
-        { id: 'ig', glyph: 'IG', handle: '@b_bry3' },
-        { id: 'ln', glyph: 'Ln', handle: 'Bryanna Plaisir', url: 'https://www.linkedin.com/in/bryanna-plaisir/' },
-        { id: 'pi', glyph: 'Gh', handle: 'brieCheese3999', url: 'https://github.com/brieCheese3999/bry-brie-website/projects' },
+        { id: 'ig', glyph: 'IG', icon: SiInstagram, color: '#E4405F', handle: '@b_bry3' },
+        { id: 'ln', glyph: 'Ln', icon: FaLinkedin, color: '#0A66C2', handle: 'Bryanna Plaisir', url: 'https://www.linkedin.com/in/bryanna-plaisir/' },
+        { id: 'pi', glyph: 'Gh', icon: SiGithub, color: '#181717', handle: 'brieCheese3999', url: 'https://github.com/brieCheese3999/bry-brie-website/projects' },
       ],
     },
   },
