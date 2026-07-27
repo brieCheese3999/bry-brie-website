@@ -14,7 +14,7 @@
   --titlebar-end: #1084d0;
   --ink: #171717;
   --accent-purple: #7c2ff0;
-  --ui-font: Tahoma, Geneva, 'MS Sans Serif', Arial, sans-serif;
+  --ui-font: 'Custom Font', Tahoma, Geneva, 'MS Sans Serif', Arial, sans-serif;
 
   font-family: var(--ui-font);
   display: inline-block;
@@ -224,6 +224,7 @@
   line-height: 0.85;
   color: var(--ink);
   margin: 0 0 16px;
+  padding-bottom: 10px;
   white-space: pre-line;
 }
 .win95-subject-name {
@@ -232,15 +233,15 @@
   color: var(--accent-purple);
   text-decoration: underline;
   text-underline-offset: 4px;
-  margin: 0 0 10px;
+  margin: 16px 0 10px;
 }
 .win95-bio-text {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: 18px;
+  font-weight: normal;
+  line-height: 1.9;
   color: #222;
   max-width: 52ch;
-  margin: 0 0 24px;
+  margin: 16px 0 24px;
 }
 .win95-section-label {
   font-family: Georgia, 'Times New Roman', serif;
@@ -403,6 +404,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
   filter: grayscale(15%) contrast(105%);
   transition: filter 0.2s ease;
@@ -414,12 +416,12 @@
 
 .win95-gallery-wall-item--portrait {
   grid-column: span 1;
-  grid-row: span 3;
+  grid-row: span 4;
 }
 
 .win95-gallery-wall-item--portrait-lg {
   grid-column: span 2;
-  grid-row: span 4;
+  grid-row: span 8;
 }
 
 .win95-gallery-wall-item--landscape {
@@ -497,6 +499,26 @@
   font-size: 9px;
   font-weight: 700;
   flex: 0 0 auto;
+}
+.win95-social-modal-row {
+  font-size: 15px;
+  gap: 12px;
+}
+.win95-social-modal-row .win95-social-glyph {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+}
+.win95-social-link {
+  color: var(--titlebar-start);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.win95-social-link:hover {
+  color: var(--accent-purple);
+}
+.win95-social-link:visited {
+  color: var(--titlebar-start);
 }
 
 .win95-taskbar-chip {
@@ -672,4 +694,9 @@
   .win95-float-window { position: static; width: 100% !important; margin: 12px 8px; }
   .win95-panel { padding: 22px 16px; }
   .win95-skill-tile { min-width: 56px; padding: 4px 6px; }
+}
+
+.flex-break {
+  flex-basis: 100%;
+  height: 0;
 }

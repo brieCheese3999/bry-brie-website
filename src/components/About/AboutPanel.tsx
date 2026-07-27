@@ -100,7 +100,6 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           <Frame display="flex" flexDirection="column">
               <div className="win95-icon-row">
                   <h2 className="win95-subject-name">{content.name}</h2>
-                  <br/>
                   <p className="win95-bio-text">{content.bio}</p>
               </div>
           </Frame>
@@ -139,12 +138,16 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           </Modal.Content>
       </Modal>
 
-      <Modal id="socials-modal" title={content.socials.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 600, y: 380 } }}>
-          <Modal.Content minWidth="310px" minHeight="142px">
-              <Frame  display="flex" bgColor="$material" boxShadow="$out" flexDirection="column" padding="$4" gap="$7">
+      <Modal  style={{fontSize:"15px"}} id="socials-modal" title={content.socials.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 670, y: 520 } }}>
+          <Modal.Content minWidth="330px" minHeight="150px">
+              <Frame  display="flex" bgColor="$material" boxShadow="$out" flexDirection="column" padding="$6" gap="$7">
                   {content.socials.links.map((link) => (
-                      <Frame key={link.handle} as="div" display="flex" bgColor="white" boxShadow="$in" flexDirection="row" padding="$4">
-                          <span  className="win95-social-glyph">{link.glyph}</span>   {link.handle}
+                      <Frame key={link.handle} as="div" className="win95-social-modal-row" display="flex" bgColor="white" boxShadow="$in" flexDirection="row" alignItems="center" padding="$6">
+                          <span  className="win95-social-glyph">{link.glyph}</span>   {link.url ? (
+                            <a className="win95-social-link" href={link.url} target="_blank" rel="noopener noreferrer">{link.handle}</a>
+                          ) : (
+                            link.handle
+                          )}
                       </Frame>
                   ))}
               </Frame>
@@ -152,7 +155,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       </Modal>
 
 
-      <Modal minWidth="750px" minHeight="400px" id="contact-modal" title="CONTACT ME" titleBarOptions={<Modal.Minimize />} buttons={[{
+      <Modal   style={{fontSize:"15px"}} minWidth="800px" minHeight="450px" id="contact-modal" title="CONTACT ME" titleBarOptions={<Modal.Minimize />} buttons={[{
           value: sendButtonLabel,
           onClick: handleSend
       }]} menu={[{
@@ -182,7 +185,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       },{
           name: 'Help',
           list: <List/>
-      }]}  dragOptions={{ defaultPosition: { x: 740, y: 630 } }}>
+      }]}  dragOptions={{ defaultPosition: { x: 740, y: 730 } }}>
           <Frame  flexWrap="wrap" display="flex" bgColor="$material"  flexDirection="row" padding="$4" gap="$4">
               <Button key="mail" style={buttonStyle}>
                   <Mail variant="32x32_4"/>
@@ -366,7 +369,11 @@ const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
         {content.socials.links.map((link) => (
           <div key={link.handle} className="win95-social-row">
             <span className="win95-social-glyph">{link.glyph}</span>
-            <span>{link.handle}</span>
+            {link.url ? (
+              <a className="win95-social-link" href={link.url} target="_blank" rel="noopener noreferrer">{link.handle}</a>
+            ) : (
+              <span>{link.handle}</span>
+            )}
           </div>
         ))}
       </div>

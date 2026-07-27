@@ -58,8 +58,8 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                 className="lightbox-wrapper"
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                    maxWidth: isMobile ? "95vw" : "530px",
-                    maxHeight: "90vh",
+                    maxWidth: isMobile ? "95vw" : "565px",
+                    maxHeight: "200vh",
                     width: "100%",
                 }}
             >
@@ -71,7 +71,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                                 alt={item.label}
                                 style={{
                                     maxWidth: "100%",
-                                    maxHeight: isMobile ? "60vh" : "70vh",
+                                    maxHeight: isMobile ? "60vh" : "85vh",
                                     objectFit: "contain",
                                 }}
                             />

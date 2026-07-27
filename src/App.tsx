@@ -9,7 +9,7 @@ import EnterPage from "./components/Home/EnterPage.tsx";
 const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: 'CustomFont';
-    src: url('assets/font/Baby_Gemoy.ttf') format('opentype'); /* Adjust the format as needed */
+    src: url('assets/font/Baby_Gemoy.ttf') format('opentype');
     font-weight: normal;
     font-style: normal;
   }

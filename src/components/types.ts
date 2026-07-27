@@ -74,6 +74,7 @@ export interface SocialLink {
   id: string;
   glyph: string;
   handle: string;
+  url?: string;
 }
 
 export interface Win95PortfolioContent {

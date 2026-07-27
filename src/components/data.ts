@@ -93,8 +93,8 @@ export const defaultContent: Win95PortfolioContent = {
       title: 'SOCIALS',
       links: [
         { id: 'ig', glyph: 'IG', handle: '@b_bry3' },
-        { id: 'ln', glyph: 'Ln', handle: 'Bryanna Plaisir' },
-        { id: 'pi', glyph: 'Gh', handle: 'brieCheese3999' },
+        { id: 'ln', glyph: 'Ln', handle: 'Bryanna Plaisir', url: 'https://www.linkedin.com/in/bryanna-plaisir/' },
+        { id: 'pi', glyph: 'Gh', handle: 'brieCheese3999', url: 'https://github.com/brieCheese3999/bry-brie-website/projects' },
       ],
     },
   },

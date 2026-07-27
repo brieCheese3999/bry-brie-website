@@ -74,7 +74,7 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
                     <Frame display="flex" flexDirection="column">
                         <div className="win95-icon-row">
                             <h2 className="win95-subject-name">{content.sectionLabel}</h2>
-                            <br/>
+                            <span className="flex-break" />
                             <p className="win95-bio-text">{content.intro}</p>
                         </div>
                     </Frame>
