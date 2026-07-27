@@ -675,6 +675,47 @@
   cursor: pointer;
 }
 
+/* ---------- seamless tab switching ----------
+   react95's <Tabs> renders an empty content container after the tab strip
+   (its `ol`) because we render the panels ourselves. Hide that empty
+   container; our own <Frame> provides the panel surround instead. */
+.seamless-tabs > ol + div {
+  display: none;
+}
+
+.seamless-tab-panels {
+  position: relative;
+}
+
+/* All three panels stay mounted; only the active one is laid out. Because
+   nothing remounts on switch, the only thing that changes is opacity, so the
+   transition reads as a smooth crossfade instead of a hard, image-reloading
+   snap. */
+.seamless-tab-panel {
+  display: none;
+}
+.seamless-tab-panel.is-active {
+  display: block;
+  animation: seamless-tab-fade 260ms ease both;
+}
+
+@keyframes seamless-tab-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seamless-tab-panel.is-active {
+    animation: none;
+  }
+}
+
 /* website-modals sit behind the tab strip */
 .website-modals-behind {
   position: relative;

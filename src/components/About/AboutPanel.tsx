@@ -95,7 +95,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
 
   return (
   <div style={{ position: 'relative'}}>
-  <Frame>
+  <Frame minHeight="1400px">
       <Fieldset  width="800px" legend={content.heading} className="win95-pixel-heading">
           <Frame display="flex" flexDirection="column">
               <div className="win95-icon-row">

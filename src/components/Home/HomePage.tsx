@@ -20,7 +20,12 @@ const PageWrapper = styled.div`
 `;
 
 const BackgroundLayer = styled.div`
-  position: absolute;
+  /* Fixed to the viewport (not absolute within PageWrapper) so the background
+     is always exactly viewport-sized. PageWrapper grows to fit each tab's
+     content, and an absolute background would stretch with it — making the
+     canvas re-crop (object-fit: cover) every time you switch tabs. Fixed keeps
+     its dimensions constant across tab switches and while scrolling. */
+  position: fixed;
   inset: 0;
   z-index: 0;
 `;
