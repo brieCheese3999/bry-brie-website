@@ -122,7 +122,7 @@ export const defaultContent: Win95PortfolioContent = {
     heading: 'about\nme!',
     name: 'Bryanna Plaisir',
     bio:
-      "Hi, I'm Bryanna, a software engineer with  experience across fintech and AI startups. I've worked on large-scale data migrations, distributed database upgrades, Kubernetes infrastructure, observability systems, and full-stack API development. I'm fluent in Python, Java, Typescript and Go, and I've built and managed production systems on both AWS and GCP.\n\n Outside of engineering, I'm an avid biker and enjoy biking around New York City. I also love baking sourdough bread and trying out new cookie recipes! One hobby thatI've recently taken up is ceramics, with a focus on hand-building techniques.",skills: [
+      "Hi, I'm Bryanna, a software engineer with  experience across fintech and AI startups. I've worked on large-scale data migrations, distributed database upgrades, Kubernetes infrastructure, observability systems, and full-stack API development. I'm fluent in Python, Java, Typescript and Go, and I've built and managed production systems on both AWS and GCP.\n\n Outside of engineering, I'm an avid biker and enjoy biking around New York City. I also love baking sourdough bread and trying out new cookie recipes! One hobby that I've recently taken up is ceramics, with a focus on hand-building techniques.",skills: [
       { id: 'go', label: 'Go', icon: SiGo, group: 'Backend', color: '#00ADD8' },
       { id: 'java', label: 'Java', icon: SiOpenjdk, group: 'Backend', color: '#E76F00', note: 'Spring Boot, Hibernate' },
       { id: 'python', label: 'Python', icon: SiPython, group: 'Backend', color: '#3776AB', note: 'Pandas, Flask, Boto3' },
@@ -160,7 +160,17 @@ export const defaultContent: Win95PortfolioContent = {
 
   photos: {
     heading: 'photo\nalbum',
-    intro: 'This collection of film photographs traces a personal journey across a range of destinations, including the colonial streets and volcanic landscapes of Guatemala, the sun-drenched cliffs and cloud-draped horizons of Hawaii, the ancient stone terraces of Machu Picchu, and candid moments captured throughout New York City. Shot entirely on film, the images carry a distinct warmth and texture that only analog photography can produce, from soft grain and subtle light leaks to the timestamped corners that anchor each frame to a specific place and moment. Together, they form a visual travel log spanning multiple years and continents, reflecting both the natural grandeur of mountains, coastlines, and skies, and the intimate, everyday moments shared along the way. As an ongoing archive, this collection will continue to grow with each new journey, adding to a lifelong record of travel told frame by frame.',
+    intro: 'Since 2022, I have been shooting film photography as a way of documenting my travels throughout my life. This collection of photographs traces a personal journey across a range of destinations, capturing not just landscapes and landmarks but the intimate, everyday moments shared along the way. Shot entirely on film, each image carries a distinct warmth. To date, this collection spans the following destinations:\n' +
+        '\n' +
+        'Peru\n' +
+        'Vietnam\n' +
+        'Thailand\n' +
+        'France\n' +
+        'Lisbon\n' +
+        'Mexico City\n' +
+        'Acadia\n' +
+        'Hawaii\n' +
+        'New York',
     sectionLabel: 'GALLERY',
     items: [
       { id: 'gu1', img: Guatemala1 , label: "Antigua, Guatemala (2023)", alt: "Antigua, Guatemala (2023) - Town Square" },
