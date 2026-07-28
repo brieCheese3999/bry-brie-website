@@ -151,9 +151,9 @@ export const defaultContent: Win95PortfolioContent = {
     socials: {
       title: 'SOCIALS',
       links: [
-        { id: 'ig', glyph: 'IG', icon: SiInstagram, color: '#E4405F', handle: '@b_bry3' },
+        { id: 'ig', glyph: 'IG', icon: SiInstagram, color: '#E4405F', handle: '@b_bry3', url: 'https://www.instagram.com/b_bry3/' },
         { id: 'ln', glyph: 'Ln', icon: FaLinkedin, color: '#0A66C2', handle: 'Bryanna Plaisir', url: 'https://www.linkedin.com/in/bryanna-plaisir/' },
-        { id: 'pi', glyph: 'Gh', icon: SiGithub, color: '#181717', handle: 'brieCheese3999', url: 'https://github.com/brieCheese3999/bry-brie-website/projects' },
+        { id: 'pi', glyph: 'Gh', icon: SiGithub, color: '#181717', handle: 'brieCheese3999', url: 'https://github.com/brieCheese3999' },
       ],
     },
   },

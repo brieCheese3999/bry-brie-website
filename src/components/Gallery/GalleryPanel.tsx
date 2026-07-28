@@ -7,28 +7,6 @@ import { useResponsiveMode } from '../useResponsiveMode';
 type GallerySize = 'portrait' | 'portrait-lg' | 'landscape' | 'landscape-lg' | 'landscape-sm';
 type Orientation = 'portrait' | 'landscape';
 
-function useImageOrientations(items: { img: any }[]): Orientation[] {
-    const [orientations, setOrientations] = React.useState<Orientation[]>([]);
-
-    React.useEffect(() => {
-        const promises = items.map((item) =>
-            new Promise<Orientation>((resolve) => {
-                if (!item.img) { resolve('landscape'); return; }
-                const img = new Image();
-                img.onload = () => {
-                    const ratio = img.naturalWidth / img.naturalHeight;
-                    resolve(ratio < 1 ? 'portrait' : 'landscape');
-                };
-                img.onerror = () => resolve('landscape');
-                img.src = item.img;
-            })
-        );
-        Promise.all(promises).then(setOrientations);
-    }, [items]);
-
-    return orientations;
-}
-
 function getPhotoSize(orientation: Orientation | undefined, index: number): GallerySize {
     if (!orientation) return 'landscape';
     if (orientation === 'portrait') {
@@ -40,11 +18,19 @@ function getPhotoSize(orientation: Orientation | undefined, index: number): Gall
     return 'landscape';
 }
 
-export const GalleryPanel: React.FC<{ content?: GalleryContent }> = ({ content }) => {
+export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content }) => {
     const { isMobile } = useResponsiveMode();
     const [expandedIndex, setExpandedIndex] = React.useState<number | null>(null);
-    const orientations = useImageOrientations(content.items);
+    // Orientation is measured from each image as it actually loads (lazily),
+    // rather than eagerly downloading all images up front just to measure them.
+    const [orientations, setOrientations] = React.useState<Record<number, Orientation>>({});
     const [modalIndex, setModalIndex] = React.useState(0);
+
+    const handleImgLoad = (index: number, e: React.SyntheticEvent<HTMLImageElement>) => {
+        const el = e.currentTarget;
+        const orientation: Orientation = el.naturalWidth < el.naturalHeight ? 'portrait' : 'landscape';
+        setOrientations((prev) => (prev[index] ? prev : { ...prev, [index]: orientation }));
+    };
 
     React.useEffect(() => {
         if (content.items.length <= 1) return;
@@ -73,7 +59,6 @@ export const GalleryPanel: React.FC<{ content?: GalleryContent }> = ({ content }
                 >
                     <Frame display="flex" flexDirection="column">
                         <div className="win95-icon-row">
-                            <h2 className="win95-subject-name">{content.sectionLabel}</h2>
                             <span className="flex-break" />
                             <p className="win95-bio-text">{content.intro}</p>
                         </div>
@@ -103,7 +88,13 @@ export const GalleryPanel: React.FC<{ content?: GalleryContent }> = ({ content }
                                                 onClick={() => setExpandedIndex(index)}
                                                 aria-label={`View photo: ${item.label}`}
                                             >
-                                                <img src={item.img} alt={item.alt ?? item.label} />
+                                                <img
+                                                    src={item.img}
+                                                    alt={item.alt ?? item.label}
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    onLoad={(e) => handleImgLoad(index, e)}
+                                                />
                                             </button>
                                         );
                                     })}

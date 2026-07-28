@@ -4,12 +4,13 @@ import HomePage from "./components/Home/HomePage.tsx";
 import { createGlobalStyle } from 'styled-components';
 import {BrowserRouter as Router,Route, Routes} from "react-router-dom";
 import EnterPage from "./components/Home/EnterPage.tsx";
+import babyGemoyFont from "./assets/font/Baby_Gemoy.ttf";
 
 // Define global styles, including font face
 const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: 'CustomFont';
-    src: url('assets/font/Baby_Gemoy.ttf') format('opentype');
+    src: url('${babyGemoyFont}') format('truetype');
     font-weight: normal;
     font-style: normal;
   }
