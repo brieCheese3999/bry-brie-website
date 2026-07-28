@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type {AboutContent, SkillGroup, SkillIcon} from '../types.ts';
 import {Fieldset, Frame, Modal, TextArea, Input, Button, List, Dropdown} from "@react95/core";
 import {CdMusic, Fax, Faxcover108, FileFont2,
     FilePick, Fontext3, Mail, Msrating109, Notepad, Printer, Shell32142, Shell3224, Signup,
     Wab321014, Winpopup3, Wmsui323911, Wordpad, Write1} from "@react95/icons";
 import { useResponsiveMode } from '../useResponsiveMode.ts';
-import emailjs from '@emailjs/browser';
+import { useContactForm } from './useContactForm.ts';
+import { ReCaptcha } from './ReCaptcha.tsx';
 
-const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID ?? '';
-const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID ?? '';
-const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY ?? '';
+const CONTACT_EMAIL = ['bryannaplaisir', 'gmail.com'].join('@');
+
+
+const honeypotStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: '-9999px',
+    width: '1px',
+    height: '1px',
+    opacity: 0,
+    pointerEvents: 'none',
+};
 
 const buttonStyle: React.CSSProperties = {
     width: 40,
@@ -58,40 +67,16 @@ const SkillsGrid: React.FC<{ skills: SkillIcon[] }> = ({ skills }) => (
 
 
 const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
-  const [senderEmail, setSenderEmail] = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
-  const [sendStatus, setSendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
-
-  const handleSend = () => {
-    if (!senderEmail.trim() || !message.trim()) {
-      alert('Please fill in your email and message.');
-      return;
-    }
-
-    setSendStatus('sending');
-    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-      from_email: senderEmail,
-      subject: subject || '(No subject)',
-      message,
-    }, EMAILJS_PUBLIC_KEY)
-      .then(() => {
-        setSendStatus('sent');
-        setSenderEmail('');
-        setSubject('');
-        setMessage('');
-        setTimeout(() => setSendStatus('idle'), 3000);
-      })
-      .catch(() => {
-        setSendStatus('error');
-        setTimeout(() => setSendStatus('idle'), 3000);
-      });
-  };
-
-  const sendButtonLabel =
-    sendStatus === 'sending' ? 'Sending...' :
-    sendStatus === 'sent' ? 'Sent!' :
-    sendStatus === 'error' ? 'Failed' : 'Send';
+  const {
+    senderEmail, setSenderEmail,
+    subject, setSubject,
+    message, setMessage,
+    honeypot, setHoneypot,
+    setRecaptchaToken,
+    sendStatus,
+    handleSend,
+    sendButtonLabel,
+  } = useContactForm();
 
   return (
   <div style={{ position: 'relative'}}>
@@ -254,7 +239,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
               <Frame display="flex" flexDirection="column">
                   <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
                       <Button style={{ minWidth: 45, fontSize: "15px",  padding: 4, marginRight: 15, marginBottom: 6}}>To...</Button>
-                      <span style={{fontSize: "17px"}}>bryannaplaisir@gmail.com</span>
+                      <span style={{fontSize: "17px"}}>{CONTACT_EMAIL}</span>
                   </Frame>
                   <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
                       <Button style={{ minWidth: 45, fontSize: "15px", padding: 4, marginRight: 15, marginBottom: 6 }}>From</Button>
@@ -282,7 +267,19 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
                    style={{minHeight:"200px", fontSize: "15px"}}
                    display="flex"
                  />
-                 <Frame display="flex" justifyContent="flex-end" mt="$4">
+                 {/* Honeypot: hidden from users, tempting to bots. */}
+                 <input
+                   type="text"
+                   name="company_website"
+                   tabIndex={-1}
+                   autoComplete="off"
+                   aria-hidden="true"
+                   style={honeypotStyle}
+                   value={honeypot}
+                   onChange={(e) => setHoneypot(e.target.value)}
+                 />
+                 <Frame display="flex" flexDirection="column" alignItems="flex-end" mt="$4" gap="$2">
+                   <ReCaptcha onChange={setRecaptchaToken} />
                    <Button
                      onClick={handleSend}
                      disabled={sendStatus === 'sending'}
@@ -306,39 +303,16 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
  * that flows naturally with the page, so it works at any width.
  */
 const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
-  const [senderEmail, setSenderEmail] = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
-  const [sendStatus, setSendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
-
-  const handleSend = () => {
-    if (!senderEmail.trim() || !message.trim()) {
-      alert('Please fill in your email and message.');
-      return;
-    }
-    setSendStatus('sending');
-    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-      from_email: senderEmail,
-      subject: subject || '(No subject)',
-      message,
-    }, EMAILJS_PUBLIC_KEY)
-      .then(() => {
-        setSendStatus('sent');
-        setSenderEmail('');
-        setSubject('');
-        setMessage('');
-        setTimeout(() => setSendStatus('idle'), 3000);
-      })
-      .catch(() => {
-        setSendStatus('error');
-        setTimeout(() => setSendStatus('idle'), 3000);
-      });
-  };
-
-  const sendButtonLabel =
-    sendStatus === 'sending' ? 'Sending...' :
-    sendStatus === 'sent' ? 'Sent!' :
-    sendStatus === 'error' ? 'Failed' : 'Send';
+  const {
+    senderEmail, setSenderEmail,
+    subject, setSubject,
+    message, setMessage,
+    honeypot, setHoneypot,
+    setRecaptchaToken,
+    sendStatus,
+    handleSend,
+    sendButtonLabel,
+  } = useContactForm();
 
   return (
   <div className="win95-mobile-stack">
@@ -395,7 +369,7 @@ const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
       <Frame display="flex" flexDirection="column" gap="$4">
         <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
           <span style={{ minWidth: 50, fontSize: '14px' }}>To:</span>
-          <span style={{ fontSize: '14px' }}>bryannaplaisir@gmail.com</span>
+          <span style={{ fontSize: '14px' }}>{CONTACT_EMAIL}</span>
         </Frame>
         <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
           <span style={{ minWidth: 50, fontSize: '14px' }}>From:</span>
@@ -421,6 +395,18 @@ const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
           placeholder="Write your message here..."
           style={{ minHeight: '120px', fontSize: '14px' }}
         />
+        {/* Honeypot: hidden from users, tempting to bots. */}
+        <input
+          type="text"
+          name="company_website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          style={honeypotStyle}
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+        />
+        <ReCaptcha onChange={setRecaptchaToken} />
         <Button
           onClick={handleSend}
           disabled={sendStatus === 'sending'}

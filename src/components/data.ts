@@ -170,6 +170,8 @@ export const defaultContent: Win95PortfolioContent = {
         'Mexico City\n' +
         'Acadia\n' +
         'Hawaii\n' +
+        'Guatemala\n' +
+        'Chicago\n' +
         'New York',
     sectionLabel: 'GALLERY',
     items: [
