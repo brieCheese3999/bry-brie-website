@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import bg from "../../assets/bryanna/Bryanna_Doll.png"
-import {Button, Modal} from "@react95/core";
+import {Modal} from "@react95/core";
 
 
 interface ManilaFolderProps {
@@ -57,7 +57,7 @@ const Body = styled.div<{ $open: boolean }>`
 `;
 
 const PeekingFace: React.FC<{}> = () => (
-  <Modal className="r95-light" style={{overflow: "hidden"}} title="BRYANNA'S PORTFOLIO" titleBarOptions={<Modal.Minimize />}>
+  <Modal style={{overflow: "hidden"}} title="BRYANNA'S PORTFOLIO" titleBarOptions={<Modal.Minimize />}>
     <Modal.Content>
     <div style={{display: "flex", alignItems: "center", justifyContent: "center", width: "400px", height: "250px", overflow: "hidden"}}>
       <img style={{ height: "250px", objectFit: "cover"}} src={bg} alt={"me! as a drawing"}/>
@@ -95,20 +95,11 @@ const ManilaFolder: React.FC<ManilaFolderProps> = ({
     >
       <Tab $open={open} />
       <Body $open={open}>
-          {/* Stop clicks inside the peeking modals from bubbling up and
-              triggering the folder's navigation, so their own buttons work.
-              Clicking the folder itself still enters. */}
           <div onClick={(e) => e.stopPropagation()} style={{ display: "contents" }}>
             <PeekingFace />
-            <Modal className="r95-light" style={{minWidth: "13%"}} titleBarOptions={<Modal.Minimize />}>
-                <Modal.Content >
-                    <span style={{paddingBottom:"8px"}}>DO YOU LOVE CATS?</span>
-                    <div>
-                    <Button style={{marginRight: "10px"}}>YES</Button>
-                    <Button>NO</Button>
-                    </div>
-                </Modal.Content>
-            </Modal>
+              <div>
+                  <h2 style={{fontSize: "15vh"}}>BRYANNA</h2>
+              </div>
           </div>
       </Body>
     </Wrapper>

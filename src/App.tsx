@@ -28,7 +28,9 @@ const App: React.FC = () => {
           <Router>
             <Routes>
                 <Route path="/" element={<EnterPage />} />
-                <Route path="/home" element={<HomePage />} />
+                <Route path="/about" element={<HomePage />} />
+                <Route path="/photos" element={<HomePage />} />
+                <Route path="/ceramics" element={<HomePage />} />
             </Routes>
           </Router>
       </div>

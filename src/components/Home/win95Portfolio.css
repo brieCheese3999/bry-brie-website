@@ -8,7 +8,7 @@
   --face: #c0c0c0;
   --face-light: #dfdfdf;
   --white: #ffffff;
-  --shadow: #f3d573;
+  --shadow: #ffdce5;
   --dark: #0a0a0a;
   --titlebar-start: #000080;
   --titlebar-end: #1084d0;
@@ -77,7 +77,7 @@
 .win95-titlebar-icon {
   width: 16px;
   height: 16px;
-  background: repeating-conic-gradient(#7c2ff0 0% 25%, #ffcf3f 0% 50%) 0 0/8px 8px;
+  background: repeating-conic-gradient(#7c2ff0 0% 25%, #ffdce5 0% 50%) 0 0/8px 8px;
   flex: 0 0 auto;
   border: 1px solid #000;
 }
@@ -304,10 +304,6 @@
   min-width: 64px;
 }
 
-.win95-skill-tile:hover {
-  background: #f3d573;
-  border: 1px dotted #000080;
-}
 
 .win95-skill-tile:hover .win95-skill-tile-label {
   background: transparent;
@@ -387,6 +383,31 @@
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: 70px;
   gap: 4px;
+}
+
+.win95-gallery-wall--mobile .win95-gallery-wall-item--portrait {
+  grid-column: span 1;
+  grid-row: span 3;
+}
+
+.win95-gallery-wall--mobile .win95-gallery-wall-item--portrait-lg {
+  grid-column: span 2;
+  grid-row: span 4;
+}
+
+.win95-gallery-wall--mobile .win95-gallery-wall-item--landscape {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.win95-gallery-wall--mobile .win95-gallery-wall-item--landscape-lg {
+  grid-column: span 3;
+  grid-row: span 2;
+}
+
+.win95-gallery-wall--mobile .win95-gallery-wall-item--landscape-sm {
+  grid-column: span 2;
+  grid-row: span 1;
 }
 
 .win95-gallery-wall-item {

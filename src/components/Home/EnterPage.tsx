@@ -10,7 +10,7 @@ const EnterPage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleEnter = () => {
-        navigate("/home");
+        navigate("/about");
     };
 
     return (

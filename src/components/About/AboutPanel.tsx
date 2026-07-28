@@ -130,7 +130,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           </Frame>
       </Fieldset>
 
-      <Modal style={{fontSize:"20px"}} id="photo-modal" title={content.photoWindow.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 950, y: -15 } }}>
+      <Modal style={{fontSize:"20px"}} id="photo-modal" title={content.photoWindow.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 870, y: -25 } }}>
           <Modal.Content width="450px" boxShadow="$in" bgColor="white" p="16px">
               <Frame as="div" display="flex" flexDirection="column" gap="8px">
                   <img src={content.photoWindow.imageUrl} alt={content.photoWindow.alt}/>
@@ -138,8 +138,8 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           </Modal.Content>
       </Modal>
 
-      <Modal  style={{fontSize:"15px"}} id="socials-modal" title={content.socials.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 670, y: 520 } }}>
-          <Modal.Content minWidth="330px" minHeight="150px">
+      <Modal  style={{fontSize:"15px"}} id="socials-modal" title={content.socials.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 870, y: 620 } }}>
+          <Modal.Content minWidth="450px" minHeight="150px">
               <Frame  display="flex" bgColor="$material" boxShadow="$out" flexDirection="column" padding="$6" gap="$7">
                   {content.socials.links.map((link) => {
                       const Icon = link.icon;
@@ -158,10 +158,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       </Modal>
 
 
-      <Modal   style={{fontSize:"15px"}} minWidth="800px" minHeight="450px" id="contact-modal" title="CONTACT ME" titleBarOptions={<Modal.Minimize />} buttons={[{
-          value: sendButtonLabel,
-          onClick: handleSend
-      }]} menu={[{
+      <Modal   style={{fontSize:"15px"}} minWidth="880px" minHeight="450px" id="contact-modal" title="CONTACT ME" titleBarOptions={<Modal.Minimize />} menu={[{
           name: 'File',
           list: <List/>
       }, {
@@ -188,7 +185,7 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       },{
           name: 'Help',
           list: <List/>
-      }]}  dragOptions={{ defaultPosition: { x: 740, y: 730 } }}>
+      }]}  dragOptions={{ defaultPosition: { x: 540, y: 850 } }}>
           <Frame  flexWrap="wrap" display="flex" bgColor="$material"  flexDirection="row" padding="$4" gap="$4">
               <Button key="mail" style={buttonStyle}>
                   <Mail variant="32x32_4"/>
@@ -285,6 +282,15 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
                    style={{minHeight:"200px", fontSize: "15px"}}
                    display="flex"
                  />
+                 <Frame display="flex" justifyContent="flex-end" mt="$4">
+                   <Button
+                     onClick={handleSend}
+                     disabled={sendStatus === 'sending'}
+                     style={{ fontSize: '15px', padding: '8px 32px', minWidth: 120 }}
+                   >
+                     {sendButtonLabel}
+                   </Button>
+                 </Frame>
               </Frame>
           </Modal.Content>
       </Modal>
@@ -418,7 +424,7 @@ const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
         <Button
           onClick={handleSend}
           disabled={sendStatus === 'sending'}
-          style={{ alignSelf: 'flex-end', fontSize: '14px', padding: '4px 16px' }}
+          style={{ alignSelf: 'flex-end', fontSize: '18px', padding: '6px 28px', minWidth: 100 }}
         >
           {sendButtonLabel}
         </Button>

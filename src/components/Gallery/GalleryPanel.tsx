@@ -40,7 +40,7 @@ function getPhotoSize(orientation: Orientation | undefined, index: number): Gall
     return 'landscape';
 }
 
-export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content }) => {
+export const GalleryPanel: React.FC<{ content?: GalleryContent }> = ({ content }) => {
     const { isMobile } = useResponsiveMode();
     const [expandedIndex, setExpandedIndex] = React.useState<number | null>(null);
     const orientations = useImageOrientations(content.items);

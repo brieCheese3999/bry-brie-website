@@ -63,7 +63,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                     width: "100%",
                 }}
             >
-                <Modal className="r95-light" title={item.label}>
+                <Modal title={item.label}>
                     <Modal.Content boxShadow="$in" bgColor="white" p="6px">
                         <Frame display="flex" flexDirection="column" alignItems="center" gap="5px">
                             <img
