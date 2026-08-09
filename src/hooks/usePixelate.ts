@@ -6,7 +6,19 @@ import { useEffect, useRef } from "react";
 
 type PixelateMode =
     | "reveal"     // pixelated → crisp (original behaviour, stops at endPixel)
-    | "oscillate"; // bounces back and forth between pixelMin and pixelMax forever
+    | "oscillate"  // bounces back and forth between pixelMin and pixelMax forever
+    | "ring"       // only the area OUTSIDE a central ellipse is pixelated; the
+                   // centre stays crisp. Pixel size oscillates for a living mosaic.
+    | "spots";     // only a few rectangular patches are pixelated; the rest of
+                   // the image stays crisp. Pixel size oscillates.
+
+/** A rectangular patch, as fractions (0–1) of the canvas. */
+interface Spot {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
 
 interface UsePixelateOptions {
   /**
@@ -37,6 +49,28 @@ interface UsePixelateOptions {
    * Default: 3000
    */
   cycleDuration?: number;
+
+  // ── ring mode options ────────────────────────
+  /** Horizontal centre of the crisp ellipse, as a fraction of width. Default: 0.5 */
+  centerX?: number;
+  /** Vertical centre of the crisp ellipse, as a fraction of height. Default: 0.5 */
+  centerY?: number;
+  /** Horizontal radius of the crisp ellipse, as a fraction of width. Default: 0.26 */
+  radiusX?: number;
+  /** Vertical radius of the crisp ellipse, as a fraction of height. Default: 0.34 */
+  radiusY?: number;
+  /**
+   * Softness of the transition from crisp centre → pixelated ring, as a
+   * fraction of the radius (0 = hard edge, 1 = very gradual). Default: 0.4
+   */
+  feather?: number;
+
+  // ── spots mode options ───────────────────────
+  /**
+   * Rectangular patches (fractions of the canvas) that get pixelated in
+   * "spots" mode. Everything outside them stays crisp. Default: [] (none).
+   */
+  spots?: Spot[];
 }
 
 // ─────────────────────────────────────────────
@@ -84,6 +118,121 @@ function drawPixelated(
   ctx.drawImage(ctx.canvas, 0, 0, scaledW, scaledH, 0, 0, canvasW, canvasH);
 }
 
+interface RingRegion {
+  centerX: number; // fractions of canvas 0–1
+  centerY: number;
+  radiusX: number;
+  radiusY: number;
+  feather: number;
+}
+
+/**
+ * Draws the crisp image, then overlays a pixelated (mosaic) copy everywhere
+ * EXCEPT a central ellipse — leaving the middle sharp and the surrounding
+ * area chunky. A feathered radial mask blends the two so the seam is soft.
+ */
+function drawRing(
+    ctx: CanvasRenderingContext2D,
+    scratch: HTMLCanvasElement,
+    img: HTMLImageElement,
+    pixelSize: number,
+    canvasW: number,
+    canvasH: number,
+    region: RingRegion
+): void {
+  // Base: crisp full-resolution image
+  ctx.imageSmoothingEnabled = true;
+  ctx.clearRect(0, 0, canvasW, canvasH);
+  ctx.drawImage(img, 0, 0, canvasW, canvasH);
+
+  // Build the pixelated layer on the scratch canvas
+  const sctx = scratch.getContext("2d");
+  if (!sctx) return;
+
+  const scaledW = Math.max(1, Math.ceil(canvasW / pixelSize));
+  const scaledH = Math.max(1, Math.ceil(canvasH / pixelSize));
+
+  sctx.globalCompositeOperation = "source-over";
+  sctx.imageSmoothingEnabled = false;
+  sctx.clearRect(0, 0, canvasW, canvasH);
+  sctx.drawImage(img, 0, 0, scaledW, scaledH);
+  sctx.drawImage(scratch, 0, 0, scaledW, scaledH, 0, 0, canvasW, canvasH);
+
+  // Punch a feathered hole in the centre of the pixel layer so the crisp
+  // base shows through. destination-out: higher alpha erases more.
+  const cx = canvasW * region.centerX;
+  const cy = canvasH * region.centerY;
+  const rx = canvasW * region.radiusX;
+  const ry = canvasH * region.radiusY;
+
+  sctx.globalCompositeOperation = "destination-out";
+  sctx.save();
+  sctx.translate(cx, cy);
+  sctx.scale(rx, ry); // work in a unit circle, scaled into an ellipse
+  const g = sctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+  g.addColorStop(0, "rgba(0,0,0,1)");
+  g.addColorStop(Math.max(0, 1 - region.feather), "rgba(0,0,0,1)");
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  sctx.fillStyle = g;
+  sctx.beginPath();
+  sctx.arc(0, 0, 1, 0, Math.PI * 2);
+  sctx.fill();
+  sctx.restore();
+  sctx.globalCompositeOperation = "source-over";
+
+  // Composite the ring-shaped pixel layer over the crisp base
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(scratch, 0, 0);
+}
+
+/**
+ * Draws the crisp image, then overlays a pixelated copy clipped to only a few
+ * rectangular patches — leaving the rest of the image sharp.
+ */
+function drawSpots(
+    ctx: CanvasRenderingContext2D,
+    scratch: HTMLCanvasElement,
+    img: HTMLImageElement,
+    pixelSize: number,
+    canvasW: number,
+    canvasH: number,
+    spots: Spot[]
+): void {
+  // Base: crisp full-resolution image
+  ctx.imageSmoothingEnabled = true;
+  ctx.clearRect(0, 0, canvasW, canvasH);
+  ctx.drawImage(img, 0, 0, canvasW, canvasH);
+
+  if (spots.length === 0) return;
+
+  const sctx = scratch.getContext("2d");
+  if (!sctx) return;
+
+  // Build the pixelated layer on the scratch canvas
+  const scaledW = Math.max(1, Math.ceil(canvasW / pixelSize));
+  const scaledH = Math.max(1, Math.ceil(canvasH / pixelSize));
+
+  sctx.globalCompositeOperation = "source-over";
+  sctx.imageSmoothingEnabled = false;
+  sctx.clearRect(0, 0, canvasW, canvasH);
+  sctx.drawImage(img, 0, 0, scaledW, scaledH);
+  sctx.drawImage(scratch, 0, 0, scaledW, scaledH, 0, 0, canvasW, canvasH);
+
+  // Keep the pixel layer ONLY inside the spot rectangles
+  sctx.globalCompositeOperation = "destination-in";
+  sctx.fillStyle = "#000";
+  sctx.beginPath();
+  for (const s of spots) {
+    sctx.rect(s.x * canvasW, s.y * canvasH, s.w * canvasW, s.h * canvasH);
+  }
+  sctx.fill();
+  sctx.globalCompositeOperation = "source-over";
+
+  // Composite the spotted pixel layer over the crisp base
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(scratch, 0, 0);
+}
+
 // ─────────────────────────────────────────────
 // Hook
 // ─────────────────────────────────────────────
@@ -121,6 +270,16 @@ export function usePixelate(
       pixelMin = 4,
       pixelMax = 20,
       cycleDuration = 3000,
+
+      // ring
+      centerX = 0.5,
+      centerY = 0.5,
+      radiusX = 0.26,
+      radiusY = 0.34,
+      feather = 0.4,
+
+      // spots
+      spots = [],
     }: UsePixelateOptions = {}
 ): React.RefObject<HTMLCanvasElement | null> {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -143,6 +302,52 @@ export function usePixelate(
       canvas.height = img.naturalHeight;
 
       const startTime = performance.now();
+
+      // ── RING loop (crisp centre, oscillating mosaic surround) ──
+      if (mode === "ring") {
+        const scratch = document.createElement("canvas");
+        scratch.width = canvas.width;
+        scratch.height = canvas.height;
+
+        const region: RingRegion = { centerX, centerY, radiusX, radiusY, feather };
+
+        const ring = (now: number): void => {
+          const elapsed = now - startTime;
+          const cycleProgress = (elapsed % cycleDuration) / cycleDuration;
+          const wave = sineOscillate(cycleProgress);
+          const pixelSize = Math.round(pixelMin + (pixelMax - pixelMin) * wave);
+
+          drawRing(ctx, scratch, img, pixelSize, canvas.width, canvas.height, region);
+
+          animationFrameId = requestAnimationFrame(ring);
+        };
+
+        animationFrameId = requestAnimationFrame(ring);
+        return;
+      }
+
+      // ── SPOTS loop (crisp image, a few oscillating mosaic patches) ──
+      if (mode === "spots") {
+        const scratch = document.createElement("canvas");
+        scratch.width = canvas.width;
+        scratch.height = canvas.height;
+
+        const spotList = spots;
+
+        const spotsTick = (now: number): void => {
+          const elapsed = now - startTime;
+          const cycleProgress = (elapsed % cycleDuration) / cycleDuration;
+          const wave = sineOscillate(cycleProgress);
+          const pixelSize = Math.round(pixelMin + (pixelMax - pixelMin) * wave);
+
+          drawSpots(ctx, scratch, img, pixelSize, canvas.width, canvas.height, spotList);
+
+          animationFrameId = requestAnimationFrame(spotsTick);
+        };
+
+        animationFrameId = requestAnimationFrame(spotsTick);
+        return;
+      }
 
       // ── OSCILLATE loop ──────────────────────
       if (mode === "oscillate") {
@@ -201,7 +406,7 @@ export function usePixelate(
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [src, mode, duration, startPixel, endPixel, easing, onComplete, pixelMin, pixelMax, cycleDuration]);
+  }, [src, mode, duration, startPixel, endPixel, easing, onComplete, pixelMin, pixelMax, cycleDuration, centerX, centerY, radiusX, radiusY, feather, spots]);
 
   return canvasRef;
 }

@@ -2,6 +2,14 @@ import React, {type CSSProperties } from "react";
 import { usePixelate } from "../../hooks/usePixelate.ts";
 import type { PixelateMode } from "../../hooks/usePixelate.ts";
 
+/** A rectangular patch, as fractions (0–1) of the canvas. */
+interface Spot {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 interface PixelateImageProps {
   /** Image source — imported asset or URL string */
   src: string;
@@ -15,6 +23,7 @@ interface PixelateImageProps {
   /**
    * "reveal"    — animates from pixelated → crisp once. (default)
    * "oscillate" — bounces between pixelMin ↔ pixelMax forever.
+   * "ring"      — only the area outside a central ellipse is pixelated.
    */
   mode?: PixelateMode;
 
@@ -44,6 +53,22 @@ interface PixelateImageProps {
    * Default: 3000 (3 seconds per full bounce)
    */
   cycleDuration?: number;
+
+  // ── ring props ──────────────────────────────
+  /** Horizontal centre of the crisp ellipse (fraction of width). Default: 0.5 */
+  centerX?: number;
+  /** Vertical centre of the crisp ellipse (fraction of height). Default: 0.5 */
+  centerY?: number;
+  /** Horizontal radius of the crisp ellipse (fraction of width). Default: 0.26 */
+  radiusX?: number;
+  /** Vertical radius of the crisp ellipse (fraction of height). Default: 0.34 */
+  radiusY?: number;
+  /** Softness of the crisp→pixelated transition (fraction of radius). Default: 0.4 */
+  feather?: number;
+
+  // ── spots props ─────────────────────────────
+  /** Rectangular patches (fractions of canvas) to pixelate in "spots" mode. */
+  spots?: Spot[];
 
   // ── style ───────────────────────────────────
   className?: string;
@@ -95,6 +120,16 @@ const PixelateImage: React.FC<PixelateImageProps> = ({
                                                        pixelMax = 10,
                                                        cycleDuration = 3000,
 
+                                                       // ring
+                                                       centerX = 0.5,
+                                                       centerY = 0.5,
+                                                       radiusX = 0.26,
+                                                       radiusY = 0.34,
+                                                       feather = 0.4,
+
+                                                       // spots
+                                                       spots,
+
                                                        // style
                                                        className,
                                                        style,
@@ -108,6 +143,12 @@ const PixelateImage: React.FC<PixelateImageProps> = ({
     pixelMin,
     pixelMax,
     cycleDuration,
+    centerX,
+    centerY,
+    radiusX,
+    radiusY,
+    feather,
+    spots,
   });
 
   return (

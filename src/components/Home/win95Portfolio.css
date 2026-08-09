@@ -1,8 +1,22 @@
-/* Optional: if your build doesn't allow @import in CSS, move this <link>
-   into your document <head> instead:
-   https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=VT323&display=swap
-*/
 @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=VT323&display=swap');
+
+/* The Rose Atelier — hand-drawn display face for the large headings + name. */
+@font-face {
+  font-family: 'Rose Atelier';
+  src: url('../../assets/font/the_rose_atelier-webfont.woff2') format('woff2'),
+       url('../../assets/font/the_rose_atelier-webfont.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Rose Atelier';
+  src: url('../../assets/font/the_rose_atelier_bold-webfont.woff2') format('woff2'),
+       url('../../assets/font/the_rose_atelier_bold-webfont.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 .win95-portfolio {
   --face: #c0c0c0;
@@ -218,7 +232,7 @@
   100% { opacity: 1; }
 }
 .win95-pixel-heading {
-  font-family: 'Pixelify Sans', sans-serif;
+  font-family: 'Rose Atelier', 'Pixelify Sans', sans-serif;
   font-weight: 700;
   font-size: 63px;
   line-height: 0.85;
@@ -227,8 +241,15 @@
   padding-bottom: 10px;
   white-space: pre-line;
 }
+/* react95 renders the heading as a <legend> with its own MS Sans Serif rule;
+   target it directly (0-1-1 beats react95's 0-1-0) so it uses Rose Atelier. */
+.win95-pixel-heading legend {
+  font-family: 'Rose Atelier', 'Pixelify Sans', sans-serif;
+  font-weight: 700;
+  white-space: pre-line;
+}
 .win95-subject-name {
-  font-family: 'Pixelify Sans', sans-serif;
+  font-family: 'Rose Atelier', 'Pixelify Sans', sans-serif;
   font-size: 32px;
   color: var(--accent-purple);
   text-decoration: underline;
@@ -735,6 +756,64 @@
   .seamless-tab-panel.is-active {
     animation: none;
   }
+}
+
+/* ---------- main tab-content window ----------
+   react95's <Modal> defaults to `position: fixed; top: 50px` with a
+   shrink-to-fit width, which pops the tab content out of the scaled portfolio
+   layout and collapses it around the About fieldsets. Pin it back into normal
+   flow at the full design width so it reads as the page's main window. The
+   doubled class name (.a.a) beats react95's single-class rule on specificity
+   without needing !important. */
+.portfolio-tab-modal.portfolio-tab-modal {
+  position: static;
+  top: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Keep the content column from stretching edge-to-edge on very wide layouts. */
+.portfolio-tab-modal .seamless-tab-panels {
+  width: 100%;
+}
+
+/* Enlarge the main window's title bar + menu. react95 fixes the title bar at
+   ~20px with 12px text; these descendant selectors out-specify its single-class
+   rules (no !important needed) to give it a taller bar, a bigger icon/title,
+   and a larger File/Edit/View/Help menu. Scoped to .portfolio-tab-modal so the
+   smaller sub-windows (MEET BRYANNA, SOCIALS, gallery, etc.) are untouched. */
+.portfolio-tab-modal .draggable {
+  height: auto;
+  min-height: 34px;
+  padding: 5px 8px;
+  font-size: 20px;
+  gap: 8px;
+  align-items: center;
+}
+.portfolio-tab-modal .draggable > div:first-of-type {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.portfolio-tab-modal .draggable > svg {
+  width: 24px;
+  height: 24px;
+}
+.portfolio-tab-modal .draggable button {
+  min-width: 26px;
+  min-height: 24px;
+}
+.portfolio-tab-modal > ul > li {
+  font-size: 16px;
+  padding: 5px 12px;
+}
+
+/* The CONTACT panel reuses react95's <Modal> for the Wordpad look, but as a
+   dedicated tab it should sit in the panel flow rather than float at a fixed
+   position. Same specificity trick as .portfolio-tab-modal. */
+.contact-panel-modal.contact-panel-modal {
+  position: static;
+  top: auto;
 }
 
 /* website-modals sit behind the tab strip */

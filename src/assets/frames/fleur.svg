@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 230">
+  <!-- central petal: rounded bulb up, tapering to a point down -->
+  <path d="M100,222 C78,150 72,122 72,100 C72,72 86,58 100,58 C114,58 128,72 128,100 C128,122 122,150 100,222 Z" fill="#d8b48a"/>
+  <!-- left side petal -->
+  <g transform="translate(66,196) rotate(-32) scale(0.6)">
+    <path d="M0,0 C-20,-48 -28,-72 -28,-92 C-28,-114 -14,-124 0,-124 C14,-124 28,-114 28,-92 C28,-72 20,-48 0,0 Z" fill="#d8b48a"/>
+  </g>
+  <!-- right side petal -->
+  <g transform="translate(134,196) rotate(32) scale(0.6)">
+    <path d="M0,0 C-20,-48 -28,-72 -28,-92 C-28,-114 -14,-124 0,-124 C14,-124 28,-114 28,-92 C28,-72 20,-48 0,0 Z" fill="#d8b48a"/>
+  </g>
+</svg>

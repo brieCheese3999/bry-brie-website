@@ -1,21 +1,18 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { TabStrip } from './TabStrip.tsx';
-import type { TabDefinition } from './TabStrip';
+import { useNavigate } from 'react-router-dom';
 import { defaultContent } from '../data';
-import type { Win95PortfolioContent } from '../types';
-import { Frame, List, Modal } from '@react95/core';
+import type {TabId, Win95PortfolioContent} from '../types';
+import {Frame, List, Modal} from '@react95/core';
 import {Mmsys113} from '@react95/icons';
 import { useResponsiveMode } from '../useResponsiveMode';
 import { useResponsiveScale } from '../useResponsiveScale';
 import './win95Portfolio.css';
 import {generateCascadePositions} from "../Gallery/cascadePositions.ts";
+import {AboutPanel} from "../About/AboutPanel.tsx";
+import {GalleryPanel} from "../Gallery/GalleryPanel.tsx";
+import {ContactPanel} from "../Contact/ContactPanel.tsx";
 
-const TABS: TabDefinition[] = [
-  { id: 'about', label: 'about me' },
-  { id: 'photos', label: 'photos' },
-  { id: 'ceramics', label: 'ceramics' },
-];
-
+const TAB_CONTENT_MIN_HEIGHT = 950;
 export interface Win95PortfolioProps {
   content?: Win95PortfolioContent;
 }
@@ -25,6 +22,39 @@ const DESIGN_HEIGHT = 600;
 const MIN_SCALE = 0.4;
 const MAX_SCALE = .85;
 const PORTFOLIO_LEFT_OFFSET = 320; // > abs(website-modal's x: -300) + a little breathing room
+const TAB_IDS: TabId[] = ['about', 'photos', 'ceramics', 'contact'];
+
+/**
+ * Routes to `to` as soon as it mounts, then renders nothing. react95's <Modal>
+ * menu items open their `list` dropdown when clicked, so wiring one of these
+ * (inside a hidden <List>) as a menu item's dropdown turns that top-level menu
+ * label into a single-click navigation link — matching the old top-nav.
+ */
+const NavigateOnOpen: React.FC<{ to: string }> = ({ to }) => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    navigate(to);
+  }, [navigate, to]);
+  return null;
+};
+
+/** Build a menu entry whose label navigates to `to` on click. */
+const navMenuItem = (name: string, to: string) => ({
+  name,
+  list: (
+    <List style={{ display: 'none' }}>
+      <NavigateOnOpen to={to} />
+    </List>
+  ),
+});
+
+// The main window's menu bar doubles as section navigation.
+const PORTFOLIO_MENU = [
+  navMenuItem('About', '/about'),
+  navMenuItem('Photos', '/photos'),
+  navMenuItem('Clay', '/ceramics'),
+  navMenuItem('Contact', '/contact'),
+];
 
 export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaultContent }) => {
     const positions = React.useMemo(
@@ -45,7 +75,11 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
   const innerRef = useRef<HTMLDivElement>(null);
   const [deadSpace, setDeadSpace] = useState(0);
 
-  useEffect(() => {
+  const pathTab = location.pathname.replace(/^\//, '') as TabId;
+  const active: TabId = TAB_IDS.includes(pathTab) ? pathTab : 'about';
+
+
+    useEffect(() => {
     const el = innerRef.current;
     if (!el) return;
     const observer = new ResizeObserver(() => {
@@ -58,7 +92,44 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
     if (!isDesktop) {
     return (
       <div className="win95-mobile-root">
-        <TabStrip tabs={TABS} content={content} />
+          <Frame boxShadow="$out" bgColor="$material" p="$12" minHeight="1400px">
+              <Modal
+                  className="portfolio-tab-modal"
+                  icon={<Mmsys113 variant="32x32_4" />}
+                  title="BRYANNA PLAISIR"
+                  hasWindowButton={false}
+                  titleBarOptions={<Modal.Minimize />}
+              >
+                  <Modal.Content p="$6">
+              <div className="seamless-tab-panels" style={{ minHeight: TAB_CONTENT_MIN_HEIGHT }}>
+                  <div
+                      className={`seamless-tab-panel ${active === 'about' ? 'is-active' : ''}`}
+                      aria-hidden={active !== 'about'}
+                  >
+                      <AboutPanel content={content.about} />
+                  </div>
+                  <div
+                      className={`seamless-tab-panel ${active === 'photos' ? 'is-active' : ''}`}
+                      aria-hidden={active !== 'photos'}
+                  >
+                      <GalleryPanel content={content.photos} />
+                  </div>
+                  <div
+                      className={`seamless-tab-panel ${active === 'ceramics' ? 'is-active' : ''}`}
+                      aria-hidden={active !== 'ceramics'}
+                  >
+                      <GalleryPanel content={content.ceramics} />
+                  </div>
+                  <div
+                      className={`seamless-tab-panel ${active === 'contact' ? 'is-active' : ''}`}
+                      aria-hidden={active !== 'contact'}
+                  >
+                      <ContactPanel />
+                  </div>
+              </div>
+                  </Modal.Content>
+              </Modal>
+          </Frame>
       </div>
     );
   }
@@ -103,9 +174,43 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                 </Modal>
               ))}
             </div>
-            <Frame>
-              <TabStrip tabs={TABS} content={content} />
-            </Frame>
+              <Modal
+                  className="portfolio-tab-modal"
+                  icon={<Mmsys113 variant="32x32_4" />}
+                  title="BRYANNA PLAISIR"
+                  hasWindowButton={false}
+                  titleBarOptions={<Modal.Minimize />}
+                  menu={PORTFOLIO_MENU}
+              >
+                  <Modal.Content p="$12">
+                  <div className="seamless-tab-panels" style={{ minHeight: TAB_CONTENT_MIN_HEIGHT }}>
+                      <div
+                          className={`seamless-tab-panel ${active === 'about' ? 'is-active' : ''}`}
+                          aria-hidden={active !== 'about'}
+                      >
+                          <AboutPanel content={content.about} />
+                      </div>
+                      <div
+                          className={`seamless-tab-panel ${active === 'photos' ? 'is-active' : ''}`}
+                          aria-hidden={active !== 'photos'}
+                      >
+                          <GalleryPanel content={content.photos} />
+                      </div>
+                      <div
+                          className={`seamless-tab-panel ${active === 'ceramics' ? 'is-active' : ''}`}
+                          aria-hidden={active !== 'ceramics'}
+                      >
+                          <GalleryPanel content={content.ceramics} />
+                      </div>
+                      <div
+                          className={`seamless-tab-panel ${active === 'contact' ? 'is-active' : ''}`}
+                          aria-hidden={active !== 'contact'}
+                      >
+                          <ContactPanel />
+                      </div>
+                  </div>
+                      </Modal.Content>
+              </Modal>
           </div>
         </div>
       </div>

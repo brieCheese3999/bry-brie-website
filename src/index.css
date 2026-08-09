@@ -5,6 +5,13 @@ html {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center top;
+  /* Keep scrolling, but hide the scrollbar (Firefox / old Edge). */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+/* Hide the scrollbar in Chrome / Safari / new Edge while preserving scroll. */
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {
