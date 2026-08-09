@@ -129,7 +129,7 @@ const DesktopContactPanel: React.FC = () => {
                         value={message}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
                         placeholder="Write your message here..."
-                        style={{ minHeight: '200px', fontSize: '15px' }}
+                        style={{ minHeight: '600px', fontSize: '15px' }}
                         display="flex"
                     />
                     {/* Honeypot: hidden from users, tempting to bots. */}
