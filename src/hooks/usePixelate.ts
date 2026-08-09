@@ -298,8 +298,27 @@ export function usePixelate(
     let animationFrameId: number;
 
     img.onload = () => {
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+      // Cap the canvas buffer to roughly what the display can actually show.
+      // The source scans are ~1444×2178 but the canvas is only ~440–660 CSS px
+      // wide, so pixelating at full source resolution is wasted work on every
+      // frame. Scale the buffer down (aspect ratio preserved, never upscaling)
+      // toward the on-screen size × devicePixelRatio, with headroom for
+      // object-fit: cover and any CSS zoom transform.
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const displayLong = Math.max(rect.width, rect.height);
+      const naturalLong = Math.max(img.naturalWidth, img.naturalHeight, 1);
+      const cap = displayLong > 0 ? displayLong * dpr * 1.5 : naturalLong;
+      const bufferScale = Math.min(1, cap / naturalLong);
+
+      canvas.width = Math.max(1, Math.round(img.naturalWidth * bufferScale));
+      canvas.height = Math.max(1, Math.round(img.naturalHeight * bufferScale));
+
+      // pixelSize is expressed in *buffer* pixels, so scale it by the same
+      // factor — this keeps the number of mosaic blocks across the image (and
+      // therefore the visual result) identical while the buffer gets cheaper.
+      const scalePixel = (pixelSize: number): number =>
+          Math.max(1, Math.round(pixelSize * bufferScale));
 
       const startTime = performance.now();
 
@@ -311,13 +330,20 @@ export function usePixelate(
 
         const region: RingRegion = { centerX, centerY, radiusX, radiusY, feather };
 
+        let lastPixel = -1;
         const ring = (now: number): void => {
           const elapsed = now - startTime;
           const cycleProgress = (elapsed % cycleDuration) / cycleDuration;
           const wave = sineOscillate(cycleProgress);
-          const pixelSize = Math.round(pixelMin + (pixelMax - pixelMin) * wave);
+          const pixelSize = scalePixel(pixelMin + (pixelMax - pixelMin) * wave);
 
-          drawRing(ctx, scratch, img, pixelSize, canvas.width, canvas.height, region);
+          // Only redraw when the rounded block size actually changes — over a
+          // long cycle it holds each value for ~1s, so this skips ~99% of the
+          // otherwise-identical full-canvas redraws.
+          if (pixelSize !== lastPixel) {
+            lastPixel = pixelSize;
+            drawRing(ctx, scratch, img, pixelSize, canvas.width, canvas.height, region);
+          }
 
           animationFrameId = requestAnimationFrame(ring);
         };
@@ -334,13 +360,18 @@ export function usePixelate(
 
         const spotList = spots;
 
+        let lastPixel = -1;
         const spotsTick = (now: number): void => {
           const elapsed = now - startTime;
           const cycleProgress = (elapsed % cycleDuration) / cycleDuration;
           const wave = sineOscillate(cycleProgress);
-          const pixelSize = Math.round(pixelMin + (pixelMax - pixelMin) * wave);
+          const pixelSize = scalePixel(pixelMin + (pixelMax - pixelMin) * wave);
 
-          drawSpots(ctx, scratch, img, pixelSize, canvas.width, canvas.height, spotList);
+          // Skip the redraw while the block size is unchanged (see ring loop).
+          if (pixelSize !== lastPixel) {
+            lastPixel = pixelSize;
+            drawSpots(ctx, scratch, img, pixelSize, canvas.width, canvas.height, spotList);
+          }
 
           animationFrameId = requestAnimationFrame(spotsTick);
         };
@@ -351,6 +382,7 @@ export function usePixelate(
 
       // ── OSCILLATE loop ──────────────────────
       if (mode === "oscillate") {
+        let lastPixel = -1;
         const oscillate = (now: number): void => {
           const elapsed = now - startTime;
 
@@ -361,9 +393,13 @@ export function usePixelate(
           const wave = sineOscillate(cycleProgress);
 
           // Map wave (0–1) to pixel range (pixelMin–pixelMax)
-          const pixelSize = Math.round(pixelMin + (pixelMax - pixelMin) * wave);
+          const pixelSize = scalePixel(pixelMin + (pixelMax - pixelMin) * wave);
 
-          drawPixelated(ctx, img, pixelSize, canvas.width, canvas.height);
+          // Skip the redraw while the block size is unchanged (see ring loop).
+          if (pixelSize !== lastPixel) {
+            lastPixel = pixelSize;
+            drawPixelated(ctx, img, pixelSize, canvas.width, canvas.height);
+          }
 
           animationFrameId = requestAnimationFrame(oscillate);
         };
@@ -373,17 +409,21 @@ export function usePixelate(
       }
 
       // ── REVEAL (one-shot) ───────────────────
+      let lastPixel = -1;
       const reveal = (now: number): void => {
         const elapsed = now - startTime;
         const rawProgress = Math.min(elapsed / duration, 1);
         const easedProgress = easing(rawProgress);
 
-        const pixelSize = Math.max(
-            endPixel,
-            Math.round(startPixel - (startPixel - endPixel) * easedProgress)
+        const pixelSize = scalePixel(
+            Math.max(endPixel, startPixel - (startPixel - endPixel) * easedProgress)
         );
 
-        drawPixelated(ctx, img, pixelSize, canvas.width, canvas.height);
+        // Skip the redraw while the block size is unchanged (see ring loop).
+        if (pixelSize !== lastPixel) {
+          lastPixel = pixelSize;
+          drawPixelated(ctx, img, pixelSize, canvas.width, canvas.height);
+        }
 
         if (rawProgress < 1) {
           animationFrameId = requestAnimationFrame(reveal);

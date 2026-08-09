@@ -20,6 +20,13 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
     const { isMobile } = useResponsiveMode();
     const item = items[currentIndex];
 
+    const [isLandscape, setIsLandscape] = React.useState(false);
+    const measureOrientation = React.useCallback((img: HTMLImageElement | null) => {
+        if (img && img.naturalWidth > 0) {
+            setIsLandscape(img.naturalWidth > img.naturalHeight);
+        }
+    }, []);
+
     const goPrev = () => onNavigate((currentIndex - 1 + items.length) % items.length);
     const goNext = () => onNavigate((currentIndex + 1) % items.length);
 
@@ -61,7 +68,11 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                 className="lightbox-wrapper"
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                    maxWidth: isMobile ? "95vw" : "565px",
+                    maxWidth: isMobile
+                        ? "95vw"
+                        : isLandscape
+                            ? "min(92vw, 1100px)"
+                            : "565px",
                     maxHeight: "200vh",
                     width: "100%",
                 }}
@@ -70,8 +81,11 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                     <Modal.Content boxShadow="$in" bgColor="white" p="6px">
                         <Frame display="flex" flexDirection="column" alignItems="center" gap="5px">
                             <img
+                                key={currentIndex}
+                                ref={measureOrientation}
                                 src={item.img}
                                 alt={item.label}
+                                onLoad={(e) => measureOrientation(e.currentTarget)}
                                 style={{
                                     maxWidth: "100%",
                                     maxHeight: isMobile ? "60vh" : "85vh",

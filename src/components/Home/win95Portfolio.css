@@ -1,23 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=VT323&display=swap');
 
-/* The Rose Atelier — hand-drawn display face for the large headings + name. */
-@font-face {
-  font-family: 'Rose Atelier';
-  src: url('../../assets/font/the_rose_atelier-webfont.woff2') format('woff2'),
-       url('../../assets/font/the_rose_atelier-webfont.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Rose Atelier';
-  src: url('../../assets/font/the_rose_atelier_bold-webfont.woff2') format('woff2'),
-       url('../../assets/font/the_rose_atelier_bold-webfont.woff') format('woff');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 .win95-portfolio {
   --face: #c0c0c0;
   --face-light: #dfdfdf;
@@ -232,7 +214,7 @@
   100% { opacity: 1; }
 }
 .win95-pixel-heading {
-  font-family: 'Rose Atelier', 'Pixelify Sans', sans-serif;
+  font-family: 'Pixelify Sans', sans-serif;
   font-weight: 700;
   font-size: 63px;
   line-height: 0.85;
@@ -242,14 +224,14 @@
   white-space: pre-line;
 }
 /* react95 renders the heading as a <legend> with its own MS Sans Serif rule;
-   target it directly (0-1-1 beats react95's 0-1-0) so it uses Rose Atelier. */
+   target it directly (0-1-1 beats react95's 0-1-0) so it uses our display face. */
 .win95-pixel-heading legend {
-  font-family: 'Rose Atelier', 'Pixelify Sans', sans-serif;
+  font-family: 'Pixelify Sans', sans-serif;
   font-weight: 700;
   white-space: pre-line;
 }
 .win95-subject-name {
-  font-family: 'Rose Atelier', 'Pixelify Sans', sans-serif;
+  font-family: 'Pixelify Sans', sans-serif;
   font-size: 32px;
   color: var(--accent-purple);
   text-decoration: underline;

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import PixelateImage from "../Background/PixelateImage.tsx";
 import { SplitPixelBackground } from "../Background/SplitPixelBackground.tsx";
 import photo1 from "../../assets/photos/HAWAII15.jpeg";
@@ -12,29 +12,6 @@ import trim from "../../assets/frames/044-line.svg";
 import trimSides from "../../assets/frames/044-line-sides.svg";
 import cornerSparkle from "../../assets/frames/sparkle.svg";
 import cornerSparkleSmall from "../../assets/frames/sparkle-small.svg";
-import roseAtelierWoff2 from "../../assets/font/the_rose_atelier-webfont.woff2";
-import roseAtelierWoff from "../../assets/font/the_rose_atelier-webfont.woff";
-import roseAtelierBoldWoff2 from "../../assets/font/the_rose_atelier_bold-webfont.woff2";
-import roseAtelierBoldWoff from "../../assets/font/the_rose_atelier_bold-webfont.woff";
-
-const EnterFonts = createGlobalStyle`
-  @font-face {
-    font-family: 'The Rose Atelier';
-    src: url('${roseAtelierWoff2}') format('woff2'),
-         url('${roseAtelierWoff}') format('woff');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'The Rose Atelier';
-    src: url('${roseAtelierBoldWoff2}') format('woff2'),
-         url('${roseAtelierBoldWoff}') format('woff');
-    font-weight: bold;
-    font-style: normal;
-    font-display: swap;
-  }
-`;
 
 const OPENING = {
   left: "22.5%",
@@ -76,18 +53,9 @@ const SheerBox2 = styled.div`
 `;
 
 const CORNER_SIZE = "min(3vw, 50px)";
-
-// How far each edge trim's end sits from the page corner. The corner sparkle
-// cluster reaches ~2.6x CORNER_SIZE in from the corner, so insetting the edges
-// a bit past that leaves a small breathing gap between each trim end and the
-// sparkle (they no longer touch). Scales with the page like CORNER_SIZE.
 const EDGE_INSET_TB = "min(5vw, 95px)";
 const EDGE_INSET_LR = "min(4vw, 90px)";
 
-/* A lace edge made of two tileable trims butted flat-end to flat-end so they
-   read as one continuous line spanning one edge, ending just shy of the two
-   corner groups on that edge. The horizontal bar is rotated 90deg for the
-   left/right edges; its length there is the viewport height minus the corners. */
 const Trim = styled.div`
   position: absolute;
   display: flex;
@@ -344,10 +312,7 @@ const PortraitFrame = styled.div`
   z-index: 0;
 `;
 
-// The portrait is a PixelateImage (canvas) rather than a plain <img> so a few
-// patches of it can pixelate/breathe like the split background. It fills the
-// clipped frame and scales up for the zoom; object-fit/object-position work on
-// the canvas just like an <img>.
+
 const Portrait = styled(PixelateImage)`
   object-fit: cover;
   object-position: center 20%;
@@ -375,9 +340,7 @@ const EnterPage: React.FC = () => {
     void navigate("/about");
   };
 
-  // Patches of the headshot (fractions of the 1200×1600 image) that pixelate.
-  // Kept to the hair/edges and lower shirt so her face stays crisp; the frame's
-  // ellipse crop + object-position hide anything below ~y 0.6.
+
   const portraitSpots = useMemo(
     () => [
       { x: 0.20, y: 0.42, w: 0.07, h: 0.07 },
@@ -389,8 +352,6 @@ const EnterPage: React.FC = () => {
 
   return (
     <Section>
-      <EnterFonts />
-
       <SplitPixelBackground
         photoLeft={photo1}
         photoRight={photo2}

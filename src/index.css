@@ -1,7 +1,6 @@
 html {
   min-height: 100%;
   overflow: auto;
-  background-image: url('/background/background-pixelated.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center top;
