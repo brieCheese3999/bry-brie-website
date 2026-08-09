@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { defaultContent } from '../data';
 import type {TabId, Win95PortfolioContent} from '../types';
 import {Frame, List, Modal} from '@react95/core';
@@ -33,7 +33,7 @@ const TAB_IDS: TabId[] = ['about', 'photos', 'ceramics', 'contact'];
 const NavigateOnOpen: React.FC<{ to: string }> = ({ to }) => {
   const navigate = useNavigate();
   useEffect(() => {
-    navigate(to);
+    void navigate(to);
   }, [navigate, to]);
   return null;
 };
@@ -66,7 +66,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                 stepX: 12,
                 stepY: 10,
             }),
-        [15]
+        []
     );
 
   const { isDesktop } = useResponsiveMode();
@@ -75,6 +75,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
   const innerRef = useRef<HTMLDivElement>(null);
   const [deadSpace, setDeadSpace] = useState(0);
 
+  const location = useLocation();
   const pathTab = location.pathname.replace(/^\//, '') as TabId;
   const active: TabId = TAB_IDS.includes(pathTab) ? pathTab : 'about';
 

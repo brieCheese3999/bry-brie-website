@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 /**
  * Below this width, the site switches from the "Windows 95 desktop" experience
@@ -25,21 +25,23 @@ export interface ResponsiveMode {
 export function useResponsiveMode(): ResponsiveMode {
   const query = `(max-width: ${MOBILE_BREAKPOINT_PX}px)`;
 
-  const [isMobile, setIsMobile] = useState<boolean>(() =>
-    typeof window !== 'undefined' ? window.matchMedia(query).matches : false
+  // Subscribe to the media query via useSyncExternalStore — the idiomatic way
+  // to read from an external source like matchMedia. React re-renders whenever
+  // the match state flips, with no effect/setState round-trip.
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      const mql = window.matchMedia(query);
+      mql.addEventListener('change', onChange);
+      return () => mql.removeEventListener('change', onChange);
+    },
+    [query]
   );
 
-  useEffect(() => {
-    const mediaQueryList = window.matchMedia(query);
-
-    const handleChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
-
-    // Sync immediately in case the viewport changed between initial render and mount
-    setIsMobile(mediaQueryList.matches);
-
-    mediaQueryList.addEventListener('change', handleChange);
-    return () => mediaQueryList.removeEventListener('change', handleChange);
-  }, [query]);
+  const isMobile = useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(query).matches, // client snapshot
+    () => false // server snapshot (no window)
+  );
 
   return { isMobile, isDesktop: !isMobile };
 }

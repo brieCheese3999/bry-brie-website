@@ -2,10 +2,6 @@ import React, { useEffect, useRef } from 'react';
 
 const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY ?? '';
 
-/** True when a reCAPTCHA site key is configured; consumers can use this to
- *  require a token before allowing a submit. */
-export const RECAPTCHA_ENABLED = Boolean(SITE_KEY);
-
 declare global {
   interface Window {
     grecaptcha?: {

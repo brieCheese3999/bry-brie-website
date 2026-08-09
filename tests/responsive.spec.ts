@@ -23,10 +23,10 @@ async function stabilizePage(page: import('@playwright/test').Page) {
   await page.evaluate(() => {
     // Hide animated canvas background
     document.querySelectorAll('canvas').forEach(c => {
-      (c as HTMLCanvasElement).style.visibility = 'hidden';
+      c.style.visibility = 'hidden';
     });
     // Stop all intervals (kills the Clock's rapid-fire setInterval)
-    const maxId = window.setInterval(() => {}, 100000);
+    const maxId = window.setInterval(() => { /* no-op probe */ }, 100000);
     for (let i = 1; i <= maxId; i++) window.clearInterval(i);
   });
 }

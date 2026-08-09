@@ -1,7 +1,7 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from 'styled-components';
-import PixelateImage from "../Background/PixelateImage.tsx";
+import { SplitPixelBackground } from "../Background/SplitPixelBackground.tsx";
 import photo1 from "../../assets/photos/HAWAII15.jpeg";
 import photo2 from "../../assets/photos/HAWAII_4.jpg";
 import Win95Portfolio from "./Win95Portfolio.tsx";
@@ -31,22 +31,6 @@ const BackgroundLayer = styled.div`
   position: fixed;
   inset: 0;
   z-index: 0;
-`;
-
-/* The same split two-photo pixelated backdrop used on the enter (/) page:
-   two photos side by side, each filling half the width, with scattered
-   pixelated "spots", sat under two sheer elliptical overlays. */
-const SplitBackground = styled.div`
-  position: absolute;
-  inset: 0;
-  display: flex;
-  z-index: 0;
-
-  & > * {
-    width: 50%;
-    height: 100%;
-    object-fit: fill;
-  }
 `;
 
 const ForegroundLayer = styled.div`
@@ -101,55 +85,16 @@ const HomePage: React.FC<HomePageProps> = ({ content = defaultClipArt }) => {
         </List>
     );
 
-    // Scattered patches (fractions of each half's canvas) that get pixelated —
-    // matches the enter (/) page's accents so the two backgrounds read the same.
-    const leftSpots = useMemo(
-        () => [
-            { x: 0.12, y: 0.28, w: 0.20, h: 0.24 },
-            { x: 0.34, y: 0.58, w: 0.12, h: 0.13 },
-            { x: 0.7, y: 0.04, w: 0.18, h: 0.09 },
-        ],
-        []
-    );
-    const rightSpots = useMemo(
-        () => [
-            { x: 0.62, y: 0.1, w: 0.16, h: 0.17 },
-            { x: 0.4, y: 0.62, w: 0.12, h: 0.12 },
-            { x: 0.12, y: 0.88, w: 0.18, h: 0.09 },
-        ],
-        []
-    );
-
     return (
         <>
             <PageWrapper>
                 <BackgroundLayer>
-                    <SplitBackground aria-hidden="true">
-                        <PixelateImage
-                            src={photo1}
-                            alt="Bryanna holding Poppi the cat"
-                            width="50%"
-                            height="100%"
-                            mode="spots"
-                            spots={leftSpots}
-                            pixelMin={74}
-                            pixelMax={85}
-                            cycleDuration={40000}
-                            style={{ objectFit: "fill" }}
-                        />
-                        <PixelateImage
-                            src={photo2}
-                            alt="Hawaii"
-                            width="50%"
-                            height="100%"
-                            mode="spots"
-                            spots={rightSpots}
-                            pixelMin={74}
-                            pixelMax={85}
-                            cycleDuration={40000}
-                            style={{ objectFit: "fill" }}
-                        />
-                    </SplitBackground>
+                    <SplitPixelBackground
+                        photoLeft={photo1}
+                        photoRight={photo2}
+                        altLeft="Bryanna holding Poppi the cat"
+                        altRight="Hawaii"
+                    />
                 </BackgroundLayer>
                 <ClipArtBackLayer>
                     <ClipArt content={{ items: backItems }}/>

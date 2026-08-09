@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID ?? '';
@@ -32,7 +32,12 @@ export function useContactForm() {
   const [honeypot, setHoneypot] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
-  const mountTime = useRef(Date.now());
+  // Timestamp of first mount, used by the time-trap below. Set in an effect
+  // (not during render) so render stays pure.
+  const mountTime = useRef(0);
+  useEffect(() => {
+    mountTime.current = Date.now();
+  }, []);
 
   const flashStatus = (status: SendStatus) => {
     setSendStatus(status);

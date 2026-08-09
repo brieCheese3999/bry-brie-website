@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { createGlobalStyle } from "styled-components";
 import PixelateImage from "../Background/PixelateImage.tsx";
+import { SplitPixelBackground } from "../Background/SplitPixelBackground.tsx";
 import photo1 from "../../assets/photos/HAWAII15.jpeg";
 import photo2 from "../../assets/photos/HAWAII_4.jpg";
 import headshot from "../../assets/photos/HAWAII11.jpeg";
@@ -354,22 +355,6 @@ const Portrait = styled(PixelateImage)`
   transform-origin: center 30%;
 `;
 
-const SplitBackground = styled.div`
-  position: absolute;
-  inset: 0;
-  display: flex;
-  z-index: 0;
-
-  /* Each half occupies 50% of the width at full height. object-fit: fill
-     stretches each photo to fill its half completely — no black gaps and no
-     cropping, at the cost of slight aspect-ratio distortion. */
-  & > * {
-    width: 50%;
-    height: 100%;
-    object-fit: fill;
-  }
-`;
-
 const FrameArt = styled.img`
   position: absolute;
   inset: 0;
@@ -386,29 +371,9 @@ const FrameArt = styled.img`
 
 const EnterPage: React.FC = () => {
   const navigate = useNavigate();
-  const handleEnter = () => navigate("/about");
-
-  // A few scattered patches (fractions of the photo) that get pixelated —
-  // everything else stays crisp. Placed around where the frame sits so they
-  // read as little mosaic accents, not a full-image effect.
-  // Spots are fractions of each half's canvas, so they're spread across
-  // each 50%-wide panel independently.
-  const leftSpots = useMemo(
-    () => [
-      { x: 0.12, y: 0.28, w: 0.20, h: 0.24 },
-      { x: 0.34, y: 0.58, w: 0.12, h: 0.13 },
-      { x: 0.7, y: 0.04, w: 0.18, h: 0.09 },
-    ],
-    []
-  );
-  const rightSpots = useMemo(
-    () => [
-      { x: 0.62, y: 0.1, w: 0.16, h: 0.17 },
-      { x: 0.4, y: 0.62, w: 0.12, h: 0.12 },
-      { x: 0.12, y: 0.88, w: 0.18, h: 0.09 },
-    ],
-    []
-  );
+  const handleEnter = () => {
+    void navigate("/about");
+  };
 
   // Patches of the headshot (fractions of the 1200×1600 image) that pixelate.
   // Kept to the hair/edges and lower shirt so her face stays crisp; the frame's
@@ -426,32 +391,13 @@ const EnterPage: React.FC = () => {
     <Section>
       <EnterFonts />
 
-      <SplitBackground aria-hidden="true">
-        <PixelateImage
-          src={photo1}
-          alt="Bryanna holding Poppi the cat"
-          width="50%"
-          height="100vh"
-          mode="spots"
-          spots={leftSpots}
-          pixelMin={74}
-          pixelMax={85}
-          cycleDuration={40000}
-          style={{ objectFit: "fill" }}
-        />
-        <PixelateImage
-          src={photo2}
-          alt="Hawaii"
-          width="50%"
-          height="100vh"
-          mode="spots"
-          spots={rightSpots}
-          pixelMin={74}
-          pixelMax={85}
-          cycleDuration={40000}
-          style={{ objectFit: "fill" }}
-        />
-      </SplitBackground>
+      <SplitPixelBackground
+        photoLeft={photo1}
+        photoRight={photo2}
+        altLeft="Bryanna holding Poppi the cat"
+        altRight="Hawaii"
+        halfHeight="100vh"
+      />
       <SheerBox aria-hidden="true" />
       <SheerBox2 aria-hidden="true" />
 

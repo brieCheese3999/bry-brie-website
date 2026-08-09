@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { Modal, Button, Frame } from "@react95/core";
+import { useResponsiveMode } from '../useResponsiveMode';
 
 interface LightboxItem {
     id: string;
@@ -16,6 +17,7 @@ interface LightboxProps {
 }
 
 export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose, onNavigate }) => {
+    const { isMobile } = useResponsiveMode();
     const item = items[currentIndex];
 
     const goPrev = () => onNavigate((currentIndex - 1 + items.length) % items.length);
@@ -29,9 +31,10 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
         };
         window.addEventListener("keydown", handleKey);
         return () => window.removeEventListener("keydown", handleKey);
+        // goPrev/goNext/onClose are stable within a render; re-bind when the
+        // index or list length changes so the handlers don't capture stale values.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentIndex, items.length]);
-
-    const isMobile = window.innerWidth <= 768;
 
     return createPortal(
         <div

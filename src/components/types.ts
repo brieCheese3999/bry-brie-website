@@ -28,7 +28,7 @@ export interface AboutContent {
   education: EducationItem;
   photoWindow: {
     title: string;
-    imageUrl: any;
+    imageUrl: string;
     alt: string;
   };
   socials: {
@@ -40,7 +40,7 @@ export interface AboutContent {
 export interface GalleryItem {
   id: string;
   label: string;
-  img: any;
+  img: string;
   alt?: string;
 }
 
@@ -53,7 +53,7 @@ export interface GalleryContent {
 
 export interface ClipArtItem {
   id: string;
-  img: any;
+  img: string;
   alt: string;
   top?: string;
   left?: string;
@@ -84,10 +84,4 @@ export interface Win95PortfolioContent {
   about: AboutContent;
   photos: GalleryContent;
   ceramics: GalleryContent;
-}
-
-
-export interface WindowPosition {
-  x: number;
-  y: number;
 }
