@@ -32,6 +32,9 @@ export function useContactForm() {
   const [honeypot, setHoneypot] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
+  // Drives the "Mail Sent" confirmation pop-up. Opened whenever a submission
+  // succeeds (real send or a silently-dropped bot), dismissed by the user.
+  const [showSentModal, setShowSentModal] = useState(false);
   // Timestamp of first mount, used by the time-trap below. Set in an effect
   // (not during render) so render stays pure.
   const mountTime = useRef(0);
@@ -50,6 +53,7 @@ export function useContactForm() {
     // caught and adapt.
     if (honeypot.trim() !== '' || Date.now() - mountTime.current < MIN_SUBMIT_MS) {
       flashStatus('sent');
+      setShowSentModal(true);
       return;
     }
 
@@ -85,6 +89,7 @@ export function useContactForm() {
       )
       .then(() => {
         setSendStatus('sent');
+        setShowSentModal(true);
         setSenderEmail('');
         setSubject('');
         setMessage('');
@@ -108,5 +113,7 @@ export function useContactForm() {
     sendStatus,
     handleSend,
     sendButtonLabel,
+    showSentModal,
+    dismissSentModal: () => setShowSentModal(false),
   };
 }

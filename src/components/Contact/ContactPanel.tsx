@@ -13,6 +13,7 @@ import {
 import { useResponsiveMode } from '../useResponsiveMode.ts';
 import { useContactForm } from '../About/useContactForm.ts';
 import { ReCaptcha } from '../About/ReCaptcha.tsx';
+import { MailSentModal } from './MailSentModal.tsx';
 
 const CONTACT_EMAIL = ['bryannaplaisir', 'gmail.com'].join('@');
 
@@ -26,9 +27,9 @@ const honeypotStyle: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
-    width: 40,
-    height: 40,
-    minWidth: 40,
+    width: 50,
+    height: 50,
+    minWidth: 50,
     padding: 0,
     display: 'flex',
     alignItems: 'center',
@@ -53,9 +54,12 @@ const DesktopContactPanel: React.FC = () => {
         sendStatus,
         handleSend,
         sendButtonLabel,
+        showSentModal,
+        dismissSentModal,
     } = useContactForm();
 
     return (
+        <>
         <Modal
             className="contact-panel-modal"
             style={{ fontSize: '15px' }}
@@ -105,9 +109,9 @@ const DesktopContactPanel: React.FC = () => {
 
             <Frame display="flex">
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <Dropdown width="11px" minWidth="0px" options={['Normal']} style={{ fontSize: '15px' }} />
-                    <Dropdown width="11px" minWidth="5px" marginLeft="10px" options={['Arial']} style={{ fontSize: '15px' }} />
-                    <Dropdown width="5px" minWidth="0px" marginLeft="10px" marginRight={'8px'} options={['10']} style={{ fontSize: '15px' }} />
+                    <Dropdown width="15px" minWidth="0px" options={['Normal']} style={{ fontSize: '20px' }} />
+                    <Dropdown width="15px" minWidth="5px" marginLeft="10px" options={['Arial']} style={{ fontSize: '20px' }} />
+                    <Dropdown width="10px" minWidth="0px" marginLeft="10px" marginRight={'8px'} options={['10']} style={{ fontSize: '20px' }} />
                     <Button key="printer" style={buttonStyle}><Printer variant="32x32_4" /></Button>
                     <Button key="msrating" style={buttonStyle}><Msrating109 variant="32x32_4" /></Button>
                 </div>
@@ -116,32 +120,35 @@ const DesktopContactPanel: React.FC = () => {
             <Modal.Content>
                 <Frame display="flex" flexDirection="column">
                     <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                        <Button style={{ minWidth: 45, fontSize: '15px', padding: 4, marginRight: 15, marginBottom: 6 }}>To...</Button>
-                        <span style={{ fontSize: '17px' }}>{CONTACT_EMAIL}</span>
+                        <Button style={{ minWidth: 75, fontSize: '20px', padding: 4, marginRight: 15, marginBottom: 6 }}>To...</Button>
+                        <span style={{ fontSize: '20px' }}>{CONTACT_EMAIL}</span>
                     </Frame>
                     <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                        <Button style={{ minWidth: 45, fontSize: '15px', padding: 4, marginRight: 15, marginBottom: 6 }}>From</Button>
+                        <Button style={{ minWidth: 75, fontSize: '20px', padding: 4, marginRight: 15, marginBottom: 6 }}>From</Button>
                         <Input
                             type="email"
+                            data-testid="contact-from"
                             placeholder="your@email.com"
                             value={senderEmail}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenderEmail(e.target.value)}
-                            style={{ flex: 1, width: 70, fontSize: '15px', minWidth: 70, padding: 4, marginRight: 10, marginBottom: 6 }}
+                            style={{ flex: 1, width: 70, fontSize: '20px', minWidth: 70, padding: 4, marginRight: 10, marginBottom: 6 }}
                         />
                     </Frame>
                     <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                        <span style={{ minWidth: 40, fontSize: '15px', display: 'inline-block', marginRight: 10 }}>Subject:</span>
+                        <span style={{ minWidth: 40, fontSize: '20px', display: 'inline-block', padding: 4, marginRight: 10, marginTop: 6 , marginBottom: 6}}>Subject:</span>
                         <Input
+                            data-testid="contact-subject"
                             value={subject}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
-                            style={{ flex: 1, minWidth: 70, padding: 4, marginRight: 10, marginBottom: 10 }}
+                            style={{ flex: 1, fontSize: '20px', minWidth: 70, padding: 4, marginRight: 10, marginBottom: 10 }}
                         />
                     </Frame>
                     <TextArea
+                        data-testid="contact-message"
                         value={message}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
                         placeholder="Write your message here..."
-                        style={{ minHeight: '600px', fontSize: '15px' }}
+                        style={{ minHeight: '600px', fontSize: '25px' }}
                         display="flex"
                     />
                     {/* Honeypot: hidden from users, tempting to bots. */}
@@ -158,6 +165,7 @@ const DesktopContactPanel: React.FC = () => {
                     <Frame display="flex" flexDirection="column" alignItems="flex-end" mt="$4" gap="$2">
                         <ReCaptcha onChange={setRecaptchaToken} />
                         <Button
+                            data-testid="contact-send"
                             onClick={handleSend}
                             disabled={sendStatus === 'sending'}
                             style={{ fontSize: '15px', padding: '8px 32px', minWidth: 120 }}
@@ -168,6 +176,8 @@ const DesktopContactPanel: React.FC = () => {
                 </Frame>
             </Modal.Content>
         </Modal>
+        <MailSentModal open={showSentModal} onClose={dismissSentModal} />
+        </>
     );
 };
 
@@ -181,6 +191,8 @@ const MobileContactPanel: React.FC = () => {
         sendStatus,
         handleSend,
         sendButtonLabel,
+        showSentModal,
+        dismissSentModal,
     } = useContactForm();
 
     return (
@@ -212,7 +224,7 @@ const MobileContactPanel: React.FC = () => {
                     value={message}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
                     placeholder="Write your message here..."
-                    style={{ minHeight: '120px', fontSize: '14px' }}
+                    style={{ minHeight: '920px', fontSize: '14px' }}
                 />
                 {/* Honeypot: hidden from users, tempting to bots. */}
                 <input
@@ -234,6 +246,7 @@ const MobileContactPanel: React.FC = () => {
                     {sendButtonLabel}
                 </Button>
             </Frame>
+            <MailSentModal open={showSentModal} onClose={dismissSentModal} />
         </div>
     );
 };
