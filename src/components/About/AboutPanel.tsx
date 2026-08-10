@@ -40,7 +40,7 @@ const SkillsGrid: React.FC<{ skills: SkillIcon[] }> = ({ skills }) => (
 
 const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
   return (
-  <div style={{ position: 'relative'}}>
+  <div style={{ position: 'relative' ,paddingTop: '15px'}}>
       <Fieldset  width="800px" legend={content.heading} className="win95-pixel-heading">
           <Frame display="flex" flexDirection="column">
               <div className="win95-icon-row">

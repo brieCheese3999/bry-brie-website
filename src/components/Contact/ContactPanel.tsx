@@ -1,7 +1,12 @@
 import React from 'react';
 import { Modal, Frame, Button, TextArea, Input, List, Dropdown } from '@react95/core';
 import {
-    CdMusic, Fax, Faxcover108, FileFont2, FilePick, Fontext3, Mail, Msrating109,
+    Access226,
+    Awfext326052,
+    Bat,
+    Brush,
+    Calculator,
+    CdMusic, Comdlg32528, Fax, Faxcover108, FileFont2, FilePick, Fontext3, Mail, Msrating109,
     Notepad, Printer, Shell32142, Shell3224, Signup, Wab321014, Winpopup3,
     Wmsui323911, Wordpad, Write1,
 } from '@react95/icons';
@@ -89,6 +94,13 @@ const DesktopContactPanel: React.FC = () => {
                 <Button key="wmsui" style={buttonStyle}><Wmsui323911 variant="32x32_4" /></Button>
                 <Button key="wab" style={buttonStyle}><Wab321014 variant="32x32_4" /></Button>
                 <Button key="signup" style={buttonStyle}><Signup variant="32x32_4" /></Button>
+                <Button key="access" style={buttonStyle}><Access226 variant="32x32_4"/></Button>
+                <Button key="access" style={buttonStyle}><Awfext326052 variant="32x32_4"/></Button>
+                <Button key="access" style={buttonStyle}><Bat variant="32x32_4"/></Button>
+                <Button key="access" style={buttonStyle}><Brush variant="32x32_4"/></Button>
+                <Button key="access" style={buttonStyle}><Calculator variant="32x32_4"/></Button>
+                <Button key="access" style={buttonStyle}><Comdlg32528 variant="32x32_4"/></Button>
+
             </Frame>
 
             <Frame display="flex">

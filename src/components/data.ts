@@ -52,7 +52,7 @@ export const defaultContent: Win95PortfolioContent = {
   windowTitle: 'PORTFOLIO.EXE',
 
   about: {
-    heading: 'about\nme!',
+    heading: 'about me!',
     name: 'Bryanna Plaisir',
     bio:
       "Hi, I'm Bryanna, a software engineer with  experience across fintech and AI startups. I've worked on large-scale data migrations, distributed database upgrades, Kubernetes infrastructure, observability systems, and full-stack API development. I'm fluent in Python, Java, Typescript and Go, and I've built and managed production systems on both AWS and GCP.\n\n Outside of engineering, I'm an avid biker and enjoy biking around New York City. I also love baking sourdough bread and trying out new cookie recipes! One hobby that I've recently taken up is ceramics, with a focus on hand-building techniques.",skills: [
@@ -92,7 +92,7 @@ export const defaultContent: Win95PortfolioContent = {
   },
 
   photos: {
-    heading: 'photo\nalbum',
+    heading: 'photo album',
     intro: 'Since 2022, I have been shooting film photography as a way of documenting my travels throughout my life. This collection of photographs traces a personal journey across a range of destinations, capturing not just landscapes and landmarks but the intimate, everyday moments shared along the way. Shot entirely on film, each image carries a distinct warmth. To date, this collection spans the following destinations:\n' +
         '\n' +
         'Peru\n' +
@@ -202,8 +202,8 @@ export const defaultContent: Win95PortfolioContent = {
   },
 
   ceramics: {
-    heading: 'clay\nworks',
-    intro: "COMING SOON!",
+    heading: 'clay works',
+    intro: "Loading in the kiln, more to come soon!",
     sectionLabel: 'PIECES',
     items: [
         ],

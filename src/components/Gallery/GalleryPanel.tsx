@@ -51,7 +51,7 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
 
     return (
         <>
-            <div className={isMobile ? "win95-mobile-stack" : ""}>
+            <div className={isMobile ? "win95-mobile-stack" : ""} style={{paddingTop: '15px'}}>
                 <Fieldset
                     legend={content.heading}
                     className={`win95-pixel-heading ${isMobile ? 'win95-mobile-fieldset' : ''}`}
