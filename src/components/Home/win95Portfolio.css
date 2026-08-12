@@ -658,6 +658,11 @@
   box-sizing: border-box;
 }
 
+.win95-mobile-root .neodrag,
+.win95-mobile-root .portfolio-tab-modal {
+  touch-action: auto !important;
+}
+
 .win95-mobile-stack {
   display: flex;
   flex-direction: column;
