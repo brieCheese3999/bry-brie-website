@@ -377,42 +377,37 @@
   object-fit: cover;
 }
 
-/* ---------- gallery wall (masonry-style grid) ----------
-   CSS grid with hand-picked row/column spans (the old approach) can't
-   guarantee a gapless pack: `grid-auto-flow: dense` only fills a cell if a
-   later item's span happens to match the leftover hole exactly, and with
-   spans this varied (1-4 columns, 1-8 rows) it regularly can't, leaving
-   visible empty cells. A CSS-columns masonry never has that problem — each
-   items flow down each column at their natural heights. Inline-block tiles
-   keep their bottom spacing inside the column, so it cannot become a top
-   margin at a column break. */
+/* Rows share a height while retaining each photo's original proportions. */
 .win95-gallery-wall {
-  display: block;
-  column-count: 4;
-  column-gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
 }
 
 .win95-gallery-wall--mobile {
-  column-count: 2;
-  column-gap: 14px;
+  gap: 14px;
+}
+
+.win95-gallery-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.win95-gallery-wall--mobile .win95-gallery-row {
+  gap: 14px;
 }
 
 .win95-gallery-wall-item {
-  display: inline-block;
-  vertical-align: top;
-  width: 100%;
-  break-inside: avoid;
-  margin: 0 0 10px;
+  display: block;
+  min-width: 0;
+  margin: 0;
   padding: 0;
   overflow: hidden;
   cursor: pointer;
   border: none;
   position: relative;
-}
-
-.win95-gallery-wall--mobile .win95-gallery-wall-item {
-  margin: 0 0 14px;
 }
 
 .win95-gallery-wall-item img {

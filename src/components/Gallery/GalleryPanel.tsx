@@ -17,6 +17,11 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
         return () => clearInterval(timer);
     }, [content.items.length]);
 
+    const columns = isMobile ? 2 : 4;
+    const rows = Array.from({ length: Math.ceil(content.items.length / columns) }, (_, row) =>
+        content.items.slice(row * columns, (row + 1) * columns)
+    );
+
     const lightbox = expandedIndex !== null && (
         <Lightbox
             items={content.items.map((i) => ({ id: i.id, label: i.label, img: i.img }))}
@@ -57,12 +62,16 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
                 <div className="win95-gallery-modal-wrapper">
                             <div className="win95-gallery-wall-scroll">
                                 <div className={`win95-gallery-wall ${isMobile ? 'win95-gallery-wall--mobile' : ''}`}>
-                                    {content.items.map((item, index) => {
+                                    {rows.map((row, rowIndex) => (
+                                    <div className="win95-gallery-row" key={row[0].id}>
+                                    {row.map((item, columnIndex) => {
+                                        const index = rowIndex * columns + columnIndex;
                                         return (
                                             <button
                                                 key={item.id}
                                                 type="button"
                                                 className="win95-gallery-wall-item win95-raised"
+                                                style={{ flex: `${item.width && item.height ? item.width / item.height : 1} 1 0%` }}
                                                 onClick={event => {
                                                     event.currentTarget.focus({ preventScroll: true });
                                                     setExpandedIndex(index);
@@ -83,6 +92,8 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
                                             </button>
                                         );
                                     })}
+                                    </div>
+                                    ))}
                                 </div>
                             </div>
                 </div>
