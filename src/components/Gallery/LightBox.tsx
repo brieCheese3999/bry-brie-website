@@ -31,10 +31,68 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
     // currentIndex changes. Fade it out immediately on navigation and back
     // in once the new source has actually loaded, so switching photos reads
     // as a crossfade instead of a blocky pop.
-    const [imgLoaded, setImgLoaded] = React.useState(false);
-    React.useEffect(() => {
-        setImgLoaded(false);
-    }, [currentIndex]);
+    const [loadedImage, setLoadedImage] = React.useState<string | null>(null);
+    const imgLoaded = loadedImage === item.img;
+    const wrapperRef = React.useRef<HTMLDivElement>(null);
+    const closeRef = React.useRef<HTMLButtonElement>(null);
+
+    React.useLayoutEffect(() => {
+        const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
+        const bodyStyle = document.body.style.cssText;
+        const htmlOverflow = document.documentElement.style.overflow;
+        const backdrop = wrapperRef.current?.parentElement;
+        const background = Array.from(document.body.children)
+            .filter((element): element is HTMLElement => element instanceof HTMLElement && element !== backdrop)
+            .map(element => ({ element, inert: element.inert, ariaHidden: element.getAttribute('aria-hidden') }));
+
+        // Move focus before hiding its previous container from assistive technology.
+        closeRef.current?.focus({ preventScroll: true });
+        background.forEach(({ element }) => {
+            element.inert = true;
+            element.setAttribute('aria-hidden', 'true');
+        });
+        // Fixed positioning also prevents viewport scrolling on touch browsers.
+        document.documentElement.style.overflow = 'hidden';
+        Object.assign(document.body.style, {
+            position: 'fixed', top: `${-scrollY}px`, left: `${-scrollX}px`,
+            width: '100%', overflow: 'hidden',
+        });
+        const containFocus = (event: FocusEvent) => {
+            if (event.target instanceof Node && !wrapperRef.current?.contains(event.target)) {
+                closeRef.current?.focus();
+            }
+        };
+        const trapTab = (event: KeyboardEvent) => {
+            if (event.key !== 'Tab') return;
+            const buttons = Array.from(wrapperRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []);
+            const first = buttons[0];
+            const last = buttons[buttons.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first?.focus();
+            }
+        };
+        document.addEventListener('focusin', containFocus);
+        document.addEventListener('keydown', trapTab);
+        return () => {
+            document.removeEventListener('focusin', containFocus);
+            document.removeEventListener('keydown', trapTab);
+            background.forEach(({ element, inert, ariaHidden }) => {
+                element.inert = inert;
+                if (ariaHidden === null) element.removeAttribute('aria-hidden');
+                else element.setAttribute('aria-hidden', ariaHidden);
+            });
+            document.body.style.cssText = bodyStyle;
+            document.documentElement.style.overflow = htmlOverflow;
+            window.scrollTo(scrollX, scrollY);
+            if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+        };
+    }, []);
 
     // Mount the overlay transparent/scaled-down, then flip to its resting
     // state one frame later so the open itself animates in instead of
@@ -63,6 +121,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
 
     return createPortal(
         <div
+            data-testid="lightbox-backdrop"
             style={{
                 position: "fixed",
                 inset: 0,
@@ -74,7 +133,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                 opacity: entered ? 1 : 0,
                 transition: "opacity 200ms ease",
             }}
-            onClick={onClose}
+            onClick={event => { if (event.target === event.currentTarget) onClose(); }}
         >
             <style>{`
                 .lightbox-wrapper [role="dialog"] {
@@ -86,6 +145,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
             `}</style>
             <div
                 className="lightbox-wrapper"
+                ref={wrapperRef}
                 style={{
                     maxWidth: isMobile
                         ? "77vw"
@@ -98,7 +158,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                     transition: "transform 200ms ease",
                 }}
             >
-                <Modal title={item.label}>
+                <Modal title={item.label} aria-label={item.label} aria-modal="true">
                     <Modal.Content boxShadow="$in" bgColor="white">
                         <Frame display="flex" flexDirection="column" alignItems="center" gap="5px">
                             <img
@@ -107,7 +167,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                                 alt={item.label}
                                 onLoad={(e) => {
                                     measureOrientation(e.currentTarget);
-                                    setImgLoaded(true);
+                                    setLoadedImage(item.img);
                                 }}
                                 style={{
                                     maxWidth: "100%",
@@ -119,7 +179,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                             />
                             <Frame display="flex" flexDirection="row" gap="8px" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                 <Button onClick={goPrev}>&lt; Prev</Button>
-                                <Button onClick={onClose}>Close</Button>
+                                <Button ref={closeRef} onClick={onClose}>Close</Button>
                                 <Button onClick={goNext}>Next &gt;</Button>
                             </Frame>
                         </Frame>

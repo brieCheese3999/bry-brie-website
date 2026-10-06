@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Frame, TitleBar } from '@react95/core';
-import { Sendmail2001 } from '@react95/icons';
+import { Sendmail2001 } from "@react95/icons/Sendmail2001";
 
 interface MailSentModalProps {
     /** Whether the confirmation dialog is showing. */

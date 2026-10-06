@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import emailjs from '@emailjs/browser';
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID ?? '';
@@ -6,20 +6,16 @@ const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID ?? '';
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY ?? '';
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY ?? '';
 
-// A genuine human takes at least a few seconds to read the page and fill three
-// fields; bots submit near-instantly. Anything faster than this is dropped.
-const MIN_SUBMIT_MS = 3000;
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type SendStatus = 'idle' | 'sending' | 'sent' | 'error';
 
 /**
  * Shared state + submit logic for the contact form, used by both the desktop
- * and mobile About panels so the anti-spam protections stay identical.
+ * and mobile Contact panels so the anti-spam protections stay identical.
  *
  * Note: because this is a static site, the EmailJS keys are necessarily public.
- * These client-side checks (honeypot, time-trap, optional reCAPTCHA) stop the
+ * These client-side checks (honeypot and optional reCAPTCHA) stop the
  * bulk of automated form spam, but the authoritative protection is the
  * allowed-origins list, rate limit, and reCAPTCHA configured in the EmailJS
  * dashboard — those apply even when someone bypasses this form entirely.
@@ -32,15 +28,8 @@ export function useContactForm() {
   const [honeypot, setHoneypot] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
-  // Drives the "Mail Sent" confirmation pop-up. Opened whenever a submission
-  // succeeds (real send or a silently-dropped bot), dismissed by the user.
+  // Confirmation opens only after EmailJS accepts the message.
   const [showSentModal, setShowSentModal] = useState(false);
-  // Timestamp of first mount, used by the time-trap below. Set in an effect
-  // (not during render) so render stays pure.
-  const mountTime = useRef(0);
-  useEffect(() => {
-    mountTime.current = Date.now();
-  }, []);
 
   const flashStatus = (status: SendStatus) => {
     setSendStatus(status);
@@ -48,12 +37,9 @@ export function useContactForm() {
   };
 
   const handleSend = () => {
-    // Silently drop obvious bots (honeypot filled or submitted implausibly
-    // fast). We show "Sent!" rather than an error so a bot can't tell it was
-    // caught and adapt.
-    if (honeypot.trim() !== '' || Date.now() - mountTime.current < MIN_SUBMIT_MS) {
-      flashStatus('sent');
-      setShowSentModal(true);
+    if (sendStatus === 'sending') return;
+    if (honeypot.trim() !== '') {
+      flashStatus('error');
       return;
     }
 

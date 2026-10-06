@@ -5,7 +5,7 @@ import { useCallback, useSyncExternalStore } from 'react';
  * (floating, draggable windows positioned at fixed pixel coordinates, scaled
  * to fit via useResponsiveScale) to a simplified single-column layout.
  *
- * Floating/draggable windows don't work well on narrow touch screens — there's
+ * Floating/draggable windows don't work well on phone and tablet touch screens — there's
  * no room to drag things around, and overlapping tiny windows are hard to read
  * or tap accurately. Below this breakpoint, every panel renders its content as
  * a stacked, static section instead.
@@ -15,7 +15,7 @@ import { useCallback, useSyncExternalStore } from 'react';
  * can't import a JS constant without a build-time step), search that file for
  * MOBILE_BREAKPOINT_PX if you change this number.
  */
-export const MOBILE_BREAKPOINT_PX = 768;
+export const MOBILE_BREAKPOINT_PX = 1279;
 
 export interface ResponsiveMode {
   isMobile: boolean;

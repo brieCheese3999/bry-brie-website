@@ -1,15 +1,40 @@
 import React from 'react';
+import { Cut } from "@react95/icons/Cut";
+import { Copy } from "@react95/icons/Copy";
+import { Paste } from "@react95/icons/Paste";
+import { Undo } from "@react95/icons/Undo";
+import { Redo } from "@react95/icons/Redo";
+import { Attach } from "@react95/icons/Attach";
+import { Save } from "@react95/icons/Save";
+import { Bold } from "@react95/icons/Bold";
+import { Italic } from "@react95/icons/Italic";
+import { Underlne } from "@react95/icons/Underlne";
+import { Justify } from "@react95/icons/Justify";
+import { Spellchk } from "@react95/icons/Spellchk";
+import { FontBig } from "@react95/icons/FontBig";
+import { FilePencil } from "@react95/icons/FilePencil";
+import { FileText } from "@react95/icons/FileText";
+import { Folder } from "@react95/icons/Folder";
+import { ReaderDisket } from "@react95/icons/ReaderDisket";
+import { Help } from "@react95/icons/Help";
+import { Camera } from "@react95/icons/Camera";
+import { Mspaint } from "@react95/icons/Mspaint";
 import { Modal, Frame, Button, TextArea, Input, List, Dropdown } from '@react95/core';
-import {
-    Access226,
-    Awfext326052,
-    Bat,
-    Brush,
-    Calculator,
-    CdMusic, Comdlg32528, Fax, Faxcover108, FileFont2, FilePick, Fontext3, Mail, Msrating109,
-    Notepad, Printer, Shell32142, Shell3224, Signup, Wab321014, Winpopup3,
-    Wmsui323911, Wordpad, Write1,
-} from '@react95/icons';
+import { Brush } from "@react95/icons/Brush";
+import { Calculator } from "@react95/icons/Calculator";
+import { CdMusic } from "@react95/icons/CdMusic";
+import { Fax } from "@react95/icons/Fax";
+import { FileFont2 } from "@react95/icons/FileFont2";
+import { FilePick } from "@react95/icons/FilePick";
+import { Fontext3 } from "@react95/icons/Fontext3";
+import { Mail } from "@react95/icons/Mail";
+import { Msrating109 } from "@react95/icons/Msrating109";
+import { Notepad } from "@react95/icons/Notepad";
+import { Printer } from "@react95/icons/Printer";
+import { Signup } from "@react95/icons/Signup";
+import { Wab321014 } from "@react95/icons/Wab321014";
+import { Winpopup3 } from "@react95/icons/Winpopup3";
+import { Wordpad } from "@react95/icons/Wordpad";
 import { useResponsiveMode } from '../useResponsiveMode.ts';
 import { useContactForm } from '../About/useContactForm.ts';
 import { ReCaptcha } from '../About/ReCaptcha.tsx';
@@ -26,15 +51,34 @@ const honeypotStyle: React.CSSProperties = {
     pointerEvents: 'none',
 };
 
-const buttonStyle: React.CSSProperties = {
-    width: 50,
-    height: 50,
-    minWidth: 50,
-    padding: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
+const contactIcons = [Mail, Wab321014, Signup, Save, Printer, Spellchk, Cut, Copy,
+    Paste, Undo, Redo, FileText, Attach, Fax, Notepad, Wordpad, FilePick,
+    FileFont2, Fontext3, Winpopup3, Brush, Calculator, CdMusic, Folder,
+    ReaderDisket, Help, Camera, Mspaint];
+
+const formatIcons = [Bold, Italic, Underlne, FilePencil, FontBig, Justify, FileText, Spellchk, Printer, Msrating109];
+
+const ContactIconStrip = () => {
+    const stripRef = React.useRef<HTMLDivElement>(null);
+    const [iconCount, setIconCount] = React.useState<number | null>(null);
+    React.useEffect(() => {
+        const strip = stripRef.current;
+        if (!strip) return;
+        const observer = new ResizeObserver(([entry]) => {
+            // Reserve 40px per tile and a 4px gap; distribute spare space evenly.
+            setIconCount(Math.max(1, Math.min(contactIcons.length, Math.floor((entry.contentRect.width + 4) / 44))));
+        });
+        observer.observe(strip);
+        return () => observer.disconnect();
+    }, []);
+    return (
+        <div ref={stripRef} className="contact-icon-strip" aria-hidden="true"
+            style={iconCount === null ? undefined : { gridTemplateColumns: `repeat(${iconCount}, minmax(0, 1fr))` }}>
+            {contactIcons.slice(0, iconCount ?? contactIcons.length).map((Icon, index) => (
+                <span className="contact-icon-tile" key={index}><Icon /></span>
+            ))}
+        </div>
+    );
 };
 
 /**
@@ -44,7 +88,10 @@ const buttonStyle: React.CSSProperties = {
  * `.contact-panel-modal` rather than floating); mobile falls back to a plain
  * stacked column like the other panels.
  */
-const DesktopContactPanel: React.FC = () => {
+interface ContactPanelProps { form: ReturnType<typeof useContactForm> }
+
+const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
+    const fieldId = React.useId();
     const {
         senderEmail, setSenderEmail,
         subject, setSubject,
@@ -56,7 +103,7 @@ const DesktopContactPanel: React.FC = () => {
         sendButtonLabel,
         showSentModal,
         dismissSentModal,
-    } = useContactForm();
+    } = form;
 
     return (
         <>
@@ -81,52 +128,32 @@ const DesktopContactPanel: React.FC = () => {
             ]}
             dragOptions={{ defaultPosition: { x: 0, y: 0 } }}
         >
-            <Frame flexWrap="wrap" display="flex" bgColor="$material" flexDirection="row" padding="$4" gap="$4">
-                <Button key="mail" style={buttonStyle}><Mail variant="32x32_4" /></Button>
-                <Button key="cdmusic" style={buttonStyle}><CdMusic variant="32x32_4" /></Button>
-                <Button key="copy" style={buttonStyle}><FilePick variant="32x32_4" /></Button>
-                <Button key="cut" style={buttonStyle}><Shell32142 variant="32x32_4" /></Button>
-                <Button key="faxcover" style={buttonStyle}><Faxcover108 variant="32x32_4" /></Button>
-                <Button key="fax" style={{ ...buttonStyle, marginLeft: 10 }}><Fax variant="32x32_4" /></Button>
-                <Button key="filefont" style={buttonStyle}><FileFont2 variant="32x32_4" /></Button>
-                <Button key="fonttext" style={buttonStyle}><Fontext3 variant="32x32_4" /></Button>
-                <Button key="notepad" style={{ ...buttonStyle, marginLeft: 10 }}><Notepad variant="32x32_4" /></Button>
-                <Button key="print" style={buttonStyle}><Wordpad variant="32x32_4" /></Button>
-                <Button key="shell" style={buttonStyle}><Shell3224 variant="32x32_4" /></Button>
-                <Button key="spellchk" style={buttonStyle}><Winpopup3 variant="32x32_4" /></Button>
-                <Button key="write1a" style={buttonStyle}><Write1 variant="32x32_4" /></Button>
-                <Button key="wmsui" style={buttonStyle}><Wmsui323911 variant="32x32_4" /></Button>
-                <Button key="wab" style={buttonStyle}><Wab321014 variant="32x32_4" /></Button>
-                <Button key="signup" style={buttonStyle}><Signup variant="32x32_4" /></Button>
-                <Button key="access" style={buttonStyle}><Access226 variant="32x32_4"/></Button>
-                <Button key="access" style={buttonStyle}><Awfext326052 variant="32x32_4"/></Button>
-                <Button key="access" style={buttonStyle}><Bat variant="32x32_4"/></Button>
-                <Button key="access" style={buttonStyle}><Brush variant="32x32_4"/></Button>
-                <Button key="access" style={buttonStyle}><Calculator variant="32x32_4"/></Button>
-                <Button key="access" style={buttonStyle}><Comdlg32528 variant="32x32_4"/></Button>
+            <ContactIconStrip />
 
-            </Frame>
-
-            <Frame display="flex">
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <Dropdown width="15px" minWidth="0px" options={['Normal']} style={{ fontSize: '20px' }} />
-                    <Dropdown width="15px" minWidth="5px" marginLeft="10px" options={['Arial']} style={{ fontSize: '20px' }} />
-                    <Dropdown width="10px" minWidth="0px" marginLeft="10px" marginRight={'8px'} options={['10']} style={{ fontSize: '20px' }} />
-                    <Button key="printer" style={buttonStyle}><Printer variant="32x32_4" /></Button>
-                    <Button key="msrating" style={buttonStyle}><Msrating109 variant="32x32_4" /></Button>
+            <div className="contact-format-row">
+                <div className="contact-font-pickers">
+                    <Dropdown width="100%" minWidth="0px" options={['Normal']} style={{ fontSize: '20px' }} />
+                    <Dropdown width="100%" minWidth="0px" options={['Arial']} style={{ fontSize: '20px' }} />
+                    <Dropdown width="100%" minWidth="0px" options={['10']} style={{ fontSize: '20px' }} />
                 </div>
-            </Frame>
+                <div className="contact-format-icons" aria-hidden="true">
+                    {formatIcons.map((Icon, index) => (
+                        <span className="contact-icon-tile" key={index}><Icon /></span>
+                    ))}
+                </div>
+            </div>
 
             <Modal.Content>
                 <Frame display="flex" flexDirection="column">
                     <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
                         <Button style={{ minWidth: 75, fontSize: '20px', padding: 4, marginRight: 15, marginBottom: 6 }}>To...</Button>
-                        <span style={{ fontSize: '20px' }}>{CONTACT_EMAIL}</span>
+                        <Input readOnly aria-label="To" value={CONTACT_EMAIL} style={{ flex: 1, minWidth: 0, fontSize: '20px', padding: 4, marginRight: 10 }} />
                     </Frame>
                     <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                        <Button style={{ minWidth: 75, fontSize: '20px', padding: 4, marginRight: 15, marginBottom: 6 }}>From</Button>
+                        <label htmlFor={`${fieldId}-email`} className="contact-from-label" style={{ minWidth: 75, fontSize: '20px', padding: 4, marginRight: 15, marginBottom: 6 }}>From</label>
                         <Input
                             type="email"
+                            id={`${fieldId}-email`}
                             data-testid="contact-from"
                             placeholder="your@email.com"
                             value={senderEmail}
@@ -135,15 +162,18 @@ const DesktopContactPanel: React.FC = () => {
                         />
                     </Frame>
                     <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                        <span style={{ minWidth: 40, fontSize: '20px', display: 'inline-block', padding: 4, marginRight: 10, marginTop: 6 , marginBottom: 6}}>Subject:</span>
+                        <label htmlFor={`${fieldId}-subject`} style={{ minWidth: 40, fontSize: '20px', display: 'inline-block', padding: 4, marginRight: 10, marginTop: 6 , marginBottom: 6}}>Subject:</label>
                         <Input
+                            id={`${fieldId}-subject`}
                             data-testid="contact-subject"
                             value={subject}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
                             style={{ flex: 1, fontSize: '20px', minWidth: 70, padding: 4, marginRight: 10, marginBottom: 10 }}
                         />
                     </Frame>
+                    <label htmlFor={`${fieldId}-message`} className="contact-sr-label">Message</label>
                     <TextArea
+                        id={`${fieldId}-message`}
                         data-testid="contact-message"
                         value={message}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
@@ -181,7 +211,8 @@ const DesktopContactPanel: React.FC = () => {
     );
 };
 
-const MobileContactPanel: React.FC = () => {
+const MobileContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
+    const fieldId = React.useId();
     const {
         senderEmail, setSenderEmail,
         subject, setSubject,
@@ -193,38 +224,44 @@ const MobileContactPanel: React.FC = () => {
         sendButtonLabel,
         showSentModal,
         dismissSentModal,
-    } = useContactForm();
+    } = form;
 
     return (
         <div className="win95-mobile-stack">
+            <ContactIconStrip />
             <Frame display="flex" flexDirection="column" gap="$4" bgColor="$material" boxShadow="$out" padding="$8">
                 <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                    <span style={{ minWidth: 50, fontSize: '14px' }}>To:</span>
-                    <span style={{ fontSize: '14px' }}>{CONTACT_EMAIL}</span>
+                    <span style={{ minWidth: 50, fontSize: '16px' }}>To:</span>
+                    <Input readOnly aria-label="To" value={CONTACT_EMAIL} style={{ flex: 1, minWidth: 0, fontSize: '16px', padding: 4 }} />
                 </Frame>
                 <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                    <span style={{ minWidth: 50, fontSize: '14px' }}>From:</span>
+                    <label htmlFor={`${fieldId}-email`} style={{ minWidth: 50, fontSize: '16px' }}>From:</label>
                     <Input
                         type="email"
+                            id={`${fieldId}-email`}
                         placeholder="your@email.com"
                         value={senderEmail}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenderEmail(e.target.value)}
-                        style={{ flex: 1, fontSize: '14px', padding: 4 }}
+                        style={{ flex: 1, fontSize: '16px', padding: 4 }}
                     />
                 </Frame>
                 <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                    <span style={{ minWidth: 50, fontSize: '14px' }}>Subject:</span>
+                    <label htmlFor={`${fieldId}-subject`} style={{ minWidth: 50, fontSize: '16px' }}>Subject:</label>
                     <Input
+                        id={`${fieldId}-subject`}
                         value={subject}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
-                        style={{ flex: 1, fontSize: '14px', padding: 4 }}
+                        style={{ flex: 1, fontSize: '16px', padding: 4 }}
                     />
                 </Frame>
+                <label htmlFor={`${fieldId}-message`} className="contact-sr-label">Message</label>
                 <TextArea
+                    id={`${fieldId}-message`}
                     value={message}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
                     placeholder="Write your message here..."
-                    style={{ minHeight: '920px', fontSize: '14px' }}
+                    rows={8}
+                    style={{ minHeight: '160px', height: '192px', fontSize: '16px', resize: 'vertical' }}
                 />
                 {/* Honeypot: hidden from users, tempting to bots. */}
                 <input
@@ -251,9 +288,9 @@ const MobileContactPanel: React.FC = () => {
     );
 };
 
-export const ContactPanel: React.FC = () => {
+export const ContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
     const { isMobile } = useResponsiveMode();
-    return isMobile ? <MobileContactPanel /> : <DesktopContactPanel />;
+    return isMobile ? <MobileContactPanel form={form} /> : <DesktopContactPanel form={form} />;
 };
 
 export default ContactPanel;

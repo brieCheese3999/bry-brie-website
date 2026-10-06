@@ -13,15 +13,10 @@ import { test, expect, type Request } from '@playwright/test';
  *   2. Once the send resolves, the Win95 "Mail Sent" confirmation dialog
  *      appears in the UI.
  *
- * Note the anti-spam time-trap in useContactForm (MIN_SUBMIT_MS = 3000): a
- * submit faster than 3s is silently dropped and never hits the network. The
- * tests wait past that window before sending so the real send path runs.
  */
 
 const BASE_URL = process.env.PORTFOLIO_BASE_URL ?? 'http://localhost:5173';
 const EMAILJS_ENDPOINT = /api\.emailjs\.com/;
-// Matches MIN_SUBMIT_MS in useContactForm, plus a margin so the trap is clear.
-const TIME_TRAP_MS = 3500;
 
 const FROM = 'visitor@example.com';
 const SUBJECT = 'Hello from the portfolio';
@@ -51,8 +46,6 @@ test.describe('contact form email sending', () => {
         await page.getByTestId('contact-subject').fill(SUBJECT);
         await page.getByTestId('contact-message').fill(MESSAGE);
 
-        // Clear the anti-bot time-trap before submitting.
-        await page.waitForTimeout(TIME_TRAP_MS);
 
         const [request] = await Promise.all([
             page.waitForRequest(EMAILJS_ENDPOINT),
@@ -97,7 +90,6 @@ test.describe('contact form email sending', () => {
         });
 
         await openContactPanel(page);
-        await page.waitForTimeout(TIME_TRAP_MS);
 
         // Empty From + message → the form alerts and bails; auto-dismiss it.
         page.once('dialog', (d) => void d.accept());
@@ -108,7 +100,7 @@ test.describe('contact form email sending', () => {
         await expect(page.getByTestId('mail-sent-modal')).toHaveCount(0);
     });
 
-    test('does not send before the anti-bot time-trap clears', async ({ page }) => {
+    test('does not send or confirm a honeypot submission', async ({ page }) => {
         let hitNetwork = false;
         await page.route(EMAILJS_ENDPOINT, async (route) => {
             hitNetwork = true;
@@ -117,13 +109,13 @@ test.describe('contact form email sending', () => {
 
         await openContactPanel(page);
 
-        // Fill and submit immediately — faster than MIN_SUBMIT_MS.
+        // The hidden spam field must never produce a success confirmation.
         await page.getByTestId('contact-from').fill(FROM);
         await page.getByTestId('contact-message').fill(MESSAGE);
+        await page.locator('.seamless-tab-panel.is-active input[name="company_website"]').fill('spam', { force: true });
         await page.getByTestId('contact-send').click();
-        await page.waitForTimeout(500);
-
-        // Treated as a bot: no real email leaves, even though the UI plays along.
-        expect(hitNetwork, 'a too-fast submit must not call EmailJS').toBe(false);
+        await expect(page.getByTestId('contact-send')).toHaveText('Failed');
+        expect(hitNetwork, 'honeypot submission must not call EmailJS').toBe(false);
+        await expect(page.getByTestId('mail-sent-modal')).toHaveCount(0);
     });
 });

@@ -41,6 +41,10 @@ export interface GalleryItem {
   id: string;
   label: string;
   img: string;
+  width?: number;
+  height?: number;
+  thumbnail?: string;
+  srcSet?: string;
   alt?: string;
 }
 

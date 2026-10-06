@@ -383,8 +383,9 @@
    later item's span happens to match the leftover hole exactly, and with
    spans this varied (1-4 columns, 1-8 rows) it regularly can't, leaving
    visible empty cells. A CSS-columns masonry never has that problem — each
-   item just flows into the shortest column at its own natural height, so
-   there's no leftover cell shape to fail to fill. */
+   items flow down each column at their natural heights. Inline-block tiles
+   keep their bottom spacing inside the column, so it cannot become a top
+   margin at a column break. */
 .win95-gallery-wall {
   display: block;
   column-count: 4;
@@ -398,7 +399,8 @@
 }
 
 .win95-gallery-wall-item {
-  display: block;
+  display: inline-block;
+  vertical-align: top;
   width: 100%;
   break-inside: avoid;
   margin: 0 0 10px;
@@ -788,10 +790,6 @@
   min-width: 26px;
   min-height: 24px;
 }
-.portfolio-tab-modal > ul > li {
-  font-size: 16px;
-  padding: 5px 12px;
-}
 
 /* The CONTACT panel reuses react95's <Modal> for the Wordpad look, but as a
    dedicated tab it should sit in the panel flow rather than float at a fixed
@@ -812,7 +810,7 @@
   z-index: 0 !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1279px) {
   .win95-pixel-heading { font-size: 40px; }
   .win95-float-window { position: static; width: 100% !important; margin: 12px 8px; }
   .win95-panel { padding: 22px 16px; }
@@ -823,3 +821,106 @@
   flex-basis: 100%;
   height: 0;
 }
+
+.portfolio-navigation {
+  display: flex;
+  padding: 1px 0;
+  border-bottom: 1px solid var(--r95-color-borderDark);
+  box-shadow: 0 1px 0 0 var(--r95-color-borderLighter);
+}
+
+.portfolio-navigation a {
+  display: block;
+  padding: 5px 12px;
+  font-size: 16px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.portfolio-navigation a:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: -3px;
+}
+
+@media (max-width: 1279px) {
+  .win95-mobile-stack .win95-skill-tile-label,
+  .win95-mobile-stack .win95-skill-group-label,
+  .win95-mobile-stack .win95-yrs,
+  .win95-mobile-stack .win95-major,
+  .win95-mobile-stack .win95-school {
+    font-size: 14px;
+  }
+}
+
+.contact-from-label {
+  display: inline-block;
+  box-sizing: border-box;
+  text-align: center;
+  border: 2px outset white;
+  cursor: text;
+}
+.contact-sr-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.contact-icon-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  height: 49px;
+  overflow: hidden;
+  gap: 4px;
+  padding: 4px;
+  box-sizing: border-box;
+  width: 100%;
+}
+.contact-icon-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 40px;
+  box-sizing: border-box;
+  background: var(--r95-color-material);
+  border: 2px outset white;
+}
+.contact-icon-tile svg { width: 32px; height: 32px; max-width: 100%; }
+@media (max-width: 1279px) {
+  .contact-icon-tile svg { width: 28px; height: 28px; }
+}
+
+.contact-format-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px;
+  box-sizing: border-box;
+}
+.contact-font-pickers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  flex: 0 0 48%;
+  min-width: 0;
+}
+.contact-format-icons {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-icon-strip, .contact-format-row {
+  border-bottom: 1px solid var(--r95-color-borderDark);
+  box-shadow: 0 1px 0 var(--r95-color-borderLighter);
+}
+.contact-format-icons .contact-icon-tile:nth-child(-n + 3) svg { width: 24px; height: 24px; }

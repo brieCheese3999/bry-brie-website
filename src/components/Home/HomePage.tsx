@@ -4,12 +4,16 @@ import styled from 'styled-components';
 import { SplitPixelBackground } from "../Background/SplitPixelBackground.tsx";
 import photo1 from "../../assets/photos/HAWAII15.jpeg";
 import photo2 from "../../assets/photos/HAWAII_4.jpg";
+import { MOBILE_BREAKPOINT_PX } from '../useResponsiveMode';
 import Win95Portfolio from "./Win95Portfolio.tsx";
 import {ClipArt} from "../Background/BackgroundClipArt.tsx";
 import {defaultClipArt} from "../data.ts";
 import type {ClipArtContent} from "../types.ts";
 import {List, TaskBar} from "@react95/core";
-import {Camera, Mmsys113, Mspaint} from "@react95/icons";
+import { Camera } from "@react95/icons/Camera";
+import { Mail } from "@react95/icons/Mail";
+import { Mmsys113 } from "@react95/icons/Mmsys113";
+import { Mspaint } from "@react95/icons/Mspaint";
 
 interface HomePageProps {
     content?: ClipArtContent;
@@ -44,7 +48,7 @@ const ForegroundLayer = styled.div`
      taskbar at the bottom. */
   padding: 40px 24px 56px;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${MOBILE_BREAKPOINT_PX}px) {
     padding: 32px 16px 56px;
   }
 `;
@@ -68,9 +72,7 @@ const HomePage: React.FC<HomePageProps> = ({ content = defaultClipArt }) => {
     const backItems = content.items.filter(item => item.layer !== 'front');
     const frontItems = content.items.filter(item => item.layer === 'front');
 
-    // Section navigation now lives in the taskbar's Start menu (the top nav bar
-    // was removed). Each item routes to its section, which Win95Portfolio reads
-    // from the URL to decide which panel to show.
+    // Start menu destinations match the main window's section navigation.
     const startMenu = (
         <List width="200px">
             <List.Item icon={<Mmsys113 variant="32x32_4" />} onClick={() => navigate('/about')}>
@@ -81,6 +83,9 @@ const HomePage: React.FC<HomePageProps> = ({ content = defaultClipArt }) => {
             </List.Item>
             <List.Item icon={<Mspaint variant="32x32_4" />} onClick={() => navigate('/ceramics')}>
                 Clay
+            </List.Item>
+            <List.Item icon={<Mail variant="32x32_4" />} onClick={() => navigate('/contact')}>
+                Contact
             </List.Item>
         </List>
     );

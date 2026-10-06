@@ -1,15 +1,16 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { defaultContent } from '../data';
 import type {TabId, Win95PortfolioContent} from '../types';
 import {Frame, List, Modal} from '@react95/core';
-import {Mmsys113} from '@react95/icons';
+import { Mmsys113 } from "@react95/icons/Mmsys113";
 import { useResponsiveMode } from '../useResponsiveMode';
 import { useResponsiveScale } from '../useResponsiveScale';
 import './win95Portfolio.css';
 import {generateCascadePositions} from "../Gallery/cascadePositions.ts";
 import {AboutPanel} from "../About/AboutPanel.tsx";
 import {GalleryPanel} from "../Gallery/GalleryPanel.tsx";
+import { useContactForm } from '../About/useContactForm';
 import {ContactPanel} from "../Contact/ContactPanel.tsx";
 
 const TAB_CONTENT_MIN_HEIGHT = 950;
@@ -24,37 +25,20 @@ const MAX_SCALE = .85;
 const PORTFOLIO_LEFT_OFFSET = 320; // > abs(website-modal's x: -300) + a little breathing room
 const TAB_IDS: TabId[] = ['about', 'photos', 'ceramics', 'contact'];
 
-/**
- * Routes to `to` as soon as it mounts, then renders nothing. react95's <Modal>
- * menu items open their `list` dropdown when clicked, so wiring one of these
- * (inside a hidden <List>) as a menu item's dropdown turns that top-level menu
- * label into a single-click navigation link — matching the old top-nav.
- */
-const NavigateOnOpen: React.FC<{ to: string }> = ({ to }) => {
-  const navigate = useNavigate();
-  useEffect(() => {
-    void navigate(to);
-  }, [navigate, to]);
-  return null;
-};
-
-/** Build a menu entry whose label navigates to `to` on click. */
-const navMenuItem = (name: string, to: string) => ({
-  name,
-  list: (
-    <List style={{ display: 'none' }}>
-      <NavigateOnOpen to={to} />
-    </List>
-  ),
-});
-
-// The main window's menu bar doubles as section navigation.
-const PORTFOLIO_MENU = [
-  navMenuItem('About', '/about'),
-  navMenuItem('Photos', '/photos'),
-  navMenuItem('Clay', '/ceramics'),
-  navMenuItem('Contact', '/contact'),
+const PORTFOLIO_LINKS = [
+  { name: 'About', to: '/about' },
+  { name: 'Photos', to: '/photos' },
+  { name: 'Clay', to: '/ceramics' },
+  { name: 'Contact', to: '/contact' },
 ];
+
+const PortfolioNavigation = () => (
+  <nav className="portfolio-navigation" aria-label="Portfolio">
+    {PORTFOLIO_LINKS.map(({ name, to }) => (
+      <NavLink key={to} to={to} end>{name}</NavLink>
+    ))}
+  </nav>
+);
 
 export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaultContent }) => {
     const positions = React.useMemo(
@@ -69,6 +53,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
         []
     );
 
+  const contactForm = useContactForm();
   const { isDesktop } = useResponsiveMode();
   const rawScale = useResponsiveScale(DESIGN_WIDTH);
   const scale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
@@ -83,11 +68,19 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
     useEffect(() => {
     const el = innerRef.current;
     if (!el) return;
+    let frame = 0;
     const observer = new ResizeObserver(() => {
-      setDeadSpace(el.offsetHeight * (1 - scale));
+      // Update layout after this observer delivery to avoid a resize loop.
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        setDeadSpace(el.offsetHeight * (1 - scale));
+      });
     });
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
   }, [scale]);
 
     if (!isDesktop) {
@@ -100,8 +93,8 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                   title="BRYANNA PLAISIR"
                   hasWindowButton={false}
                   titleBarOptions={<Modal.Minimize disabled title="Minimizing isn't available on mobile" />}
-                  menu={PORTFOLIO_MENU}
               >
+                  <PortfolioNavigation />
                   <Modal.Content p="$6">
               <div className="seamless-tab-panels" style={{ minHeight: TAB_CONTENT_MIN_HEIGHT }}>
                   <div
@@ -126,7 +119,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                       className={`seamless-tab-panel ${active === 'contact' ? 'is-active' : ''}`}
                       aria-hidden={active !== 'contact'}
                   >
-                      <ContactPanel />
+                      <ContactPanel form={contactForm} />
                   </div>
               </div>
                   </Modal.Content>
@@ -182,8 +175,8 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                   title="BRYANNA PLAISIR"
                   hasWindowButton={false}
                   titleBarOptions={<Modal.Minimize />}
-                  menu={PORTFOLIO_MENU}
               >
+                  <PortfolioNavigation />
                   <Modal.Content p="$12">
                   <div className="seamless-tab-panels" style={{ minHeight: TAB_CONTENT_MIN_HEIGHT }}>
                       <div
@@ -208,7 +201,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                           className={`seamless-tab-panel ${active === 'contact' ? 'is-active' : ''}`}
                           aria-hidden={active !== 'contact'}
                       >
-                          <ContactPanel />
+                          <ContactPanel form={contactForm} />
                       </div>
                   </div>
                       </Modal.Content>

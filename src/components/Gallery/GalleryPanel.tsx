@@ -4,33 +4,10 @@ import {Fieldset, Frame, Modal} from "@react95/core";
 import { Lightbox } from "./LightBox.tsx";
 import { useResponsiveMode } from '../useResponsiveMode';
 
-type GallerySize = 'portrait' | 'portrait-lg' | 'landscape' | 'landscape-lg' | 'landscape-sm';
-type Orientation = 'portrait' | 'landscape';
-
-function getPhotoSize(orientation: Orientation | undefined, index: number): GallerySize {
-    if (!orientation) return 'landscape';
-    if (orientation === 'portrait') {
-        return index % 5 === 0 ? 'portrait-lg' : 'portrait';
-    }
-    const mod = index % 7;
-    if (mod === 0) return 'landscape-lg';
-    if (mod === 3 || mod === 5) return 'landscape-sm';
-    return 'landscape';
-}
-
 export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content }) => {
     const { isMobile } = useResponsiveMode();
     const [expandedIndex, setExpandedIndex] = React.useState<number | null>(null);
-    // Orientation is measured from each image as it actually loads (lazily),
-    // rather than eagerly downloading all images up front just to measure them.
-    const [orientations, setOrientations] = React.useState<Record<number, Orientation>>({});
     const [modalIndex, setModalIndex] = React.useState(0);
-
-    const handleImgLoad = (index: number, e: React.SyntheticEvent<HTMLImageElement>) => {
-        const el = e.currentTarget;
-        const orientation: Orientation = el.naturalWidth < el.naturalHeight ? 'portrait' : 'landscape';
-        setOrientations((prev) => (prev[index] ? prev : { ...prev, [index]: orientation }));
-    };
 
     React.useEffect(() => {
         if (content.items.length <= 1) return;
@@ -68,7 +45,9 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
                     <Modal width="30%" height="40%" dragOptions={{ defaultPosition: { x: 870, y: 0 } }}  title={"PHOTOS"}>
                         <Modal.Content style={{ overflow: 'hidden' }}>
                             <img
-                                src={content.items[modalIndex].img}
+                                src={content.items[modalIndex].thumbnail ?? content.items[modalIndex].img}
+                                srcSet={content.items[modalIndex].srcSet}
+                                sizes="(max-width: 1279px) 30vw, 480px"
                                 alt={content.items[modalIndex].alt}
                                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                             />
@@ -79,21 +58,27 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
                             <div className="win95-gallery-wall-scroll">
                                 <div className={`win95-gallery-wall ${isMobile ? 'win95-gallery-wall--mobile' : ''}`}>
                                     {content.items.map((item, index) => {
-                                        const size = getPhotoSize(orientations[index], index);
                                         return (
                                             <button
                                                 key={item.id}
                                                 type="button"
-                                                className={`win95-gallery-wall-item win95-gallery-wall-item--${size} win95-raised`}
-                                                onClick={() => setExpandedIndex(index)}
+                                                className="win95-gallery-wall-item win95-raised"
+                                                onClick={event => {
+                                                    event.currentTarget.focus({ preventScroll: true });
+                                                    setExpandedIndex(index);
+                                                }}
                                                 aria-label={`View photo: ${item.label}`}
                                             >
                                                 <img
-                                                    src={item.img}
+                                                    src={item.thumbnail ?? item.img}
+                                                    srcSet={item.srcSet}
+                                                    sizes="(max-width: 1279px) calc((100vw - 120px) / 2), 340px"
                                                     alt={item.alt ?? item.label}
                                                     loading="lazy"
                                                     decoding="async"
-                                                    onLoad={(e) => handleImgLoad(index, e)}
+                                                    style={{ aspectRatio: item.width && item.height ? `${item.width} / ${item.height}` : undefined, objectFit: 'cover' }}
+                                                    width={item.width}
+                                                    height={item.height}
                                                 />
                                             </button>
                                         );
