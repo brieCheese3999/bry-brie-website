@@ -99,7 +99,8 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                   icon={<Mmsys113 variant="32x32_4" />}
                   title="BRYANNA PLAISIR"
                   hasWindowButton={false}
-                  titleBarOptions={<Modal.Minimize />}
+                  titleBarOptions={<Modal.Minimize disabled title="Minimizing isn't available on mobile" />}
+                  menu={PORTFOLIO_MENU}
               >
                   <Modal.Content p="$6">
               <div className="seamless-tab-panels" style={{ minHeight: TAB_CONTENT_MIN_HEIGHT }}>

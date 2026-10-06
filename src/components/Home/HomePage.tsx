@@ -107,7 +107,7 @@ const HomePage: React.FC<HomePageProps> = ({ content = defaultClipArt }) => {
                 </ClipArtFrontLayer>
             </PageWrapper>
             <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999 }}>
-                <TaskBar list={startMenu} />
+                <TaskBar className="win95-taskbar-bar" list={startMenu} />
             </div>
         </>
    );

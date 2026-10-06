@@ -8,6 +8,8 @@ import { defineConfig } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  outputDir: './test-results',
+  reporter: [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'test-results/results.json' }]],
   fullyParallel: false,
   workers: 1,
 
@@ -38,5 +40,6 @@ export default defineConfig({
   // "works on my machine, fails in the pipeline" baseline mismatches.
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
+    { name: 'webkit', testMatch: '**/ui-journeys.spec.ts', use: { browserName: 'webkit' } },
   ],
 });

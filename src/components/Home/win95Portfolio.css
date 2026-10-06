@@ -222,9 +222,8 @@
   100% { opacity: 1; }
 }
 .win95-pixel-heading {
-  font-family: 'Pixel Game', 'Pixelify Sans', sans-serif;
   font-weight: 700;
-  font-size: 63px;
+  font-size: 53px;
   line-height: 0.85;
   color: var(--ink);
   margin: 0 0 16px;
@@ -234,12 +233,10 @@
 /* react95 renders the heading as a <legend> with its own MS Sans Serif rule;
    target it directly (0-1-1 beats react95's 0-1-0) so it uses our display face. */
 .win95-pixel-heading legend {
-  font-family: 'Pixel Game', 'Pixelify Sans', sans-serif;
   font-weight: 700;
   white-space: pre-line;
 }
 .win95-subject-name {
-  font-family: 'Pixel Game', 'Pixelify Sans', sans-serif;
   font-size: 32px;
   color: var(--accent-purple);
   text-decoration: underline;
@@ -380,60 +377,45 @@
   object-fit: cover;
 }
 
-/* ---------- gallery wall (masonry-style grid) ---------- */
+/* ---------- gallery wall (masonry-style grid) ----------
+   CSS grid with hand-picked row/column spans (the old approach) can't
+   guarantee a gapless pack: `grid-auto-flow: dense` only fills a cell if a
+   later item's span happens to match the leftover hole exactly, and with
+   spans this varied (1-4 columns, 1-8 rows) it regularly can't, leaving
+   visible empty cells. A CSS-columns masonry never has that problem — each
+   item just flows into the shortest column at its own natural height, so
+   there's no leftover cell shape to fail to fill. */
 .win95-gallery-wall {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-auto-rows: 80px;
-  grid-auto-flow: dense;
-  gap: 6px;
+  display: block;
+  column-count: 4;
+  column-gap: 10px;
   width: 100%;
 }
 
 .win95-gallery-wall--mobile {
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 70px;
-  gap: 4px;
-}
-
-.win95-gallery-wall--mobile .win95-gallery-wall-item--portrait {
-  grid-column: span 1;
-  grid-row: span 3;
-}
-
-.win95-gallery-wall--mobile .win95-gallery-wall-item--portrait-lg {
-  grid-column: span 2;
-  grid-row: span 4;
-}
-
-.win95-gallery-wall--mobile .win95-gallery-wall-item--landscape {
-  grid-column: span 2;
-  grid-row: span 2;
-}
-
-.win95-gallery-wall--mobile .win95-gallery-wall-item--landscape-lg {
-  grid-column: span 3;
-  grid-row: span 2;
-}
-
-.win95-gallery-wall--mobile .win95-gallery-wall-item--landscape-sm {
-  grid-column: span 2;
-  grid-row: span 1;
+  column-count: 2;
+  column-gap: 14px;
 }
 
 .win95-gallery-wall-item {
+  display: block;
+  width: 100%;
+  break-inside: avoid;
+  margin: 0 0 10px;
+  padding: 0;
   overflow: hidden;
   cursor: pointer;
   border: none;
-  padding: 3px;
   position: relative;
+}
+
+.win95-gallery-wall--mobile .win95-gallery-wall-item {
+  margin: 0 0 14px;
 }
 
 .win95-gallery-wall-item img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+  height: auto;
   display: block;
   filter: grayscale(15%) contrast(105%);
   transition: filter 0.2s ease;
@@ -441,31 +423,6 @@
 
 .win95-gallery-wall-item:hover img {
   filter: grayscale(0%) contrast(110%);
-}
-
-.win95-gallery-wall-item--portrait {
-  grid-column: span 1;
-  grid-row: span 4;
-}
-
-.win95-gallery-wall-item--portrait-lg {
-  grid-column: span 2;
-  grid-row: span 8;
-}
-
-.win95-gallery-wall-item--landscape {
-  grid-column: span 3;
-  grid-row: span 2;
-}
-
-.win95-gallery-wall-item--landscape-lg {
-  grid-column: span 4;
-  grid-row: span 3;
-}
-
-.win95-gallery-wall-item--landscape-sm {
-  grid-column: span 2;
-  grid-row: span 1;
 }
 
 .win95-gallery-modal-wrapper {
@@ -647,6 +604,39 @@
   box-shadow: inset 1px 1px 0 var(--dark), inset -1px -1px 0 var(--white);
 }
 
+/* ---------- react95 <TaskBar> Start button ----------
+   The library fixes the bar at 28px tall via an inline style (rainbow-
+   sprinkles sets the height as a CSS custom property per instance), so
+   !important is needed to grow it; everything else below is plain class
+   overrides that out-specify react95's single-class rules by targeting
+   through the .win95-taskbar-bar wrapper, no !important needed. The Start
+   button is the only direct <button> child of the bar (the open window
+   list and clock are nested one level deeper), so `> button` reaches only
+   it. */
+.win95-taskbar-bar {
+  height: 44px !important;
+}
+.win95-taskbar-bar > button {
+  padding: 6px 18px 6px 8px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.win95-taskbar-bar > button svg {
+  width: 28px;
+  height: 28px;
+}
+/* Open-window buttons (e.g. "PHOTOS") sit one level deeper, inside the Frame
+   that lists them — `> div > button` reaches those without also matching
+   the Start button (a direct child, handled above). */
+.win95-taskbar-bar > div > button {
+  font-size: 15px;
+  padding: 6px 10px;
+}
+.win95-taskbar-bar > div > button svg {
+  width: 22px;
+  height: 22px;
+}
+
 /* ---------- mobile stacked layout ----------
    Used below MOBILE_BREAKPOINT_PX (see useResponsiveMode.ts — keep this
    number in sync with that constant if you change either one). Below this
@@ -679,7 +669,7 @@
   width: 100%;
   max-width: 320px;
   display: block;
-  margin: 12px 0;
+  margin: 12px auto;
   filter: grayscale(15%) contrast(105%);
 }
 

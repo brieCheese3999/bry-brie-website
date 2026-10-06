@@ -44,7 +44,6 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
       <Fieldset  width="800px" legend={content.heading} className="win95-pixel-heading">
           <Frame display="flex" flexDirection="column">
               <div className="win95-icon-row">
-                  <h2 className="win95-subject-name">{content.name}</h2>
                   <p className="win95-bio-text">{content.bio}</p>
               </div>
           </Frame>

@@ -27,6 +27,24 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
         }
     }, []);
 
+    // The <img> keeps loading (and painting a flash of nothing) every time
+    // currentIndex changes. Fade it out immediately on navigation and back
+    // in once the new source has actually loaded, so switching photos reads
+    // as a crossfade instead of a blocky pop.
+    const [imgLoaded, setImgLoaded] = React.useState(false);
+    React.useEffect(() => {
+        setImgLoaded(false);
+    }, [currentIndex]);
+
+    // Mount the overlay transparent/scaled-down, then flip to its resting
+    // state one frame later so the open itself animates in instead of
+    // snapping into place.
+    const [entered, setEntered] = React.useState(false);
+    React.useEffect(() => {
+        const frame = requestAnimationFrame(() => setEntered(true));
+        return () => cancelAnimationFrame(frame);
+    }, []);
+
     const goPrev = () => onNavigate((currentIndex - 1 + items.length) % items.length);
     const goNext = () => onNavigate((currentIndex + 1) % items.length);
 
@@ -53,6 +71,8 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                 alignItems: "center",
                 justifyContent: "center",
                 zIndex: 9999,
+                opacity: entered ? 1 : 0,
+                transition: "opacity 200ms ease",
             }}
             onClick={onClose}
         >
@@ -66,33 +86,38 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
             `}</style>
             <div
                 className="lightbox-wrapper"
-                onClick={(e) => e.stopPropagation()}
                 style={{
                     maxWidth: isMobile
-                        ? "95vw"
+                        ? "77vw"
                         : isLandscape
                             ? "min(92vw, 1100px)"
                             : "565px",
                     maxHeight: "200vh",
                     width: "100%",
+                    transform: entered ? "scale(1)" : "scale(0.94)",
+                    transition: "transform 200ms ease",
                 }}
             >
                 <Modal title={item.label}>
-                    <Modal.Content boxShadow="$in" bgColor="white" p="6px">
+                    <Modal.Content boxShadow="$in" bgColor="white">
                         <Frame display="flex" flexDirection="column" alignItems="center" gap="5px">
                             <img
-                                key={currentIndex}
                                 ref={measureOrientation}
                                 src={item.img}
                                 alt={item.label}
-                                onLoad={(e) => measureOrientation(e.currentTarget)}
+                                onLoad={(e) => {
+                                    measureOrientation(e.currentTarget);
+                                    setImgLoaded(true);
+                                }}
                                 style={{
                                     maxWidth: "100%",
                                     maxHeight: isMobile ? "60vh" : "85vh",
                                     objectFit: "contain",
+                                    opacity: imgLoaded ? 1 : 0,
+                                    transition: "opacity 180ms ease",
                                 }}
                             />
-                            <Frame display="flex" flexDirection="row" gap="8px">
+                            <Frame display="flex" flexDirection="row" gap="8px" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                 <Button onClick={goPrev}>&lt; Prev</Button>
                                 <Button onClick={onClose}>Close</Button>
                                 <Button onClick={goNext}>Next &gt;</Button>

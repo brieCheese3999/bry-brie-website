@@ -29,3 +29,7 @@ dist-ssr
 
 # Claude Code local config
 .claude/
+
+# Playwright generated reports (snapshot baselines remain versioned)
+/test-results/
+/playwright-report/

@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:ui": "playwright test tests/ui-journeys.spec.ts",
+    "test:visual": "playwright test tests/responsive.spec.ts",
+    "test:visual:update": "playwright test tests/responsive.spec.ts --update-snapshots",
+    "test:report": "playwright show-report"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
