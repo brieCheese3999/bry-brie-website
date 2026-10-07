@@ -35,3 +35,9 @@ The portfolio route JavaScript fell from approximately 3,736 kB / 528 kB gzip to
 Gallery tiles use 320/640/960px width candidates with srcset/sizes; the lightbox retains the 1600px capped image. Encoded dimensions reserve tile geometry. Gallery refresh/alignment tests cover delayed downloads.
 
 @react95/core 9.8.3 has no clock override property. A narrowly scoped Vite transform replaces its internal TaskBar/Clock.mjs module with PortfolioClock in development and production. The custom clock updates at minute boundaries, refreshes when the tab becomes visible, and cleans up its timer. The clock regression checks immediate rendering and catches zero-delay intervals if a dependency update bypasses the replacement. Keep this integration check when updating React95.
+
+### Layout regression checks
+
+Run `npm run test:layout` to check the approved gallery columns, aligned column tops, tile containment, desktop introduction size and preview placement, mobile preview absence, page overflow, and taskbar placement before and after scrolling. These checks run in Chromium and WebKit at 390, 834, 1279, and 1440 pixels.
+
+Run `npm run test:visual` for screenshot comparisons across the website. When a visual test fails, inspect the diff using `npm run test:report`; update snapshots with `npm run test:visual:update` only after reviewing and approving an intentional design change. Geometry tests should not be loosened simply to make an unintended layout change pass.

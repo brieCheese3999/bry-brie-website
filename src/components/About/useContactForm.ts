@@ -29,35 +29,37 @@ export function useContactForm() {
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
   // Confirmation opens only after EmailJS accepts the message.
+  const [errorMessage, setErrorMessage] = useState('');
   const [showSentModal, setShowSentModal] = useState(false);
 
-  const flashStatus = (status: SendStatus) => {
-    setSendStatus(status);
-    setTimeout(() => setSendStatus('idle'), 3000);
+  const fail = (explanation: string) => {
+    setSendStatus('error');
+    setErrorMessage(explanation);
   };
 
   const handleSend = () => {
     if (sendStatus === 'sending') return;
     if (honeypot.trim() !== '') {
-      flashStatus('error');
+      fail('Your message could not be sent. Please try again.');
       return;
     }
 
     if (!senderEmail.trim() || !message.trim()) {
-      alert('Please fill in your email and message.');
+      fail('Please fill in your email and message.');
       return;
     }
     if (!EMAIL_RE.test(senderEmail.trim())) {
-      alert('Please enter a valid email address.');
+      fail('Please enter a valid email address.');
       return;
     }
     // Only enforce the captcha when one is actually configured, so the form
     // still works before a reCAPTCHA site key is set up.
     if (RECAPTCHA_SITE_KEY && !recaptchaToken) {
-      alert('Please complete the "I\'m not a robot" check.');
+      fail('Please complete the captcha before sending.');
       return;
     }
 
+    setErrorMessage('');
     setSendStatus('sending');
     emailjs
       .send(
@@ -82,13 +84,13 @@ export function useContactForm() {
         setRecaptchaToken(null);
         setTimeout(() => setSendStatus('idle'), 3000);
       })
-      .catch(() => flashStatus('error'));
+      .catch(() => fail('Your message could not be sent. Your draft is saved here. Check your connection and try again.'));
   };
 
   const sendButtonLabel =
     sendStatus === 'sending' ? 'Sending...' :
     sendStatus === 'sent' ? 'Sent!' :
-    sendStatus === 'error' ? 'Failed' : 'Send';
+    sendStatus === 'error' ? 'Try again' : 'Send';
 
   return {
     senderEmail, setSenderEmail,
@@ -97,6 +99,7 @@ export function useContactForm() {
     honeypot, setHoneypot,
     setRecaptchaToken,
     sendStatus,
+    errorMessage,
     handleSend,
     sendButtonLabel,
     showSentModal,

@@ -10,17 +10,12 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
     const [modalIndex, setModalIndex] = React.useState(0);
 
     React.useEffect(() => {
-        if (content.items.length <= 1) return;
+        if (isMobile || content.items.length <= 1) return;
         const timer = setInterval(() => {
             setModalIndex((prev) => (prev + 1) % content.items.length);
         }, 30_000);
         return () => clearInterval(timer);
-    }, [content.items.length]);
-
-    const columns = isMobile ? 2 : 4;
-    const rows = Array.from({ length: Math.ceil(content.items.length / columns) }, (_, row) =>
-        content.items.slice(row * columns, (row + 1) * columns)
-    );
+    }, [content.items.length, isMobile]);
 
     const lightbox = expandedIndex !== null && (
         <Lightbox
@@ -46,7 +41,7 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
                         </div>
                     </Frame>
                 </Fieldset>
-                {content.items.length > 0 && (
+                {!isMobile && content.items.length > 0 && (
                     <Modal width="30%" height="40%" dragOptions={{ defaultPosition: { x: 870, y: 0 } }}  title={"PHOTOS"}>
                         <Modal.Content style={{ overflow: 'hidden' }}>
                             <img
@@ -62,16 +57,12 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
                 <div className="win95-gallery-modal-wrapper">
                             <div className="win95-gallery-wall-scroll">
                                 <div className={`win95-gallery-wall ${isMobile ? 'win95-gallery-wall--mobile' : ''}`}>
-                                    {rows.map((row, rowIndex) => (
-                                    <div className="win95-gallery-row" key={row[0].id}>
-                                    {row.map((item, columnIndex) => {
-                                        const index = rowIndex * columns + columnIndex;
+                                    {content.items.map((item, index) => {
                                         return (
                                             <button
                                                 key={item.id}
                                                 type="button"
                                                 className="win95-gallery-wall-item win95-raised"
-                                                style={{ flex: `${item.width && item.height ? item.width / item.height : 1} 1 0%` }}
                                                 onClick={event => {
                                                     event.currentTarget.focus({ preventScroll: true });
                                                     setExpandedIndex(index);
@@ -92,8 +83,6 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
                                             </button>
                                         );
                                     })}
-                                    </div>
-                                    ))}
                                 </div>
                             </div>
                 </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Modal, Frame, TitleBar } from '@react95/core';
 import { Sendmail2001 } from "@react95/icons/Sendmail2001";
 
@@ -19,22 +20,45 @@ interface MailSentModalProps {
  * draggable positioning, matching the desktop's other pop-up windows.
  */
 export const MailSentModal: React.FC<MailSentModalProps> = ({ open, onClose }) => {
+    const dialogRef = React.useRef<HTMLDialogElement>(null);
+    React.useLayoutEffect(() => {
+        if (!open) return;
+        const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        const dialog = dialogRef.current;
+        dialog?.showModal();
+        dialog?.querySelector<HTMLButtonElement>('button')?.focus();
+        return () => {
+            dialog?.close();
+            requestAnimationFrame(() => {
+                const send = document.querySelector<HTMLButtonElement>('.seamless-tab-panel.is-active button[data-contact-send]');
+                const target = trigger && trigger !== document.body && trigger.isConnected ? trigger : send;
+                target?.focus({ preventScroll: true });
+            });
+        };
+    }, [open]);
     if (!open) return null;
 
-    return (
+    return createPortal(
+        <dialog ref={dialogRef} className="mail-sent-dialog" aria-label="Mail Sent"
+            onCancel={event => { event.preventDefault(); onClose(); }}
+            onKeyDown={event => {
+                if (event.key !== 'Tab') return;
+                const buttons = Array.from(dialogRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []);
+                const first = buttons[0];
+                const last = buttons[buttons.length - 1];
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+            }}>
         <Modal
             data-testid="mail-sent-modal"
-            width="380px"
+            className="mail-sent-window"
+            role="presentation"
+            width="100%"
             icon={<Sendmail2001 variant="16x16_4" />}
             title="Mail Sent"
             hasWindowButton={false}
             titleBarOptions={<TitleBar.Close key="close" onClick={onClose} />}
-            dragOptions={{
-                defaultPosition: {
-                    x: typeof window === 'undefined' ? 0 : Math.floor(window.innerWidth / 2) - 190,
-                    y: typeof window === 'undefined' ? 0 : Math.floor(window.innerHeight / 2) - 90,
-                },
-            }}
+            dragOptions={{ disabled: true }}
             buttons={[{ value: 'OK', onClick: onClose }]}
             buttonsAlignment="center"
         >
@@ -47,6 +71,7 @@ export const MailSentModal: React.FC<MailSentModalProps> = ({ open, onClose }) =
                 </Frame>
             </Modal.Content>
         </Modal>
+        </dialog>, document.body
     );
 };
 

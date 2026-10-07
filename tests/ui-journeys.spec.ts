@@ -160,11 +160,12 @@ for (const viewport of [{ name: 'mobile', width: 390, height: 844 }, { name: 'de
       await fields.email.fill('visitor@example.com');
       await fields.message.fill('Keep this message');
       await fields.send.click();
-      await expect(activePanel(page).getByRole('button', { name: 'Failed' })).toBeVisible();
+      await expect(activePanel(page).getByRole('button', { name: 'Try again' })).toBeVisible();
       await expect(page.getByTestId('mail-sent-modal')).toHaveCount(0);
       await expect(fields.message).toHaveValue('Keep this message');
       await page.waitForTimeout(3100);
-      await expect(fields.send).toBeEnabled();
+      await expect(activePanel(page).getByRole('button', { name: 'Try again', exact: true })).toBeEnabled();
+      await expect(activePanel(page).getByRole('alert')).toBeVisible();
     });
 
     test('fast human submission must not claim success without sending', async ({ page }) => {
@@ -243,7 +244,7 @@ for (const width of [769, 834, 1024, 1279]) {
     for (const selector of ['.win95-bio-text', '.win95-skill-tile-label']) {
       const text = activePanel(page).locator(selector).first();
       await expect(text).toBeVisible();
-      expect(await text.evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(14);
+      await expect.poll(() => text.evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(14);
       await expect.poll(() => text.evaluate(el => {
         let node: HTMLElement | null = el as HTMLElement;
         while (node) {
@@ -420,8 +421,66 @@ test('contact formatting icons fill the space beside the font pickers', async ({
   const row = activePanel(page).locator('.contact-format-row');
   await expect(row.locator('.contact-icon-tile')).toHaveCount(10);
   await expect(row.locator('svg')).toHaveCount(10);
-  const box = await row.boundingBox();
-  const last = await row.locator('.contact-icon-tile').last().boundingBox();
-  expect(box!.x + box!.width - (last!.x + last!.width)).toBeLessThan(6);
+  await expect.poll(() => row.evaluate(el => {
+    const box = el.getBoundingClientRect();
+    const last = el.querySelector('.contact-icon-tile:last-child')!.getBoundingClientRect();
+    return box.right - last.right;
+  })).toBeLessThan(6);
   await row.screenshot({ path: test.info().outputPath('format-icons.png') });
+});
+
+for (const width of [320, 1440]) {
+  test(`contact persistent retry and accessible confirmation at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    let attempts = 0;
+    await page.route(/api\.emailjs\.com/, route => route.fulfill({
+      status: ++attempts === 1 ? 500 : 200, contentType: 'text/plain', body: attempts === 1 ? 'Error' : 'OK',
+    }));
+    await page.goto('/contact');
+    const panel = page.locator('.seamless-tab-panel.is-active');
+    await panel.getByRole('textbox', { name: /^From:?$/ }).fill('visitor@example.com');
+    await panel.getByRole('textbox', { name: 'Message', exact: true }).fill('Keep this draft');
+    await panel.getByRole('button', { name: 'Send', exact: true }).click();
+    await expect(panel.getByRole('alert')).toContainText('Your draft is saved');
+    await page.waitForTimeout(3200);
+    await expect(panel.getByRole('alert')).toBeVisible();
+    await expect(panel.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Keep this draft');
+    const retry = panel.getByRole('button', { name: 'Try again', exact: true });
+    await retry.click();
+    const dialog = page.locator('dialog.mail-sent-dialog');
+    await expect(dialog).toBeVisible();
+    const box = await dialog.boundingBox();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+    for (let i = 0; i < 5; i++) {
+      await page.keyboard.press('Tab');
+      expect(await dialog.evaluate(el => el.contains(document.activeElement))).toBe(true);
+    }
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+    await expect(panel.getByRole('button', { name: /Send|Sent!/ })).toBeFocused();
+    expect(attempts).toBe(2);
+  });
+}
+
+
+test('contact decorations preserve their appearance without keyboard stops', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/contact');
+  const panel = page.locator('.seamless-tab-panel.is-active');
+  const menu = panel.locator('.contact-decorative-menu');
+  await expect(menu).toBeVisible();
+  await expect(menu.locator('span')).toHaveCount(9);
+  await expect(menu.locator('button, a, [tabindex]')).toHaveCount(0);
+  const pickers = panel.locator('.contact-font-pickers');
+  await expect(pickers).toHaveAttribute('inert', '');
+  await expect(pickers).toHaveAttribute('aria-hidden', 'true');
+  await expect(pickers.locator('select')).toHaveCount(3);
+  await pickers.locator('select').first().evaluate(el => (el as HTMLElement).focus());
+  expect(await pickers.evaluate(el => el.contains(document.activeElement))).toBe(false);
+  await panel.getByRole('textbox', { name: /^From:?$/ }).focus();
+  await page.keyboard.press('Tab');
+  await expect(panel.getByRole('textbox', { name: 'Subject:' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(panel.getByRole('textbox', { name: 'Message', exact: true })).toBeFocused();
 });

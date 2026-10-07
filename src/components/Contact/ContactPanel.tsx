@@ -19,7 +19,7 @@ import { ReaderDisket } from "@react95/icons/ReaderDisket";
 import { Help } from "@react95/icons/Help";
 import { Camera } from "@react95/icons/Camera";
 import { Mspaint } from "@react95/icons/Mspaint";
-import { Modal, Frame, Button, TextArea, Input, List, Dropdown } from '@react95/core';
+import { Modal, Frame, Button, TextArea, Input, Dropdown } from '@react95/core';
 import { Brush } from "@react95/icons/Brush";
 import { Calculator } from "@react95/icons/Calculator";
 import { CdMusic } from "@react95/icons/CdMusic";
@@ -99,6 +99,7 @@ const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
         honeypot, setHoneypot,
         setRecaptchaToken,
         sendStatus,
+        errorMessage,
         handleSend,
         sendButtonLabel,
         showSentModal,
@@ -115,23 +116,15 @@ const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
             id="contact-modal"
             title="CONTACT ME"
             titleBarOptions={<Modal.Minimize />}
-            menu={[
-                { name: 'File', list: <List /> },
-                { name: 'Edit', list: <List /> },
-                { name: 'View', list: <List /> },
-                { name: 'Insert', list: <List /> },
-                { name: 'Format', list: <List /> },
-                { name: 'Tools', list: <List /> },
-                { name: 'Table', list: <List /> },
-                { name: 'Compose', list: <List /> },
-                { name: 'Help', list: <List /> },
-            ]}
             dragOptions={{ defaultPosition: { x: 0, y: 0 } }}
         >
+            <div className="contact-decorative-menu" aria-hidden="true">
+                {['File', 'Edit', 'View', 'Insert', 'Format', 'Tools', 'Table', 'Compose', 'Help'].map(name => <span key={name}>{name}</span>)}
+            </div>
             <ContactIconStrip />
 
             <div className="contact-format-row">
-                <div className="contact-font-pickers">
+                <div className="contact-font-pickers" inert aria-hidden="true">
                     <Dropdown width="100%" minWidth="0px" options={['Normal']} style={{ fontSize: '20px' }} />
                     <Dropdown width="100%" minWidth="0px" options={['Arial']} style={{ fontSize: '20px' }} />
                     <Dropdown width="100%" minWidth="0px" options={['10']} style={{ fontSize: '20px' }} />
@@ -194,9 +187,11 @@ const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
                     />
                     <Frame display="flex" flexDirection="column" alignItems="flex-end" mt="$4" gap="$2">
                         <ReCaptcha onChange={setRecaptchaToken} />
+                        {errorMessage && <p role="alert" className="contact-error-message">{errorMessage}</p>}
                         <Button
                             data-testid="contact-send"
-                            onClick={handleSend}
+                            data-contact-send
+                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => { event.currentTarget.focus({ preventScroll: true }); handleSend(); }}
                             disabled={sendStatus === 'sending'}
                             style={{ fontSize: '15px', padding: '8px 32px', minWidth: 120 }}
                         >
@@ -220,6 +215,7 @@ const MobileContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
         honeypot, setHoneypot,
         setRecaptchaToken,
         sendStatus,
+        errorMessage,
         handleSend,
         sendButtonLabel,
         showSentModal,
@@ -275,8 +271,10 @@ const MobileContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
                     onChange={(e) => setHoneypot(e.target.value)}
                 />
                 <ReCaptcha onChange={setRecaptchaToken} />
+                        {errorMessage && <p role="alert" className="contact-error-message">{errorMessage}</p>}
                 <Button
-                    onClick={handleSend}
+                    data-contact-send
+                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => { event.currentTarget.focus({ preventScroll: true }); handleSend(); }}
                     disabled={sendStatus === 'sending'}
                     style={{ alignSelf: 'flex-end', fontSize: '18px', padding: '6px 28px', minWidth: 100 }}
                 >

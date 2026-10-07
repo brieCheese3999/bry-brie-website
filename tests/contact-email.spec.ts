@@ -114,7 +114,7 @@ test.describe('contact form email sending', () => {
         await page.getByTestId('contact-message').fill(MESSAGE);
         await page.locator('.seamless-tab-panel.is-active input[name="company_website"]').fill('spam', { force: true });
         await page.getByTestId('contact-send').click();
-        await expect(page.getByTestId('contact-send')).toHaveText('Failed');
+        await expect(page.getByTestId('contact-send')).toHaveText('Try again');
         expect(hitNetwork, 'honeypot submission must not call EmailJS').toBe(false);
         await expect(page.getByTestId('mail-sent-modal')).toHaveCount(0);
     });

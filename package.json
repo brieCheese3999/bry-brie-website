@@ -11,7 +11,8 @@
     "test:ui": "playwright test tests/ui-journeys.spec.ts",
     "test:visual": "playwright test tests/responsive.spec.ts",
     "test:visual:update": "playwright test tests/responsive.spec.ts --update-snapshots",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "test:layout": "playwright test tests/layout.spec.ts"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

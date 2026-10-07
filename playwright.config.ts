@@ -40,6 +40,6 @@ export default defineConfig({
   // "works on my machine, fails in the pipeline" baseline mismatches.
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
-    { name: 'webkit', testMatch: '**/ui-journeys.spec.ts', use: { browserName: 'webkit' } },
+    { name: 'webkit', testMatch: ['**/ui-journeys.spec.ts', '**/layout.spec.ts'], use: { browserName: 'webkit' } },
   ],
 });
