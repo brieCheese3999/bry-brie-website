@@ -41,3 +41,9 @@ Gallery tiles use 320/640/960px width candidates with srcset/sizes; the lightbox
 Run `npm run test:layout` to check the approved gallery columns, aligned column tops, tile containment, desktop introduction size and preview placement, mobile preview absence, page overflow, and taskbar placement before and after scrolling. These checks run in Chromium and WebKit at 390, 834, 1279, and 1440 pixels.
 
 Run `npm run test:visual` for screenshot comparisons across the website. When a visual test fails, inspect the diff using `npm run test:report`; update snapshots with `npm run test:visual:update` only after reviewing and approving an intentional design change. Geometry tests should not be loosened simply to make an unintended layout change pass.
+
+### GitHub Linux screenshots
+
+CI installs browsers using the Playwright version in the lockfile and runs on Ubuntu 24.04 with Node 22. It runs the layout and journey tests, then compares Linux visual baselines without automatically creating or approving missing snapshots.
+
+To initialize or intentionally update Linux baselines, open GitHub Actions → Visual Regression → Run workflow and enable **Generate Linux screenshots for review**. Download `visual-regression-results`, inspect the screenshots, copy the reviewed `*-linux.png` files into `tests/responsive.spec.ts-snapshots/`, and commit them. Ordinary runs never update approved screenshots. macOS baselines remain separate.
