@@ -261,7 +261,7 @@ export const defaultClipArt: ClipArtContent = {
       img: TotoLicking,
       alt: "Toto licking",
       bottom: "28px",
-      right: "10%",
+      left: "6%",
       width: "150px",
       layer: 'front',
       fixed: true,
