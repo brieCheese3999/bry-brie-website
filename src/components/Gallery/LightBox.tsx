@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { Modal, Button, Frame } from "@react95/core";
+import { Modal, TitleBar, Frame } from "@react95/core";
 import { useResponsiveMode } from '../useResponsiveMode';
 
 interface LightboxItem {
@@ -20,10 +20,10 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
     const { isMobile } = useResponsiveMode();
     const item = items[currentIndex];
 
-    const [isLandscape, setIsLandscape] = React.useState(false);
+    const [imageRatio, setImageRatio] = React.useState(2 / 3);
     const measureOrientation = React.useCallback((img: HTMLImageElement | null) => {
         if (img && img.naturalWidth > 0) {
-            setIsLandscape(img.naturalWidth > img.naturalHeight);
+            setImageRatio(img.naturalWidth / img.naturalHeight);
         }
     }, []);
 
@@ -142,24 +142,76 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                     left: auto !important;
                     margin: 0 auto;
                 }
+                .lightbox-wrapper [role="dialog"] > .draggable {
+                    height: calc(var(--r95-space-20) * 1.5);
+                    align-items: center;
+                }
+                .lightbox-wrapper .draggable > div:first-child {
+                    min-width: 0;
+                    flex-shrink: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                .lightbox-wrapper button[aria-label="Close photo"] {
+                    width: 26px;
+                    height: 22px;
+                }
+                .lightbox-wrapper button[aria-label="Close photo"] img {
+                    width: 12px;
+                    height: 12px;
+                    image-rendering: pixelated;
+                }
+                .lightbox-arrow {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 44px;
+                    height: 56px;
+                    padding: 8px;
+                    border: 0;
+                    background: transparent;
+                    color: white;
+                    cursor: pointer;
+                    display: grid;
+                    place-items: center;
+                }
+                .lightbox-arrow--prev { left: 8px; }
+                .lightbox-arrow--next { right: 8px; }
+                .lightbox-arrow:hover { color: #ffff80; }
+                .lightbox-arrow:focus-visible { outline: 2px dashed white; outline-offset: 2px; }
+                .lightbox-arrow svg { width: 28px; height: 36px; filter: drop-shadow(2px 2px 0 #000); }
+                @media (max-width: 600px) {
+                    .lightbox-arrow--prev { left: 0; }
+                    .lightbox-arrow--next { right: 0; }
+                    .lightbox-arrow { width: 40px; }
+                }
             `}</style>
             <div
                 className="lightbox-wrapper"
                 ref={wrapperRef}
                 style={{
-                    maxWidth: isMobile
-                        ? "77vw"
-                        : isLandscape
-                            ? "min(92vw, 1100px)"
-                            : "565px",
-                    maxHeight: "200vh",
-                    width: "100%",
+                    // Limit the photo by both viewport dimensions, then fit the
+                    // window to that width instead of leaving empty side panels.
+                    width: `min(${isMobile ? "calc(100vw - 96px)" : "min(calc(100vw - 120px), 1100px)"}, calc(${isMobile ? "60dvh" : "min(85dvh, calc(100dvh - 80px))"} * ${imageRatio} + 8px))`,
+                    position: "relative",
                     transform: entered ? "scale(1)" : "scale(0.94)",
                     transition: "transform 200ms ease",
                 }}
             >
-                <Modal title={item.label} aria-label={item.label} aria-modal="true">
-                    <Modal.Content boxShadow="$in" bgColor="white">
+                <button className="lightbox-arrow lightbox-arrow--prev" style={{ left: isMobile ? -40 : -52 }} type="button" aria-label="Previous photo" title="Previous photo" onClick={goPrev}>
+                    <svg viewBox="0 0 7 9" aria-hidden="true" shapeRendering="crispEdges"><path fill="currentColor" d="M4 0h3v1H6v1H5v1H4v1H3v1h1v1h1v1h1v1h1v1H4V8H3V7H2V6H1V5H0V4h1V3h1V2h1V1h1z" /></svg>
+                </button>
+                <button className="lightbox-arrow lightbox-arrow--next" style={{ right: isMobile ? -40 : -52 }} type="button" aria-label="Next photo" title="Next photo" onClick={goNext}>
+                    <svg viewBox="0 0 7 9" aria-hidden="true" shapeRendering="crispEdges"><g transform="translate(7 0) scale(-1 1)"><path fill="currentColor" d="M4 0h3v1H6v1H5v1H4v1H3v1h1v1h1v1h1v1h1v1H4V8H3V7H2V6H1V5H0V4h1V3h1V2h1V1h1z" /></g></svg>
+                </button>
+                <Modal
+                    title={item.label}
+                    aria-label={item.label}
+                    aria-modal="true"
+                    titleBarOptions={<TitleBar.Close ref={closeRef} aria-label="Close photo" title="Close photo" onClick={onClose} />}
+                >
+                    <Modal.Content boxShadow="$in" bgColor="white" style={{ padding: "2px", margin: 0 }}>
                         <Frame display="flex" flexDirection="column" alignItems="center" gap="5px">
                             <img
                                 ref={measureOrientation}
@@ -170,18 +222,14 @@ export const Lightbox: React.FC<LightboxProps> = ({ items, currentIndex, onClose
                                     setLoadedImage(item.img);
                                 }}
                                 style={{
-                                    maxWidth: "100%",
-                                    maxHeight: isMobile ? "60vh" : "85vh",
+                                    display: "block",
+                                    width: "100%",
+                                    height: "auto",
                                     objectFit: "contain",
                                     opacity: imgLoaded ? 1 : 0,
                                     transition: "opacity 180ms ease",
                                 }}
                             />
-                            <Frame display="flex" flexDirection="row" gap="8px" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                                <Button onClick={goPrev}>&lt; Prev</Button>
-                                <Button ref={closeRef} onClick={onClose}>Close</Button>
-                                <Button onClick={goNext}>Next &gt;</Button>
-                            </Frame>
                         </Frame>
                     </Modal.Content>
                 </Modal>
