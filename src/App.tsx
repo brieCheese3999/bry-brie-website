@@ -1,28 +1,26 @@
 import React, { lazy, Suspense } from 'react';
 import './App.css';
+import LoadingPage from './components/Loading/LoadingPage';
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
 
-// Route-level code splitting: the enter (/) screen and the main portfolio load
-// as separate chunks, so the landing page doesn't ship the entire react95 UI,
-// gallery, and contact-form code up front.
-const EnterPage = lazy(() => import("./components/Home/EnterPage.tsx"));
-const HomePage = lazy(() => import("./components/Home/HomePage.tsx"));
+// Only uncached lazy pages show the loader. Keep those loading visits visible
+// for at least five seconds while downloading the page in parallel.
+const MINIMUM_LOADING_MS = 3_000;
+async function withMinimumLoadingTime<T>(load: () => Promise<T>): Promise<T> {
+  const [page] = await Promise.all([
+    load(),
+    new Promise<void>(resolve => window.setTimeout(resolve, MINIMUM_LOADING_MS)),
+  ]);
+  return page;
+}
+const EnterPage = lazy(() => withMinimumLoadingTime(() => import("./components/Home/EnterPage.tsx")));
+const HomePage = lazy(() => withMinimumLoadingTime(() => import("./components/Home/HomePage.tsx")));
 
 const App: React.FC = () => {
   return (
       <div className="App">
           <Router>
-            <Suspense fallback={
-              <main className="route-loading-page">
-                <section className="route-loading-window" aria-label="Loading portfolio">
-                  <div className="route-loading-titlebar">BRYANNA PLAISIR</div>
-                  <div className="route-loading-content" role="status" aria-live="polite">
-                    <p>Loading portfolio…</p>
-                    <p>Please wait while the page opens.</p>
-                  </div>
-                </section>
-              </main>
-            }>
+            <Suspense fallback={<LoadingPage />}>
               <Routes>
                   <Route path="/" element={<EnterPage />} />
                   <Route path="/about" element={<HomePage />} />
