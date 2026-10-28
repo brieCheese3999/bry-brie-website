@@ -10,6 +10,7 @@ import './win95Portfolio.css';
 import {generateCascadePositions} from "../Gallery/cascadePositions.ts";
 import {AboutPanel} from "../About/AboutPanel.tsx";
 import {GalleryPanel} from "../Gallery/GalleryPanel.tsx";
+import {CeramicsPanel} from "../Ceramics/CeramicsPanel.tsx";
 import { useContactForm } from '../About/useContactForm';
 import {ContactPanel} from "../Contact/ContactPanel.tsx";
 
@@ -61,8 +62,10 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
   const [deadSpace, setDeadSpace] = useState(0);
 
   const location = useLocation();
-  const pathTab = location.pathname.replace(/^\//, '') as TabId;
+  const pathSegments = location.pathname.replace(/^\//, '').split('/');
+  const pathTab = pathSegments[0] as TabId;
   const active: TabId = TAB_IDS.includes(pathTab) ? pathTab : 'about';
+  const ceramicsPieceId = pathTab === 'ceramics' ? pathSegments[1] ?? null : null;
 
 
     useEffect(() => {
@@ -113,7 +116,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                       className={`seamless-tab-panel ${active === 'ceramics' ? 'is-active' : ''}`}
                       aria-hidden={active !== 'ceramics'}
                   >
-                      <GalleryPanel content={content.ceramics} />
+                      <CeramicsPanel content={content.ceramics} selectedPieceId={ceramicsPieceId} />
                   </div>
                   <div
                       className={`seamless-tab-panel ${active === 'contact' ? 'is-active' : ''}`}
@@ -195,7 +198,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                           className={`seamless-tab-panel ${active === 'ceramics' ? 'is-active' : ''}`}
                           aria-hidden={active !== 'ceramics'}
                       >
-                          <GalleryPanel content={content.ceramics} />
+                          <CeramicsPanel content={content.ceramics} selectedPieceId={ceramicsPieceId} />
                       </div>
                       <div
                           className={`seamless-tab-panel ${active === 'contact' ? 'is-active' : ''}`}

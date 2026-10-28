@@ -26,6 +26,7 @@ const App: React.FC = () => {
                   <Route path="/about" element={<HomePage />} />
                   <Route path="/photos" element={<HomePage />} />
                   <Route path="/ceramics" element={<HomePage />} />
+                  <Route path="/ceramics/:pieceId" element={<HomePage />} />
                   <Route path="/contact" element={<HomePage />} />
                   <Route path="*" element={
                     <main className="not-found-page">

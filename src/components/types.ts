@@ -83,9 +83,40 @@ export interface SocialLink {
   url?: string;
 }
 
+export type CeramicStatus = 'for-sale' | 'showcase';
+
+export interface CeramicMedia {
+  type: 'image' | 'video';
+  src: string;
+  poster?: string;
+  alt?: string;
+}
+
+export interface CeramicPiece {
+  id: string;
+  title: string;
+  year?: string;
+  blurb: string;
+  media: CeramicMedia[];
+  technique?: string;
+  clay?: string;
+  glaze?: string;
+  dimensions?: string;
+  status: CeramicStatus;
+  price?: number;
+  etsyUrl?: string;
+}
+
+export interface CeramicsContent {
+  heading: string;
+  intro: string;
+  sectionLabel: string;
+  items: CeramicPiece[];
+}
+
 export interface Win95PortfolioContent {
   windowTitle: string;
   about: AboutContent;
   photos: GalleryContent;
-  ceramics: GalleryContent;
+  ceramics: CeramicsContent;
 }
