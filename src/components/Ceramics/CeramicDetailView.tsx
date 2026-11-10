@@ -45,7 +45,7 @@ export const CeramicDetailView: React.FC<CeramicDetailViewProps> = ({
       return (
         <div className="ceramic-detail-carousel win95-sunken">
           <div className="ceramic-detail-carousel-placeholder">
-            <span style={{ fontSize: '14px', color: '#888' }}>Coming soon</span>
+            <span style={{ fontSize: '17px', color: '#888' }}>Coming soon</span>
           </div>
         </div>
       );
@@ -61,14 +61,12 @@ export const CeramicDetailView: React.FC<CeramicDetailViewProps> = ({
                 src={currentMedia.src}
                 poster={currentMedia.poster}
                 controls muted loop playsInline
-                style={{ width: '100%', display: 'block' }}
-              />
+                             />
             ) : currentMedia ? (
               <img
                 src={currentMedia.src}
                 alt={currentMedia.alt ?? piece.title}
-                style={{ width: '100%', display: 'block' }}
-              />
+                             />
             ) : null}
             {hasMultiple && (
               <>
@@ -100,7 +98,7 @@ export const CeramicDetailView: React.FC<CeramicDetailViewProps> = ({
         {piece.media.length === 0 && (
           <div className="ceramic-detail-image-item win95-sunken">
             <div className="ceramic-detail-carousel-placeholder">
-              <span style={{ fontSize: '14px', color: '#888' }}>Coming soon</span>
+              <span style={{ fontSize: '17px', color: '#888' }}>Coming soon</span>
             </div>
           </div>
         )}
@@ -164,7 +162,7 @@ export const CeramicDetailView: React.FC<CeramicDetailViewProps> = ({
     <div className="ceramic-detail">
       <Button
         onClick={onBack}
-        style={{ fontSize: '14px', padding: '4px 14px', marginBottom: '16px' }}
+        style={{ fontSize: '17px', padding: '4px 14px', marginBottom: '16px' }}
       >
         &#8592; Back to pieces
       </Button>

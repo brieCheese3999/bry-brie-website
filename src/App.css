@@ -183,8 +183,7 @@
   }
 }
 
-.not-found-page,
-.route-loading-page {
+.not-found-page {
   min-height: 100dvh;
   display: grid;
   place-items: center;
@@ -193,15 +192,13 @@
   background: #20291f;
   color: #111;
 }
-.not-found-window,
-.route-loading-window {
+.not-found-window {
   width: min(100%, 480px);
   background: #dadde2;
   border: 2px outset white;
   padding: 3px;
 }
-.not-found-titlebar,
-.route-loading-titlebar {
+.not-found-titlebar {
   background: #000080;
   color: white;
   padding: 8px;
@@ -217,10 +214,3 @@
   text-decoration: none;
 }
 .not-found-content a:focus-visible { outline: 2px dotted #111; outline-offset: 3px; }
-
-.route-loading-content {
-  padding: 20px;
-  font-size: 16px;
-  line-height: 1.5;
-}
-.route-loading-content p:first-child { font-weight: bold; }

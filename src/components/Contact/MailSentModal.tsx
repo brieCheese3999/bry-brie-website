@@ -65,7 +65,7 @@ export const MailSentModal: React.FC<MailSentModalProps> = ({ open, onClose }) =
             <Modal.Content>
                 <Frame display="flex" flexDirection="row" alignItems="center" gap="$6" padding="$4">
                     <Sendmail2001 variant="32x32_4" style={{ flexShrink: 0 }} />
-                    <span style={{ fontSize: '16px', lineHeight: 1.4 }}>
+                    <span style={{ fontSize: '19px', lineHeight: 1.4 }}>
                         Your message has been sent successfully!
                     </span>
                 </Frame>

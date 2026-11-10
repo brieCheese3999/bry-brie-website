@@ -1,6 +1,6 @@
 import type { IconType } from 'react-icons';
 
-export type TabId = 'about' | 'photos' | 'ceramics' | 'contact';
+export type TabId = 'about' | 'photos' | 'ceramics' | 'resume' | 'contact';
 
 export type SkillGroup = 'Backend' | 'Frontend' | 'Data & Cloud';
 

@@ -13,6 +13,8 @@ import {GalleryPanel} from "../Gallery/GalleryPanel.tsx";
 import {CeramicsPanel} from "../Ceramics/CeramicsPanel.tsx";
 import { useContactForm } from '../About/useContactForm';
 import {ContactPanel} from "../Contact/ContactPanel.tsx";
+import {ResumePanel} from "../Resume/ResumePanel.tsx";
+import {ButterflyOverlay} from "../Background/ButterflyOverlay.tsx";
 
 const TAB_CONTENT_MIN_HEIGHT = 950;
 export interface Win95PortfolioProps {
@@ -24,12 +26,13 @@ const DESIGN_HEIGHT = 600;
 const MIN_SCALE = 0.4;
 const MAX_SCALE = .85;
 const PORTFOLIO_LEFT_OFFSET = 320; // > abs(website-modal's x: -300) + a little breathing room
-const TAB_IDS: TabId[] = ['about', 'photos', 'ceramics', 'contact'];
+const TAB_IDS: TabId[] = ['about', 'photos', 'ceramics', 'resume', 'contact'];
 
 const PORTFOLIO_LINKS = [
   { name: 'About', to: '/about' },
   { name: 'Photos', to: '/photos' },
   { name: 'Clay', to: '/ceramics' },
+  { name: 'Resume', to: '/resume' },
   { name: 'Contact', to: '/contact' },
 ];
 
@@ -88,8 +91,10 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
 
     if (!isDesktop) {
     return (
+      <>
+      <ButterflyOverlay />
       <div className="win95-mobile-root">
-          <Frame boxShadow="$out" bgColor="$material" p="$12" minHeight="1400px">
+          <Frame boxShadow="$out" bgColor="$material" p="$12" minHeight={active === 'resume' ? undefined : '1400px'}>
               <Modal
                   className="portfolio-tab-modal"
                   icon={<Mmsys113 variant="32x32_4" />}
@@ -99,12 +104,12 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
               >
                   <PortfolioNavigation />
                   <Modal.Content p="$6">
-              <div className="seamless-tab-panels" style={{ minHeight: TAB_CONTENT_MIN_HEIGHT }}>
+              <div className="seamless-tab-panels" style={{ minHeight: active === 'resume' ? undefined : TAB_CONTENT_MIN_HEIGHT }}>
                   <div
                       className={`seamless-tab-panel ${active === 'about' ? 'is-active' : ''}`}
                       aria-hidden={active !== 'about'}
                   >
-                      <AboutPanel content={content.about} />
+                      <AboutPanel content={content.about} active={active === 'about'} />
                   </div>
                   <div
                       className={`seamless-tab-panel ${active === 'photos' ? 'is-active' : ''}`}
@@ -119,6 +124,12 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                       <CeramicsPanel content={content.ceramics} selectedPieceId={ceramicsPieceId} />
                   </div>
                   <div
+                      className={`seamless-tab-panel ${active === 'resume' ? 'is-active' : ''}`}
+                      aria-hidden={active !== 'resume'}
+                  >
+                      <ResumePanel />
+                  </div>
+                  <div
                       className={`seamless-tab-panel ${active === 'contact' ? 'is-active' : ''}`}
                       aria-hidden={active !== 'contact'}
                   >
@@ -129,11 +140,13 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
               </Modal>
           </Frame>
       </div>
+      </>
     );
   }
 
   return (
     <>
+      <ButterflyOverlay />
       <div
         style={{
           display: 'flex',
@@ -186,7 +199,7 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                           className={`seamless-tab-panel ${active === 'about' ? 'is-active' : ''}`}
                           aria-hidden={active !== 'about'}
                       >
-                          <AboutPanel content={content.about} />
+                          <AboutPanel content={content.about} active={active === 'about'} />
                       </div>
                       <div
                           className={`seamless-tab-panel ${active === 'photos' ? 'is-active' : ''}`}
@@ -199,6 +212,12 @@ export const Win95Portfolio: React.FC<Win95PortfolioProps> = ({ content = defaul
                           aria-hidden={active !== 'ceramics'}
                       >
                           <CeramicsPanel content={content.ceramics} selectedPieceId={ceramicsPieceId} />
+                      </div>
+                      <div
+                          className={`seamless-tab-panel ${active === 'resume' ? 'is-active' : ''}`}
+                          aria-hidden={active !== 'resume'}
+                      >
+                          <ResumePanel />
                       </div>
                       <div
                           className={`seamless-tab-panel ${active === 'contact' ? 'is-active' : ''}`}

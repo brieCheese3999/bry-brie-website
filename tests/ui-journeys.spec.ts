@@ -16,7 +16,8 @@ for (const viewport of [{ name: 'mobile', width: 390, height: 844 }, { name: 'de
       await page.goto('/');
       await page.getByRole('button', { name: "Enter Bryanna's portfolio" }).click();
       await expect(page).toHaveURL(/\/about$/);
-      await expect(activePanel(page).getByText('SKILLS', { exact: true })).toBeVisible();
+      // a legend, since About's lines retype as it opens (split into letters meanwhile)
+      await expect(activePanel(page).locator('legend', { hasText: 'SKILLS' })).toBeVisible();
       for (const [name, route, content] of [
         ['Photos', 'photos', 'photo album'], ['Clay', 'ceramics', 'clay works'], ['Contact', 'contact', 'To:'],
       ]) {
@@ -52,50 +53,52 @@ for (const viewport of [{ name: 'mobile', width: 390, height: 844 }, { name: 'de
       await expect(activePanel(page).getByRole('textbox', { name: /message/i })).toBeVisible();
     });
 
-    test('clicking the photo inside the lightbox keeps it open', async ({ page }) => {
+    test('the photo, the backdrop and Close each close the lightbox', async ({ page }) => {
       await page.goto('/photos');
-      await activePanel(page).getByRole('button', { name: /View photo:/ }).first().click();
-      const overlay = page.locator('.lightbox-wrapper');
-      await expect(overlay.locator('img')).toHaveCSS('opacity', '1');
-      await overlay.locator('img').click();
-      await expect(overlay).toBeVisible();
-      await overlay.getByRole('button', { name: 'Close', exact: true }).click();
+      const tile = activePanel(page).locator('.masonry__card').first();
+      const overlay = page.locator('.masonry-lightbox');
+      // the masonry's lightbox zooms back into the grid when its photo is clicked
+      await tile.click();
+      await overlay.locator('[data-box-image]').click();
       await expect(overlay).toHaveCount(0);
-      await activePanel(page).getByRole('button', { name: /View photo:/ }).first().click();
-      await page.locator('[data-testid="lightbox-backdrop"]').click({ position: { x: 5, y: 5 } });
+      await tile.click();
+      await overlay.locator('[data-box-backdrop]').click({ position: { x: 5, y: 5 } });
+      await expect(overlay).toHaveCount(0);
+      await tile.click();
+      await overlay.getByRole('button', { name: 'Close', exact: true }).click();
       await expect(overlay).toHaveCount(0);
     });
 
     test('gallery opens, navigates both ways, and closes using Escape', async ({ page }) => {
       await page.goto('/photos');
-      const tile = activePanel(page).getByRole('button', { name: /View photo:/ }).first();
+      const tile = activePanel(page).locator('.masonry__card').first();
       await tile.click();
-      const overlay = page.locator('.lightbox-wrapper');
+      const overlay = page.locator('.masonry-lightbox');
+      const photo = overlay.locator('[data-box-image]');
       await expect(overlay).toBeVisible();
-      const firstSrc = await overlay.locator('img').getAttribute('src');
-      await overlay.getByRole('button', { name: /Next/ }).click();
-      await expect(overlay.locator('img')).not.toHaveAttribute('src', firstSrc!);
+      const firstSrc = await photo.getAttribute('src');
+      await overlay.getByRole('button', { name: 'Next', exact: true }).click();
+      await expect(photo).not.toHaveAttribute('src', firstSrc!);
       await page.keyboard.press('ArrowLeft');
-      await expect(overlay.locator('img')).toHaveAttribute('src', firstSrc!);
-      await expect(overlay.locator('img')).toHaveCSS('opacity', '1');
+      await expect(photo).toHaveAttribute('src', firstSrc!);
       await page.keyboard.press('Escape');
       await expect(overlay).toHaveCount(0);
     });
 
     test('lightbox keeps keyboard focus inside and restores it on close', async ({ page }) => {
       await page.goto('/photos');
-      const tile = activePanel(page).getByRole('button', { name: /View photo:/ }).first();
+      const tile = activePanel(page).locator('.masonry__card').first();
       await tile.focus();
       await page.keyboard.press('Enter');
-      await expect(page.locator('.lightbox-wrapper')).toBeVisible();
-      expect(await page.evaluate(() => !!document.activeElement?.closest('.lightbox-wrapper'))).toBe(true);
+      await expect(page.locator('.masonry-lightbox')).toBeVisible();
+      expect(await page.evaluate(() => !!document.activeElement?.closest('.masonry-lightbox'))).toBe(true);
       for (let i = 0; i < 5; i++) {
         await page.keyboard.press('Tab');
-        expect(await page.evaluate(() => !!document.activeElement?.closest('.lightbox-wrapper'))).toBe(true);
+        expect(await page.evaluate(() => !!document.activeElement?.closest('.masonry-lightbox'))).toBe(true);
       }
       for (let i = 0; i < 5; i++) {
         await page.keyboard.press('Shift+Tab');
-        expect(await page.evaluate(() => !!document.activeElement?.closest('.lightbox-wrapper'))).toBe(true);
+        expect(await page.evaluate(() => !!document.activeElement?.closest('.masonry-lightbox'))).toBe(true);
       }
       await page.keyboard.press('Escape');
       await expect(tile).toBeFocused();
@@ -103,7 +106,7 @@ for (const viewport of [{ name: 'mobile', width: 390, height: 844 }, { name: 'de
 
     test('lightbox locks scrolling and hides the background until closed', async ({ page }) => {
       await page.goto('/photos');
-      const tile = activePanel(page).getByRole('button', { name: /View photo:/ }).first();
+      const tile = activePanel(page).locator('.masonry__card').first();
       await tile.scrollIntoViewIfNeeded();
       const before = await page.evaluate(() => ({
         y: window.scrollY, body: document.body.style.cssText,
@@ -114,7 +117,7 @@ for (const viewport of [{ name: 'mobile', width: 390, height: 844 }, { name: 'de
       await expect(page.locator('#root')).toHaveAttribute('aria-hidden', 'true');
       await expect(page.locator('body')).toHaveCSS('position', 'fixed');
       await expect(page.getByRole('navigation', { name: 'Portfolio' })).toHaveCount(0);
-      await expect(page.locator('.lightbox-wrapper').getByRole('button', { name: 'Close', exact: true })).toBeVisible();
+      await expect(page.locator('.masonry-lightbox').getByRole('button', { name: 'Close', exact: true })).toBeVisible();
       const lockedY = await page.evaluate(() => window.scrollY);
       if (viewport.name === 'desktop') {
         await page.mouse.move(10, 10);
@@ -280,6 +283,9 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 360, height: 640 }
 for (const width of [390, 834, 1440]) {
   test(`gallery positions remain stable while photos load after refresh at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
+    // Reduced motion seats each tile at once instead of springing it in, so any
+    // movement measured here is layout shift.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/photos');
     let releaseImages!: () => void;
     const imagesReady = new Promise<void>(resolve => { releaseImages = resolve; });
@@ -288,9 +294,10 @@ for (const width of [390, 834, 1440]) {
       await route.continue();
     });
     await page.reload({ waitUntil: 'domcontentloaded' });
-    const tiles = activePanel(page).getByRole('button', { name: /View photo:/ });
+    const tiles = activePanel(page).locator('.masonry__card');
     await expect(tiles.first()).toBeVisible();
-    await expect(activePanel(page).locator('.win95-gallery-wall')).toHaveCSS('column-count', width < 1280 ? '2' : '4');
+    await expect.poll(() => tiles.evaluateAll(cards => new Set(cards.map(card => Math.round(card.getBoundingClientRect().x))).size))
+      .toBe(width < 1280 ? 2 : 4);
     await page.evaluate(async () => {
       await document.fonts.ready;
       await Promise.all(document.getAnimations().map(animation => animation.finished.catch(() => undefined)));
@@ -313,11 +320,12 @@ for (const width of [390, 834, 1440]) {
 for (const width of [390, 834, 1440]) {
   test(`gallery column tops align at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/photos');
-    const wall = activePanel(page).locator('.win95-gallery-wall');
-    await expect(wall).toHaveCSS('column-count', width < 1280 ? '2' : '4');
+    const wall = activePanel(page).locator('.masonry');
+    await expect(wall.locator('.masonry__card').first()).toBeVisible();
     await page.evaluate(async () => { await document.fonts.ready; });
-    const tops = await wall.locator('button').evaluateAll(tiles => {
+    const tops = await wall.locator('.masonry__card').evaluateAll(tiles => {
       const columns = new Map<number, number>();
       tiles.forEach(tile => {
         const box = tile.getBoundingClientRect();
@@ -333,7 +341,9 @@ for (const width of [390, 834, 1440]) {
 
 for (const width of [390, 1440]) {
   for (const destination of [
-    { path: '/', module: '**/components/Home/EnterPage.tsx*' },
+    // The enter page opens at once and loads the portfolio behind its glass,
+    // announcing progress itself rather than through the loading page.
+    { path: '/', module: '**/components/Home/HomePage.tsx*' },
     { path: '/photos', module: '**/components/Home/HomePage.tsx*' },
   ]) {
     test(`route loading announces progress for ${destination.path} at ${width}px`, async ({ page }) => {
@@ -379,14 +389,14 @@ test('taskbar clock renders immediately and avoids zero-delay intervals', async 
 test('gallery selects smaller thumbnails and opens a larger lightbox image', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/photos');
-  const tile = activePanel(page).getByRole('button', { name: /View photo:/ }).first();
+  const tile = activePanel(page).locator('.masonry__card').first();
   await tile.scrollIntoViewIfNeeded();
   const image = tile.locator('img');
   await image.evaluate(async el => { await (el as HTMLImageElement).decode(); });
   const thumbnail = await image.evaluate(el => ({ src: (el as HTMLImageElement).currentSrc, width: (el as HTMLImageElement).naturalWidth }));
   expect(thumbnail.width).toBeLessThanOrEqual(640);
   await tile.click();
-  const fullImage = page.locator('.lightbox-wrapper img');
+  const fullImage = page.locator('.masonry-lightbox [data-box-image]');
   await fullImage.evaluate(async el => { await (el as HTMLImageElement).decode(); });
   const full = await fullImage.evaluate(el => ({ src: (el as HTMLImageElement).currentSrc, width: (el as HTMLImageElement).naturalWidth }));
   expect(full.src).not.toBe(thumbnail.src);

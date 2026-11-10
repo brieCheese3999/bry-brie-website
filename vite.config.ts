@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 import { imagetools } from "vite-imagetools";
 
 export default defineConfig({
+  assetsInclude: ['**/*.pdf'],
   plugins: [
     react(),
     // TaskBar has no clock override prop. Replace only its internal clock,

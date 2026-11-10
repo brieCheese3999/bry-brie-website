@@ -5,17 +5,21 @@ import { test, expect } from '@playwright/test';
 for (const width of [390, 834, 1279, 1440]) {
   test(`gallery layout preserves the approved design at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
+    // reduced motion seats the masonry's tiles at once instead of springing them in
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/photos');
     const panel = page.locator('.seamless-tab-panel.is-active');
-    const wall = panel.locator('.win95-gallery-wall');
-    await expect(wall).toBeVisible();
-    await expect(wall).toHaveCSS('column-count', width < 1280 ? '2' : '4');
+    const wall = panel.locator('.masonry');
+    const tiles = wall.locator('.masonry__card');
+    await expect(tiles.first()).toBeVisible();
+    await expect.poll(() => tiles.evaluateAll(cards => new Set(cards.map(card => Math.round(card.getBoundingClientRect().x))).size))
+      .toBe(width < 1280 ? 2 : 4);
     const preview = panel.locator('.neodrag');
     await expect(preview).toHaveCount(width < 1280 ? 0 : 1);
     await page.evaluate(() => document.fonts.ready);
     const geometry = await wall.evaluate(el => {
       const wall = el.getBoundingClientRect();
-      const tiles = [...el.querySelectorAll('button')].map(tile => tile.getBoundingClientRect());
+      const tiles = [...el.querySelectorAll('.masonry__card')].map(tile => tile.getBoundingClientRect());
       const tops = new Map<number, number>();
       for (const tile of tiles) {
         const column = Math.round(tile.left);

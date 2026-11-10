@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>butterflies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #fdfdfd;
+    overflow: hidden;
+  }
+
+  canvas {
+    position: fixed;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<canvas id="grid" aria-hidden="true"></canvas>
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<script>
+(() => {
+  // ───────────────────────── ascii garden ─────────────────────────
+  const CW = 8, CH = 12;                 // character cell, css px
+  const RAMP = ':;tSX%8@';               // tile glyphs, light → dark
+  const GHOST = '#8B%@S';                // faint edge tiles
+  const SPECK = "'`.,";                  // fringe glyphs without a tile
+  const GLYPHS = [...new Set(RAMP + GHOST + SPECK + 'o')];
+  const ACCENTS = ['#3d8b69', '#2c7d86', '#7b63d8', '#c4583f', '#b38b2c', '#4f6dd2'];
+  const DEEP_INKS = ['#08090c', '#17443e', '#1a2232', '#204f3c'];
+  const INK = ['#ffffff', '#151515', '#3b3b3b', ...DEEP_INKS, ...ACCENTS];
+  const DEEP0 = 3, ACCENT0 = 3 + DEEP_INKS.length;
+
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const gridCanvas = document.getElementById('grid');
+  const scene = document.getElementById('scene');
+  const gctx = gridCanvas.getContext('2d');
+  const ctx = scene.getContext('2d');
+  const field = document.createElement('canvas');
+  const fctx = field.getContext('2d', { willReadFrequently: true });
+  const atlas = document.createElement('canvas');
+  const actx = atlas.getContext('2d');
+
+  let W = 0, H = 0, DPR = 1, cols = 0, rows = 0, time = 0;
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+  const hash = (x, y, z = 0) => {
+    let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263) ^ Math.imul(z, 2147483647);
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  };
+
+  function resize() {
+    W = innerWidth; H = innerHeight;
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [gridCanvas, scene]) {
+      c.width = Math.round(W * DPR);
+      c.height = Math.round(H * DPR);
+      c.style.width = W + 'px';
+      c.style.height = H + 'px';
+    }
+    cols = Math.ceil(W / CW);
+    rows = Math.ceil(H / CH);
+    field.width = cols;
+    field.height = rows;
+    drawGrid();
+    buildAtlas();
+  }
+
+  function drawGrid() {
+    gctx.setTransform(1, 0, 0, 1, 0, 0);
+    gctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+    const px = Math.max(1, Math.round(DPR * .5));
+    gctx.fillStyle = 'rgba(0,0,0,.052)';
+    for (let x = 0; x <= cols; x++) gctx.fillRect(Math.round(x * CW * DPR), 0, px, gridCanvas.height);
+    gctx.fillStyle = 'rgba(0,0,0,.034)';
+    for (let y = 0; y <= rows; y++) gctx.fillRect(0, Math.round(y * CH * DPR), gridCanvas.width, px);
+  }
+
+  // every glyph pre-rendered once per ink colour; tinting is done with globalAlpha
+  function buildAtlas() {
+    const cw = Math.round(CW * DPR), ch = Math.round(CH * DPR);
+    atlas.width = cw * GLYPHS.length;
+    atlas.height = ch * INK.length;
+    actx.clearRect(0, 0, atlas.width, atlas.height);
+    actx.font = `500 ${8.6 * DPR}px "Geist Mono", ui-monospace, monospace`;
+    actx.textAlign = 'center';
+    actx.textBaseline = 'alphabetic';
+    INK.forEach((ink, row) => {
+      actx.fillStyle = ink;
+      GLYPHS.forEach((g, i) => actx.fillText(g, i * cw + cw / 2, row * ch + 9 * DPR));
+    });
+  }
+  const GI = Object.fromEntries(GLYPHS.map((g, i) => [g, i]));
+
+  // ───────────────────────── garden critters ─────────────────────────
+  const TAU = Math.PI * 2;
+  const rgb = c => `rgb(${c})`;
+  const ellipse = (c, x, y, rx, ry, rot = 0) => { c.beginPath(); c.ellipse(x, y, rx, ry, rot, 0, TAU); };
+
+  class Critter {
+    constructor(scale, initial) {
+      this.scale = scale;
+      this.age = 0;
+      this.seen = false;
+      this.phase = rand(0, TAU);
+      this.wander = [rand(.3, .7), rand(0, TAU), rand(.9, 1.7), rand(0, TAU)];
+      this.trail = [];
+      this.bob = 0;
+      this.setup();
+      if (initial) {
+        this.x = rand(W * .06, W * .94);
+        this.y = rand(H * .06, H * .94);
+        this.heading = rand(0, TAU);
+        this.seen = true;
+      } else {
+        const m = this.size * .8 + 20;
+        const edge = Math.floor(Math.random() * 4);
+        if (edge === 0) { this.x = -m; this.y = rand(0, H); }
+        else if (edge === 1) { this.x = W + m; this.y = rand(0, H); }
+        else if (edge === 2) { this.x = rand(0, W); this.y = -m; }
+        else { this.x = rand(0, W); this.y = H + m; }
+        const tx = rand(W * .2, W * .8), ty = rand(H * .2, H * .8);
+        this.heading = Math.atan2(ty - this.y, tx - this.x) + rand(-.35, .35);
+      }
+    }
+
+    update(dt) {
+      this.age += dt;
+      // after a while, straighten out so the critter leaves instead of circling
+      const calm = this.age < this.roam ? 1 : Math.max(0, 1 - (this.age - this.roam) / 4);
+      const [f1, p1, f2, p2] = this.wander;
+      const wobble = Math.sin(f1 * this.age + p1) * .65 + Math.sin(f2 * this.age + p2) * .35;
+      this.heading += calm * (this.turnBase + this.turnAmp * wobble) * dt;
+      const v = this.velocity(dt);
+      this.x += Math.cos(this.heading) * v * dt;
+      this.y += Math.sin(this.heading) * v * dt;
+
+      if (this.trailGap) {
+        const lastDot = this.trail[0];
+        if (!lastDot || Math.hypot(this.x - lastDot.x, this.y - lastDot.y) > this.trailGap) this.trail.unshift({ x: this.px(), y: this.py(), t: this.age });
+        while (this.trail.length && this.age - this.trail[this.trail.length - 1].t > this.trailLife) this.trail.pop();
+      }
+
+      const m = this.size * .7;
+      const onScreen = this.x + m > 0 && this.x - m < W && this.y + m > 0 && this.y - m < H;
+      if (onScreen) this.seen = true;
+      this.dead = (this.seen && !onScreen) || (!this.seen && this.age > 25) || this.age > 160;
+    }
+
+    // drawn position: flight path plus a sideways bob
+    px() { return this.x - Math.sin(this.heading) * this.bob; }
+    py() { return this.y + Math.cos(this.heading) * this.bob; }
+
+    draw(c) {
+      // dotted flight path, it surfaces as a scatter of tiny squares
+      if (this.trail.length) {
+        c.fillStyle = rgb(this.trailColor);
+        for (const p of this.trail) {
+          c.globalAlpha = .26 * (1 - (this.age - p.t) / this.trailLife);
+          ellipse(c, p.x, p.y, 2.6, 2.6);
+          c.fill();
+        }
+      }
+      const x = this.px(), y = this.py();
+      // soft shadow cast down-right; flying critters sit higher so it lands further away
+      c.save();
+      c.translate(x + this.lift * .5, y + this.lift);
+      c.rotate(this.heading);
+      c.beginPath();
+      this.silhouette(c);
+      c.globalAlpha = .055;
+      c.fillStyle = 'rgb(40,36,30)';
+      c.fill();
+      c.restore();
+
+      c.save();
+      c.translate(x, y);
+      c.rotate(this.heading);
+      c.globalAlpha = 1;
+      this.body(c);
+      c.restore();
+      c.globalAlpha = 1;
+    }
+  }
+
+  // ── ladybug: crawls, pauses, pivots
+  const LADYBUGS = [
+    { shell: [206, 38, 30], rim: [146, 20, 16], gloss: [240, 104, 86], spots: 7 },
+    { shell: [222, 98, 30], rim: [160, 58, 14], gloss: [246, 156, 92], spots: 7 },
+    { shell: [204, 34, 34], rim: [140, 18, 18], gloss: [238, 98, 90], spots: 2 },
+  ];
+  const SPOTS = {
+    7: [[.17, 0, .085], [.02, .22, .08], [.02, -.22, .08], [-.18, .13, .085], [-.18, -.13, .085], [-.29, .27, .07], [-.29, -.27, .07]],
+    2: [[-.06, .19, .1], [-.06, -.19, .1]],
+  };
+
+  class Ladybug extends Critter {
+    setup() {
+      this.size = rand(112, 148) * this.scale;
+      this.speed = rand(30, 52) * this.scale;
+      this.turnBase = rand(-.12, .12);
+      this.turnAmp = rand(.5, .95);
+      this.roam = 40;
+      this.lift = this.size * .05;
+      this.look = pick(LADYBUGS);
+      this.rest = 0;
+      this.nextRest = rand(2, 6);
+      this.gait = rand(0, TAU);
+    }
+
+    velocity(dt) {
+      if (this.rest > 0) { this.rest -= dt; return 0; }
+      this.nextRest -= dt;
+      if (this.nextRest < 0) { this.rest = rand(.5, 1.7); this.nextRest = rand(4, 9); }
+      this.gait += dt * this.speed / (this.size * .07);
+      return this.speed;
+    }
+
+    silhouette(c) {
+      const S = this.size;
+      c.ellipse(-.02 * S, 0, .5 * S, .46 * S, 0, 0, TAU);
+    }
+
+    body(c) {
+      const S = this.size, { shell, rim, gloss } = this.look;
+      c.strokeStyle = '#141210';
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
+
+      // tripod gait: legs 0 and 2 on one side step with leg 1 on the other
+      c.lineWidth = .03 * S;
+      for (const side of [1, -1]) {
+        [.15, 0, -.15].forEach((lx, i) => {
+          const swing = Math.sin(this.gait + (i % 2) * Math.PI + (side > 0 ? 0 : Math.PI)) * .06 * S;
+          const lean = (1 - i) * .09 * S;
+          c.beginPath();
+          c.moveTo(lx * S, side * .3 * S);
+          c.lineTo(lx * S + lean * .5 + swing * .5, side * .5 * S);
+          c.lineTo(lx * S + lean + swing, side * .6 * S);
+          c.stroke();
+        });
+      }
+
+      // antennae
+      c.lineWidth = .022 * S;
+      for (const side of [1, -1]) {
+        c.beginPath();
+        c.moveTo(.46 * S, side * .05 * S);
+        c.quadraticCurveTo(.58 * S, side * .08 * S, .62 * S, side * .17 * S);
+        c.stroke();
+      }
+
+      // head and pronotum with the pale cheek patches
+      c.fillStyle = '#141210';
+      ellipse(c, .4 * S, 0, .11 * S, .16 * S); c.fill();
+      ellipse(c, .29 * S, 0, .12 * S, .27 * S); c.fill();
+      c.fillStyle = 'rgb(244,241,232)';
+      for (const side of [1, -1]) { ellipse(c, .31 * S, side * .17 * S, .055 * S, .07 * S); c.fill(); }
+
+      // elytra: dark rim, shell, glossy highlight
+      c.fillStyle = rgb(rim);
+      ellipse(c, -.04 * S, 0, .41 * S, .41 * S); c.fill();
+      c.fillStyle = rgb(shell);
+      ellipse(c, -.03 * S, 0, .37 * S, .37 * S); c.fill();
+      c.fillStyle = rgb(gloss);
+      c.globalAlpha = .75;
+      ellipse(c, .08 * S, -.15 * S, .13 * S, .09 * S, -.5); c.fill();
+      c.globalAlpha = 1;
+
+      c.save();
+      ellipse(c, -.04 * S, 0, .41 * S, .41 * S);
+      c.clip();
+      c.fillStyle = '#141210';
+      for (const [sx, sy, r] of SPOTS[this.look.spots]) { ellipse(c, sx * S, sy * S, r * S, r * S); c.fill(); }
+      c.lineWidth = .03 * S;
+      c.beginPath();
+      c.moveTo(.2 * S, 0);
+      c.lineTo(-.46 * S, 0);
+      c.stroke();
+      c.restore();
+    }
+  }
+
+  // ── butterfly: flaps, bobs, glides
+  const BUTTERFLIES = [
+    { wing: [236, 132, 32], root: [208, 96, 22], edge: [30, 24, 20], dots: true },     // monarch
+    { wing: [52, 122, 228], root: [96, 172, 246], edge: [18, 22, 40], dots: false },   // morpho
+    { wing: [246, 214, 72], root: [236, 188, 48], edge: [176, 132, 30], dots: false }, // brimstone
+    { wing: [44, 36, 34], root: [64, 52, 46], edge: [26, 20, 18], band: [226, 84, 44], dots: true }, // admiral
+  ];
+
+  class Butterfly extends Critter {
+    setup() {
+      this.size = rand(200, 280) * this.scale;
+      this.speed = rand(48, 80) * this.scale;
+      this.turnBase = rand(-.15, .15);
+      this.turnAmp = rand(.7, 1.2);
+      this.roam = 26;
+      this.lift = this.size * .14;
+      this.look = pick(BUTTERFLIES);
+      this.flapRate = rand(3.2, 4.2);
+      this.flap = rand(0, TAU);
+      this.open = 1;
+      this.glide = 0;
+      this.nextGlide = rand(2, 5);
+      this.trailGap = 7;
+      this.trailLife = 1.1;
+      this.trailColor = this.look.wing;
+    }
+
+    velocity(dt) {
+      if (this.glide > 0) {
+        this.glide -= dt;
+        this.open += (1 - this.open) * Math.min(1, dt * 8);
+        if (this.glide <= 0) this.flap = 0;
+      } else {
+        this.nextGlide -= dt;
+        if (this.nextGlide < 0) { this.glide = rand(.5, 1.1); this.nextGlide = rand(2.5, 6); }
+        this.flap += dt * this.flapRate * TAU;
+        this.open = .5 + .5 * Math.cos(this.flap);
+      }
+      this.bob = Math.sin(this.age * 2.4 + this.phase) * this.size * .06;
+      // each downstroke pushes it forward a little
+      return this.speed * (this.glide > 0 ? 1.05 : .75 + .5 * Math.max(0, Math.sin(this.flap)));
+    }
+
+    // lateral wing extent seen from above; biased open so the shape stays readable
+    spread() { return .28 + .72 * Math.pow(this.open, .55); }
+
+    wingPath(c, side, fore) {
+      const S = this.size, s = side;
+      if (fore) {
+        c.moveTo(.06 * S, s * .03 * S);
+        c.bezierCurveTo(.16 * S, s * .12 * S, .25 * S, s * .34 * S, .2 * S, s * .5 * S);
+        c.bezierCurveTo(.12 * S, s * .55 * S, 0, s * .5 * S, -.04 * S, s * .4 * S);
+        c.bezierCurveTo(-.06 * S, s * .26 * S, -.04 * S, s * .1 * S, 0, s * .03 * S);
+      } else {
+        c.moveTo(0, s * .03 * S);
+        c.bezierCurveTo(.02 * S, s * .22 * S, -.04 * S, s * .4 * S, -.16 * S, s * .4 * S);
+        c.bezierCurveTo(-.27 * S, s * .38 * S, -.33 * S, s * .26 * S, -.3 * S, s * .16 * S);
+        c.bezierCurveTo(-.26 * S, s * .08 * S, -.12 * S, s * .03 * S, 0, s * .03 * S);
+      }
+      c.closePath();
+    }
+
+    wings(c) {
+      for (const side of [1, -1]) { this.wingPath(c, side, true); this.wingPath(c, side, false); }
+    }
+
+    silhouette(c) {
+      c.save();
+      c.scale(1, this.spread());
+      this.wings(c);
+      c.restore();
+    }
+
+    body(c) {
+      const S = this.size, { wing, root, edge, band, dots } = this.look;
+      c.save();
+      // seen from above, raised wings fold toward the body
+      c.scale(1, this.spread());
+
+      c.beginPath(); this.wings(c);
+      c.fillStyle = rgb(edge); c.fill();
+
+      // inner wing inset from the dark margin
+      for (const side of [1, -1]) {
+        c.save();
+        c.translate(0, side * .04 * S);
+        c.scale(.8, .8);
+        c.translate(0, -side * .04 * S);
+        c.beginPath(); this.wingPath(c, side, true); this.wingPath(c, side, false);
+        c.fillStyle = rgb(wing); c.fill();
+        c.clip();
+        c.fillStyle = rgb(root);
+        ellipse(c, -.02 * S, side * .08 * S, .16 * S, .14 * S); c.fill();
+        if (band) {
+          c.strokeStyle = rgb(band);
+          c.lineWidth = .09 * S;
+          c.beginPath(); c.moveTo(.17 * S, side * .2 * S); c.lineTo(.02 * S, side * .42 * S); c.stroke();
+          c.beginPath(); c.moveTo(-.04 * S, side * .36 * S); c.quadraticCurveTo(-.2 * S, side * .42 * S, -.3 * S, side * .24 * S); c.stroke();
+        }
+        c.restore();
+
+        // veins fanning out from the root
+        c.strokeStyle = rgb(edge);
+        c.lineWidth = 1.4;
+        c.globalAlpha = .6;
+        for (const [vx, vy] of [[.17, .42], [.06, .46], [-.03, .36], [-.16, .36], [-.26, .22]]) {
+          c.beginPath(); c.moveTo(0, side * .04 * S); c.lineTo(vx * S, side * vy * S); c.stroke();
+        }
+        c.globalAlpha = 1;
+
+        if (dots) {
+          c.fillStyle = 'rgb(250,248,240)';
+          for (const [dx, dy] of [[.19, .45], [.14, .5], [.07, .5], [.0, .46], [-.12, .4], [-.21, .37], [-.28, .27]]) {
+            ellipse(c, dx * S, side * dy * S, .016 * S, .016 * S); c.fill();
+          }
+        }
+      }
+      c.restore();
+
+      // body, head, clubbed antennae
+      c.fillStyle = 'rgb(34,28,24)';
+      ellipse(c, -.05 * S, 0, .2 * S, .034 * S); c.fill();
+      ellipse(c, .16 * S, 0, .042 * S, .042 * S); c.fill();
+      c.strokeStyle = 'rgb(34,28,24)';
+      c.lineWidth = 1.6;
+      for (const side of [1, -1]) {
+        c.beginPath(); c.moveTo(.18 * S, side * .015 * S); c.lineTo(.33 * S, side * .09 * S); c.stroke();
+        ellipse(c, .335 * S, side * .092 * S, .014 * S, .014 * S); c.fill();
+      }
+    }
+  }
+
+  // ── bumble bee: fast zig-zags, stops to hover, wings a blur
+  class Bee extends Critter {
+    setup() {
+      this.size = rand(120, 156) * this.scale;
+      this.speed = rand(95, 150) * this.scale;
+      this.turnBase = rand(-.2, .2);
+      this.turnAmp = rand(1.6, 2.5);
+      this.wander = [rand(1.6, 2.6), rand(0, TAU), rand(3.5, 5.5), rand(0, TAU)];
+      this.roam = 24;
+      this.lift = this.size * .16;
+      this.hover = 0;
+      this.nextHover = rand(1.5, 4);
+      this.trailGap = 9;
+      this.trailLife = .9;
+      this.trailColor = [70, 56, 24];
+    }
+
+    velocity(dt) {
+      this.bob = Math.sin(this.age * 9 + this.phase) * this.size * .025;
+      if (this.hover > 0) {
+        this.hover -= dt;
+        this.heading += rand(-1, 1) * 6 * dt;
+        return 12 * this.scale;
+      }
+      this.nextHover -= dt;
+      if (this.nextHover < 0) { this.hover = rand(.7, 1.8); this.nextHover = rand(2.5, 6); }
+      return this.speed;
+    }
+
+    silhouette(c) {
+      const B = this.size;
+      c.ellipse(-.06 * B, 0, .46 * B, .24 * B, 0, 0, TAU);
+    }
+
+    body(c) {
+      const B = this.size;
+      const dark = 'rgb(34,26,16)';
+      c.strokeStyle = dark;
+      c.lineCap = 'round';
+
+      // legs tucked under the thorax
+      c.lineWidth = .03 * B;
+      for (const side of [1, -1]) {
+        for (const lx of [.2, .1, 0]) {
+          c.beginPath(); c.moveTo(lx * B, side * .1 * B); c.lineTo((lx - .07) * B, side * .25 * B); c.stroke();
+        }
+      }
+
+      // striped abdomen
+      c.fillStyle = 'rgb(236,170,18)';
+      ellipse(c, -.15 * B, 0, .3 * B, .2 * B); c.fill();
+      c.save();
+      c.clip();
+      c.fillStyle = dark;
+      for (const sx of [-.04, -.19, -.34]) c.fillRect(sx * B, -.25 * B, .075 * B, .5 * B);
+      c.fillRect(-.5 * B, -.25 * B, .07 * B, .5 * B);
+      c.restore();
+
+      // fuzzy thorax and head
+      c.fillStyle = 'rgb(220,160,40)';
+      c.globalAlpha = .5;
+      ellipse(c, .13 * B, 0, .19 * B, .19 * B); c.fill();
+      c.globalAlpha = 1;
+      c.fillStyle = 'rgb(92,64,26)';
+      ellipse(c, .13 * B, 0, .15 * B, .15 * B); c.fill();
+      c.fillStyle = dark;
+      ellipse(c, .31 * B, 0, .085 * B, .11 * B); c.fill();
+
+      c.lineWidth = .028 * B;
+      for (const side of [1, -1]) {
+        c.beginPath(); c.moveTo(.37 * B, side * .04 * B); c.quadraticCurveTo(.47 * B, side * .06 * B, .5 * B, side * .14 * B); c.stroke();
+      }
+
+      // wings beat too fast to see: redraw them at a random angle every frame
+      c.fillStyle = 'rgb(212,226,240)';
+      for (const side of [1, -1]) {
+        for (const [len, base, alpha] of [[.28, .62, .5], [.2, .38, .4], [.28, .95, .22]]) {
+          const th = base + rand(-.22, .22);
+          const rx = .12 * B - Math.cos(th) * len * B, ry = side * (.07 * B + Math.sin(th) * len * B);
+          c.globalAlpha = alpha;
+          ellipse(c, rx, ry, len * B, len * .38 * B, side * (Math.PI - th));
+          c.fill();
+        }
+      }
+      c.globalAlpha = 1;
+    }
+  }
+
+  // butterflies only for now; Bee and Ladybug are still defined above and can go back in this list
+  const KINDS = [
+    { make: (s, i) => new Butterfly(s, i), type: Butterfly, weight: 1 },
+  ];
+
+  // ───────────────────────── drifting specks ─────────────────────────
+  class Cluster {
+    constructor(initial) {
+      this.x = rand(-40, W + 40);
+      this.y = rand(-20, H + 20);
+      const dir = Math.random() < .5 ? -1 : 1;
+      this.vx = dir * rand(8, 34);
+      this.vy = rand(-6, 6);
+      this.life = rand(7, 18);
+      this.age = initial ? rand(0, this.life) : 0;
+      const n = pick([1, 2, 2, 3, 3, 3, 4, 4, 5, 6]);
+      this.members = Array.from({ length: n }, () => ({
+        dx: Math.round(rand(-3.4, 3.4)), dy: pick([0, 0, 0, 1, -1, 1, -1, 2, -2]),
+        shade: rand(.22, .62), phase: rand(0, 50), birth: rand(0, .35), death: rand(.65, 1),
+      }));
+    }
+    update(dt) {
+      this.age += dt;
+      this.x += this.vx * dt;
+      this.y += this.vy * dt;
+      this.dead = this.age > this.life || this.x < -80 || this.x > W + 80 || this.y < -40 || this.y > H + 40;
+    }
+    draw(c) {
+      const p = this.age / this.life;
+      const cx = Math.floor(this.x / CW), cy = Math.floor(this.y / CH);
+      for (const m of this.members) {
+        if (p < m.birth || p > m.death) continue;
+        // occasional flicker, like a noisy source pixel
+        if (Math.sin(this.age * 2.3 + m.phase) + Math.sin(this.age * 3.7 + m.phase * 1.7) < -1.35) continue;
+        c.globalAlpha = m.shade;
+        c.fillRect((cx + m.dx) * CW + 1.5, (cy + m.dy) * CH + 5.4, 5, 1.2);
+      }
+    }
+  }
+
+  // ───────────────────────── loop ─────────────────────────
+  let critters = [], clusters = [];
+  const critterScale = () => Math.max(.6, Math.min(1, Math.min(W, H * 1.2) / 900));
+  const critterTarget = () => Math.max(3, Math.min(14, Math.round((W * H) / 140000)));
+  const clusterTarget = () => Math.round((W * H) / 30000);
+
+  // keep the mix close to the weights so every kind stays on screen
+  function spawn(initial) {
+    let best = KINDS[0], bestScore = Infinity;
+    for (const kind of KINDS) {
+      const count = critters.filter(c => c instanceof kind.type).length;
+      const score = (count + Math.random() * .8) / kind.weight;
+      if (score < bestScore) { bestScore = score; best = kind; }
+    }
+    const c = best.make(critterScale(), initial);
+    c.update(0);
+    return c;
+  }
+
+  function populate() {
+    critters = [];
+    for (let i = 0; i < critterTarget(); i++) critters.push(spawn(true));
+    clusters = Array.from({ length: clusterTarget() }, () => new Cluster(true));
+  }
+
+  function step(dt) {
+    time += dt;
+    for (const c of critters) c.update(dt);
+    critters = critters.filter(c => !c.dead);
+    while (critters.length < critterTarget()) critters.push(spawn(false));
+    for (const c of clusters) c.update(dt);
+    clusters = clusters.filter(c => !c.dead);
+    while (clusters.length < clusterTarget()) clusters.push(new Cluster(false));
+  }
+
+  function render() {
+    if (!cols || !rows) return;
+    // 1. rasterise the critters at one pixel per character cell
+    fctx.setTransform(1, 0, 0, 1, 0, 0);
+    fctx.clearRect(0, 0, cols, rows);
+    fctx.setTransform(1 / CW, 0, 0, 1 / CH, 0, 0);
+    for (const c of critters) c.draw(fctx);
+    const px = fctx.getImageData(0, 0, cols, rows).data;
+
+    // 2. paint specks, tiles and glyphs
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#2b2b2b';
+    for (const c of clusters) c.draw(ctx);
+    ctx.globalAlpha = 1;
+
+    const cw = Math.round(CW * DPR), ch = Math.round(CH * DPR);
+    const tick = Math.floor(time * 3);
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const i = (y * cols + x) * 4;
+        const a = px[i + 3] / 255;
+        if (a < .025) continue;
+        const r = px[i], g = px[i + 1], b = px[i + 2];
+        const h = hash(x, y);
+        const X = x * CW, Y = y * CH;
+
+        if (a < .07) {
+          // shadows and flight paths: sparse tiny squares, tinted by the critter
+          if (h > .4) continue;
+          ctx.globalAlpha = .35 + a * 5;
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fillRect(X + 3, Y + 5, 2, 2);
+          continue;
+        }
+
+        if (a < .3) {
+          // fringe: a lone speck with no tile behind it
+          const glyph = a > .2 ? 'o' : SPECK[Math.floor(h * SPECK.length)];
+          ctx.globalAlpha = .45 + a * 1.4;
+          ctx.drawImage(atlas, GI[glyph] * cw, 2 * ch, cw, ch, X, Y, CW, CH);
+          continue;
+        }
+
+        const k = clamp01((a - .16) / .62);
+        let tr = 253 + (r - 253) * k, tg = 253 + (g - 253) * k, tb = 253 + (b - 253) * k;
+        const h2 = hash(x, y, tick);
+        if (h2 < .012) {
+          const ac = ACCENTS[Math.floor(h * ACCENTS.length)];
+          const ar = parseInt(ac.slice(1, 3), 16), ag = parseInt(ac.slice(3, 5), 16), ab = parseInt(ac.slice(5, 7), 16);
+          tr += (ar - tr) * .5; tg += (ag - tg) * .5; tb += (ab - tb) * .5;
+        }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = `rgb(${tr | 0},${tg | 0},${tb | 0})`;
+        ctx.beginPath();
+        ctx.roundRect(X + .65, Y + .7, CW - 1.3, CH - 1.4, .8);
+        ctx.fill();
+
+        const lum = tr * .3 + tg * .59 + tb * .11;
+        const dark = 1 - lum / 255;
+        let glyph, ink = 0, alpha;
+        if (k < .42) {
+          glyph = GHOST[Math.floor(h * GHOST.length)];
+          alpha = .5;
+        } else {
+          const f = clamp01((dark - .3) / .5) * (RAMP.length - 1) + (h - .5) * 2.4;
+          glyph = RAMP[Math.max(0, Math.min(RAMP.length - 1, Math.round(f)))];
+          alpha = lum > 175 ? .55 : .93;
+          const h3 = hash(y, x, tick);
+          if (h2 > .975) { ink = ACCENT0 + Math.floor(h3 * ACCENTS.length); alpha = .9; }
+          else if (h2 > .9 && lum < 200) { ink = DEEP0 + Math.floor(h3 * DEEP_INKS.length); alpha = .9; }
+        }
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(atlas, GI[glyph] * cw, ink * ch, cw, ch, X, Y, CW, CH);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  let last = performance.now();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(.05, (now - last) / 1000);
+    last = now;
+    // a tab opened in the background can start with a 0×0 viewport
+    if (!cols && innerWidth) { resize(); populate(); }
+    step(dt);
+    render();
+  }
+
+  let resizeTimer;
+  addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const oldW = W, oldH = H;
+      resize();
+      if (Math.abs(W - oldW) > 120 || Math.abs(H - oldH) > 120) populate();
+      if (reduceMotion) render();
+    }, 80);
+  });
+
+  async function start() {
+    try { await document.fonts.load('500 10px "Geist Mono"'); } catch (e) {}
+    resize();
+    populate();
+    if (reduceMotion) { render(); return; }
+    last = performance.now();
+    requestAnimationFrame(frame);
+  }
+  start();
+})();
+</script>
+</body>
+</html>

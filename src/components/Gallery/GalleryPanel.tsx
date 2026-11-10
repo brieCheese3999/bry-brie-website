@@ -1,12 +1,11 @@
 import React from 'react';
 import type { GalleryContent } from '../types';
 import {Fieldset, Frame, Modal} from "@react95/core";
-import { Lightbox } from "./LightBox.tsx";
+import Masonry from "./Masonry.tsx";
 import { useResponsiveMode } from '../useResponsiveMode';
 
 export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content }) => {
     const { isMobile } = useResponsiveMode();
-    const [expandedIndex, setExpandedIndex] = React.useState<number | null>(null);
     const [modalIndex, setModalIndex] = React.useState(0);
 
     React.useEffect(() => {
@@ -17,77 +16,70 @@ export const GalleryPanel: React.FC<{ content: GalleryContent }> = ({ content })
         return () => clearInterval(timer);
     }, [content.items.length, isMobile]);
 
-    const lightbox = expandedIndex !== null && (
-        <Lightbox
-            items={content.items.map((i) => ({ id: i.id, label: i.label, img: i.img }))}
-            currentIndex={expandedIndex}
-            onClose={() => setExpandedIndex(null)}
-            onNavigate={setExpandedIndex}
-        />
-    );
+    // Tiles show the thumbnails; the masonry's own lightbox opens the full photo.
+    const photos = content.items.map((item) => ({
+        id: item.id,
+        img: item.img,
+        thumbnail: item.thumbnail,
+        srcSet: item.srcSet,
+        width: item.width,
+        height: item.height,
+        // a caption that wraps keeps "· 2026" with the place before it
+        title: item.label.replace(' · ', ' · '),
+        alt: item.alt ?? item.label,
+    }));
 
     return (
-        <>
-            <div className={isMobile ? "win95-mobile-stack" : ""} style={{paddingTop: '15px'}}>
-                <Fieldset
-                    legend={content.heading}
-                    className={`win95-pixel-heading ${isMobile ? 'win95-mobile-fieldset' : ''}`}
-                    style={{ width: isMobile ? undefined : '800px'}}
-                >
-                    <Frame display="flex" flexDirection="column">
-                        <div className="win95-icon-row">
-                            <span className="flex-break" />
-                            <p className="win95-bio-text">{content.intro}</p>
-                        </div>
-                    </Frame>
-                </Fieldset>
-                {!isMobile && content.items.length > 0 && (
-                    <Modal width="30%" height="40%" dragOptions={{ defaultPosition: { x: 870, y: 0 } }}  title={"PHOTOS"}>
-                        <Modal.Content style={{ overflow: 'hidden' }}>
-                            <img
-                                src={content.items[modalIndex].thumbnail ?? content.items[modalIndex].img}
-                                srcSet={content.items[modalIndex].srcSet}
-                                sizes="(max-width: 1279px) 30vw, 480px"
-                                alt={content.items[modalIndex].alt}
-                                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                            />
-                        </Modal.Content>
-                    </Modal>
-                )}
-                <div className="win95-gallery-modal-wrapper">
-                            <div className="win95-gallery-wall-scroll">
-                                <div className={`win95-gallery-wall ${isMobile ? 'win95-gallery-wall--mobile' : ''}`}>
-                                    {content.items.map((item, index) => {
-                                        return (
-                                            <button
-                                                key={item.id}
-                                                type="button"
-                                                className="win95-gallery-wall-item win95-raised"
-                                                onClick={event => {
-                                                    event.currentTarget.focus({ preventScroll: true });
-                                                    setExpandedIndex(index);
-                                                }}
-                                                aria-label={`View photo: ${item.label}`}
-                                            >
-                                                <img
-                                                    src={item.thumbnail ?? item.img}
-                                                    srcSet={item.srcSet}
-                                                    sizes="(max-width: 1279px) calc((100vw - 120px) / 2), 340px"
-                                                    alt={item.alt ?? item.label}
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                    style={{ aspectRatio: item.width && item.height ? `${item.width} / ${item.height}` : undefined, objectFit: 'cover' }}
-                                                    width={item.width}
-                                                    height={item.height}
-                                                />
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                </div>
+        <div className={`win95-typewriter win95-photos${isMobile ? " win95-mobile-stack" : ""}`}>
+            <Fieldset
+                legend={content.heading}
+                className={`win95-pixel-heading ${isMobile ? 'win95-mobile-fieldset' : ''}`}
+                style={{ width: isMobile ? undefined : '800px'}}
+            >
+                <Frame display="flex" flexDirection="column">
+                    <div className="win95-icon-row">
+                        <span className="flex-break" />
+                        {(() => {
+                            const parts = content.intro.split('\n\n');
+                            const paragraph = parts[0];
+                            const destinations = parts[1]?.split('\n').filter(Boolean) ?? [];
+                            return (
+                                <>
+                                    <p className="win95-bio-text">{paragraph}</p>
+                                    {destinations.length > 0 && (
+                                        <ul className="win95-destination-list">
+                                            {destinations.map((d) => (
+                                                <li key={d}>{d}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </>
+                            );
+                        })()}
+                    </div>
+                </Frame>
+            </Fieldset>
+            {!isMobile && content.items.length > 0 && (
+                <Modal width="30%" height="39%" dragOptions={{ defaultPosition: { x: 870, y: 0 } }}  title={"PHOTOS"}>
+                    <Modal.Content style={{ overflow: 'hidden' }}>
+                        <img
+                            src={content.items[modalIndex].thumbnail ?? content.items[modalIndex].img}
+                            srcSet={content.items[modalIndex].srcSet}
+                            sizes="(max-width: 1279px) 30vw, 480px"
+                            alt={content.items[modalIndex].alt}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        />
+                    </Modal.Content>
+                </Modal>
+            )}
+            <div className="win95-gallery-modal-wrapper">
+                <Masonry
+                    className="win95-gallery-masonry"
+                    items={photos}
+                    columns={isMobile ? 2 : 4}
+                    gap={isMobile ? 14 : 10}
+                />
             </div>
-            {lightbox}
-        </>
+        </div>
     );
 };

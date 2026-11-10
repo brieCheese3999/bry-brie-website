@@ -1,0 +1,60 @@
+/* ---------- PDF viewer ---------- */
+.resume-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.resume-toolbar-btn {
+  position: relative;
+  min-width: 50px;
+  min-height: 50px;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--r95-color-material, #c0c0c0);
+  border: 2px outset #dfdfdf;
+}
+
+.resume-toolbar-btn:active {
+  border-style: inset;
+}
+
+.resume-toolbar-btn img {
+  width: 48px !important;
+  height: 48px !important;
+  image-rendering: pixelated;
+}
+
+.resume-toolbar-label {
+  display: none;
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffe1;
+  border: 1px solid #000;
+  padding: 2px 6px;
+  font-size: 16px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.resume-toolbar-btn:hover .resume-toolbar-label {
+  display: block;
+}
+
+.resume-pdf-wrapper {
+  width: 100%;
+  border: 2px inset var(--r95-color-material, #c0c0c0);
+  background: #fff;
+}
+
+.resume-pdf-viewer {
+  display: block;
+  width: 100%;
+  height: auto;
+}

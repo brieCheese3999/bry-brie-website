@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type {AboutContent, SkillGroup, SkillIcon} from '../types.ts';
 import {Fieldset, Frame, Modal} from "@react95/core";
 import { useResponsiveMode } from '../useResponsiveMode.ts';
+import { ScrambleOpening, ScrambleText } from './ScrambleText.tsx';
 
 const SKILL_GROUP_ORDER: SkillGroup[] = ['Backend', 'Frontend', 'Data & Cloud'];
 
@@ -10,11 +11,21 @@ const groupSkills = (skills: SkillIcon[]) =>
         .map((group) => ({ group, items: skills.filter((s) => s.group === group) }))
         .filter((g) => g.items.length > 0);
 
+const Legend: React.FC<{ text: string }> = ({ text }) => (
+    <legend className="win95-about-legend"><ScrambleText text={text} /></legend>
+);
+
+const Bio: React.FC<{ text: string }> = ({ text }) => (
+    <p className="win95-bio-text">
+        {text.split(/(?<=[.!?])(\s+)/).map((part, i) => (i % 2 ? part : <ScrambleText key={i} text={part} />))}
+    </p>
+);
+
 const SkillsGrid: React.FC<{ skills: SkillIcon[] }> = ({ skills }) => (
     <div className="win95-skill-groups">
         {groupSkills(skills).map(({ group, items }) => (
             <div key={group} className="win95-skill-group">
-                <span className="win95-skill-group-label">{group}</span>
+                <ScrambleText className="win95-skill-group-label" text={group} />
                 <div className="win95-skill-tile-row">
                     {items.map((skill) => {
                         const Icon = skill.icon;
@@ -23,11 +34,12 @@ const SkillsGrid: React.FC<{ skills: SkillIcon[] }> = ({ skills }) => (
                                 key={skill.id}
                                 className="win95-skill-tile"
                                 title={skill.note ? `${skill.label} (${skill.note})` : skill.label}
+                                data-scramble-group
                             >
                                 <span className="win95-skill-tile-icon">
                                     <Icon size={32} color={skill.color} />
                                 </span>
-                                <span className="win95-skill-tile-label">{skill.label}</span>
+                                <ScrambleText className="win95-skill-tile-label" text={skill.label} />
                             </div>
                         );
                     })}
@@ -37,44 +49,61 @@ const SkillsGrid: React.FC<{ skills: SkillIcon[] }> = ({ skills }) => (
     </div>
 );
 
+const INFO_FIELDS = (content: AboutContent) => [
+  { label: 'NAME', value: content.name },
+  { label: 'LOCATION', value: 'Brooklyn, NY' },
+  { label: 'ROLE', value: 'Software Engineer' },
+];
 
 const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
+  const infoFields = INFO_FIELDS(content);
   return (
-  <div style={{ position: 'relative' ,paddingTop: '15px'}}>
-      <Fieldset  width="800px" legend={content.heading} className="win95-pixel-heading">
+  <div className="win95-typewriter win95-about" style={{ position: 'relative' }}>
+      <Fieldset  width="800px" className="win95-pixel-heading">
+          <Legend text={content.heading} />
           <Frame display="flex" flexDirection="column">
+              <div className="about-info-summary">
+                  {infoFields.map((f) => (
+                      <div key={f.label} className="about-info-row" data-scramble-group>
+                          <span className="about-info-label"><ScrambleText text={f.label + ':'} /></span>
+                          <span className="about-info-value"><ScrambleText text={f.value} /></span>
+                      </div>
+                  ))}
+              </div>
               <div className="win95-icon-row">
-                  <p className="win95-bio-text">{content.bio}</p>
+                  <Bio text={content.bio} />
               </div>
           </Frame>
       </Fieldset>
 
-      <Fieldset width="800px" legend="SKILLS" className="win95-section-label">
+      <Fieldset width="800px" className="win95-section-label">
+          <Legend text="SKILLS" />
           <Frame display="flex" flexDirection="column">
               <SkillsGrid skills={content.skills} />
           </Frame>
       </Fieldset>
 
-      <Fieldset width="500px" legend="EDUCATION" className="win95-section-label">
+      <Fieldset width="500px" className="win95-section-label">
+          <Legend text="EDUCATION" />
           <Frame display="flex" flexDirection="column">
-      <div className="win95-edu-item">
-        <span className="win95-yrs">{content.education.years}</span>
-        <span className="win95-school">{content.education.school}</span>
+      <div className="win95-edu-item" data-scramble-group>
+        <ScrambleText className="win95-yrs" text={content.education.years} />
+        <ScrambleText className="win95-school" text={content.education.school} />
           <br/>
-          <span className="win95-school">Majors: </span>
+          <ScrambleText className="win95-school" text="Majors: " />
           {content.education.majors.map((major) => (
-          <span className="win95-major" key={major}>[{major}] </span>
+          <ScrambleText className="win95-major" key={major} text={`[${major}] `} />
           ))}
           <br/>
-          <span className="win95-school">Minor:</span>
-          <span className="win95-major"> [{content.education.minor}]</span>
+          <ScrambleText className="win95-school" text="Minor:" />
+          <ScrambleText className="win95-major" text={` [${content.education.minor}]`} />
 
       </div>
 
           </Frame>
       </Fieldset>
 
-      <Modal style={{fontSize:"20px"}} id="photo-modal" title={content.photoWindow.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 870, y: -25 } }}>
+      <Modal style={{fontSize: "23px"}} id="photo-modal" title={content.photoWindow.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 870, y: -25 } }}>
           <Modal.Content width="450px" boxShadow="$in" bgColor="white" p="16px">
               <Frame as="div" display="flex" flexDirection="column" gap="8px">
                   <img src={content.photoWindow.imageUrl} alt={content.photoWindow.alt}/>
@@ -82,17 +111,17 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
           </Modal.Content>
       </Modal>
 
-      <Modal  style={{fontSize:"15px"}} id="socials-modal" title={content.socials.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 870, y: 620 } }}>
+      <Modal  style={{fontSize: "18px"}} id="socials-modal" title={content.socials.title} titleBarOptions={<Modal.Minimize />}  dragOptions={{ defaultPosition: { x: 870, y: 620 } }}>
           <Modal.Content minWidth="450px" minHeight="150px">
               <Frame  display="flex" bgColor="$material" boxShadow="$out" flexDirection="column" padding="$6" gap="$7">
                   {content.socials.links.map((link) => {
                       const Icon = link.icon;
                       return (
-                      <Frame key={link.handle} as="div" className="win95-social-modal-row" display="flex" bgColor="white" boxShadow="$in" flexDirection="row" alignItems="center" padding="$6">
+                      <Frame key={link.handle} as="div" className="win95-social-modal-row" display="flex" bgColor="white" boxShadow="$in" flexDirection="row" alignItems="center" padding="$6" data-scramble-group>
                           <span  className="win95-social-glyph">{Icon ? <Icon size={20} color={link.color} /> : link.glyph}</span>   {link.url ? (
-                            <a className="win95-social-link" href={link.url} target="_blank" rel="noopener noreferrer">{link.handle}</a>
+                            <a className="win95-social-link" href={link.url} target="_blank" rel="noopener noreferrer"><ScrambleText text={link.handle} /></a>
                           ) : (
-                            link.handle
+                            <ScrambleText text={link.handle} />
                           )}
                       </Frame>
                       );
@@ -106,18 +135,21 @@ const DesktopAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => 
   );
 };
 
-/**
- * Mobile rendering: everything from DesktopAboutPanel, but as a single
- * static column — no draggable Modals, no fixed pixel coordinates, no
- * scale-to-fit wrapper. Each "window" becomes a plain Fieldset section
- * that flows naturally with the page, so it works at any width.
- */
 const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
+  const infoFields = INFO_FIELDS(content);
   return (
-  <div className="win95-mobile-stack">
-    <Fieldset legend={content.heading} className="win95-pixel-heading win95-mobile-fieldset">
-      <h2 className="win95-subject-name">{content.name}</h2>
-      <p className="win95-bio-text">{content.bio}</p>
+  <div className="win95-typewriter win95-mobile-stack win95-about">
+    <Fieldset className="win95-pixel-heading win95-mobile-fieldset">
+      <Legend text={content.heading} />
+      <div className="about-info-summary">
+          {infoFields.map((f) => (
+              <div key={f.label} className="about-info-row" data-scramble-group>
+                  <span className="about-info-label"><ScrambleText text={f.label + ':'} /></span>
+                  <span className="about-info-value"><ScrambleText text={f.value} /></span>
+              </div>
+          ))}
+      </div>
+      <Bio text={content.bio} />
       {content.photoWindow.imageUrl && (
         <img
           className="win95-mobile-photo"
@@ -127,36 +159,39 @@ const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
       )}
     </Fieldset>
 
-    <Fieldset legend="SKILLS" className="win95-section-label win95-mobile-fieldset">
+    <Fieldset className="win95-section-label win95-mobile-fieldset">
+      <Legend text="SKILLS" />
       <SkillsGrid skills={content.skills} />
     </Fieldset>
 
-    <Fieldset legend="EDUCATION" className="win95-section-label win95-mobile-fieldset">
-      <div className="win95-edu-item">
-        <span className="win95-yrs">{content.education.years}</span>
-        <span className="win95-school">{content.education.school}</span>
+    <Fieldset className="win95-section-label win95-mobile-fieldset">
+      <Legend text="EDUCATION" />
+      <div className="win95-edu-item" data-scramble-group>
+        <ScrambleText className="win95-yrs" text={content.education.years} />
+        <ScrambleText className="win95-school" text={content.education.school} />
         <br />
-        <span className="win95-school">Majors: </span>
+        <ScrambleText className="win95-school" text="Majors: " />
         {content.education.majors.map((major) => (
-          <span key={major}>[{major}] </span>
+          <ScrambleText key={major} text={`[${major}] `} />
         ))}
         <br />
-        <span className="win95-school">Minor:</span>
-        <span> [{content.education.minor}]</span>
+        <ScrambleText className="win95-school" text="Minor:" />
+        <ScrambleText text={` [${content.education.minor}]`} />
       </div>
     </Fieldset>
 
-    <Fieldset legend={content.socials.title} className="win95-section-label win95-mobile-fieldset">
+    <Fieldset className="win95-section-label win95-mobile-fieldset">
+      <Legend text={content.socials.title} />
       <div className="win95-mobile-social-list">
         {content.socials.links.map((link) => {
           const Icon = link.icon;
           return (
-          <div key={link.handle} className="win95-social-row">
+          <div key={link.handle} className="win95-social-row" data-scramble-group>
             <span className="win95-social-glyph">{Icon ? <Icon size={20} color={link.color} /> : link.glyph}</span>
             {link.url ? (
-              <a className="win95-social-link" href={link.url} target="_blank" rel="noopener noreferrer">{link.handle}</a>
+              <a className="win95-social-link" href={link.url} target="_blank" rel="noopener noreferrer"><ScrambleText text={link.handle} /></a>
             ) : (
-              <span>{link.handle}</span>
+              <ScrambleText text={link.handle} />
             )}
           </div>
           );
@@ -167,7 +202,13 @@ const MobileAboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
   );
 };
 
-export const AboutPanel: React.FC<{ content: AboutContent }> = ({ content }) => {
+export const AboutPanel: React.FC<{ content: AboutContent; active: boolean }> = ({ content, active }) => {
   const { isMobile } = useResponsiveMode();
-  return isMobile ? <MobileAboutPanel content={content} /> : <DesktopAboutPanel content={content} />;
+  const [opened, setOpened] = useState(active);
+  if (active && !opened) setOpened(true);
+  return (
+    <ScrambleOpening opened={opened}>
+      {isMobile ? <MobileAboutPanel content={content} /> : <DesktopAboutPanel content={content} />}
+    </ScrambleOpening>
+  );
 };

@@ -31,13 +31,7 @@ code {
   monospace;
 }
 
-/*
- * Lighter grey for every react95 surface. react95 draws all "material"
- * surfaces (Modal bodies, Tabs, Buttons, TaskBar, Frames, etc.) from the
- * single --r95-color-material variable. The theme sets it on :root and loads
- * after this file, so :root:root gives us the specificity to override it
- * globally. The bevel/border colors are left untouched so the 3D edges read.
- */
+
 .r95-light {
   --r95-color-material: #dadde2;
 }

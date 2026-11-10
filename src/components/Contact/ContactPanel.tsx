@@ -110,7 +110,7 @@ const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
         <>
         <Modal
             className="contact-panel-modal"
-            style={{ fontSize: '15px' }}
+            style={{ fontSize: '18px' }}
             minWidth="880px"
             minHeight="450px"
             id="contact-modal"
@@ -125,9 +125,9 @@ const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
 
             <div className="contact-format-row">
                 <div className="contact-font-pickers" inert aria-hidden="true">
-                    <Dropdown width="100%" minWidth="0px" options={['Normal']} style={{ fontSize: '20px' }} />
-                    <Dropdown width="100%" minWidth="0px" options={['Arial']} style={{ fontSize: '20px' }} />
-                    <Dropdown width="100%" minWidth="0px" options={['10']} style={{ fontSize: '20px' }} />
+                    <Dropdown width="100%" minWidth="0px" options={['Normal']} style={{ fontSize: '23px' }} />
+                    <Dropdown width="100%" minWidth="0px" options={['Arial']} style={{ fontSize: '23px' }} />
+                    <Dropdown width="100%" minWidth="0px" options={['10']} style={{ fontSize: '23px' }} />
                 </div>
                 <div className="contact-format-icons" aria-hidden="true">
                     {formatIcons.map((Icon, index) => (
@@ -139,11 +139,11 @@ const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
             <Modal.Content>
                 <Frame display="flex" flexDirection="column">
                     <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                        <Button style={{ minWidth: 75, fontSize: '20px', padding: 4, marginRight: 15, marginBottom: 6 }}>To...</Button>
-                        <Input readOnly aria-label="To" value={CONTACT_EMAIL} style={{ flex: 1, minWidth: 0, fontSize: '20px', padding: 4, marginRight: 10 }} />
+                        <Button style={{ minWidth: 75, fontSize: '23px', padding: 4, marginRight: 15, marginBottom: 6 }}>To...</Button>
+                        <Input readOnly aria-label="To" value={CONTACT_EMAIL} style={{ flex: 1, minWidth: 0, fontSize: '23px', padding: 4, marginRight: 10 }} />
                     </Frame>
                     <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                        <label htmlFor={`${fieldId}-email`} className="contact-from-label" style={{ minWidth: 75, fontSize: '20px', padding: 4, marginRight: 15, marginBottom: 6 }}>From</label>
+                        <label htmlFor={`${fieldId}-email`} className="contact-from-label" style={{ minWidth: 75, fontSize: '23px', padding: 4, marginRight: 15, marginBottom: 6 }}>From</label>
                         <Input
                             type="email"
                             id={`${fieldId}-email`}
@@ -151,17 +151,17 @@ const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
                             placeholder="your@email.com"
                             value={senderEmail}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenderEmail(e.target.value)}
-                            style={{ flex: 1, width: 70, fontSize: '20px', minWidth: 70, padding: 4, marginRight: 10, marginBottom: 6 }}
+                            style={{ flex: 1, width: 70, fontSize: '23px', minWidth: 70, padding: 4, marginRight: 10, marginBottom: 6 }}
                         />
                     </Frame>
                     <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                        <label htmlFor={`${fieldId}-subject`} style={{ minWidth: 40, fontSize: '20px', display: 'inline-block', padding: 4, marginRight: 10, marginTop: 6 , marginBottom: 6}}>Subject:</label>
+                        <label htmlFor={`${fieldId}-subject`} style={{ minWidth: 40, fontSize: '23px', display: 'inline-block', padding: 4, marginRight: 10, marginTop: 6 , marginBottom: 6}}>Subject:</label>
                         <Input
                             id={`${fieldId}-subject`}
                             data-testid="contact-subject"
                             value={subject}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
-                            style={{ flex: 1, fontSize: '20px', minWidth: 70, padding: 4, marginRight: 10, marginBottom: 10 }}
+                            style={{ flex: 1, fontSize: '23px', minWidth: 70, padding: 4, marginRight: 10, marginBottom: 10 }}
                         />
                     </Frame>
                     <label htmlFor={`${fieldId}-message`} className="contact-sr-label">Message</label>
@@ -171,7 +171,7 @@ const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
                         value={message}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
                         placeholder="Write your message here..."
-                        style={{ minHeight: '600px', fontSize: '25px' }}
+                        style={{ minHeight: '600px', fontSize: '28px' }}
                         display="flex"
                     />
                     {/* Honeypot: hidden from users, tempting to bots. */}
@@ -193,7 +193,7 @@ const DesktopContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
                             data-contact-send
                             onClick={(event: React.MouseEvent<HTMLButtonElement>) => { event.currentTarget.focus({ preventScroll: true }); handleSend(); }}
                             disabled={sendStatus === 'sending'}
-                            style={{ fontSize: '15px', padding: '8px 32px', minWidth: 120 }}
+                            style={{ fontSize: '18px', padding: '8px 32px', minWidth: 120 }}
                         >
                             {sendButtonLabel}
                         </Button>
@@ -227,27 +227,27 @@ const MobileContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
             <ContactIconStrip />
             <Frame display="flex" flexDirection="column" gap="$4" bgColor="$material" boxShadow="$out" padding="$8">
                 <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                    <span style={{ minWidth: 50, fontSize: '16px' }}>To:</span>
-                    <Input readOnly aria-label="To" value={CONTACT_EMAIL} style={{ flex: 1, minWidth: 0, fontSize: '16px', padding: 4 }} />
+                    <span style={{ minWidth: 50, fontSize: '19px' }}>To:</span>
+                    <Input readOnly aria-label="To" value={CONTACT_EMAIL} style={{ flex: 1, minWidth: 0, fontSize: '19px', padding: 4 }} />
                 </Frame>
                 <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                    <label htmlFor={`${fieldId}-email`} style={{ minWidth: 50, fontSize: '16px' }}>From:</label>
+                    <label htmlFor={`${fieldId}-email`} style={{ minWidth: 50, fontSize: '19px' }}>From:</label>
                     <Input
                         type="email"
                             id={`${fieldId}-email`}
                         placeholder="your@email.com"
                         value={senderEmail}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenderEmail(e.target.value)}
-                        style={{ flex: 1, fontSize: '16px', padding: 4 }}
+                        style={{ flex: 1, fontSize: '19px', padding: 4 }}
                     />
                 </Frame>
                 <Frame display="flex" flexDirection="row" alignItems="center" gap="$2">
-                    <label htmlFor={`${fieldId}-subject`} style={{ minWidth: 50, fontSize: '16px' }}>Subject:</label>
+                    <label htmlFor={`${fieldId}-subject`} style={{ minWidth: 50, fontSize: '19px' }}>Subject:</label>
                     <Input
                         id={`${fieldId}-subject`}
                         value={subject}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
-                        style={{ flex: 1, fontSize: '16px', padding: 4 }}
+                        style={{ flex: 1, fontSize: '19px', padding: 4 }}
                     />
                 </Frame>
                 <label htmlFor={`${fieldId}-message`} className="contact-sr-label">Message</label>
@@ -257,7 +257,7 @@ const MobileContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
                     placeholder="Write your message here..."
                     rows={8}
-                    style={{ minHeight: '160px', height: '192px', fontSize: '16px', resize: 'vertical' }}
+                    style={{ minHeight: '160px', height: '192px', fontSize: '19px', resize: 'vertical' }}
                 />
                 {/* Honeypot: hidden from users, tempting to bots. */}
                 <input
@@ -276,7 +276,7 @@ const MobileContactPanel: React.FC<ContactPanelProps> = ({ form }) => {
                     data-contact-send
                             onClick={(event: React.MouseEvent<HTMLButtonElement>) => { event.currentTarget.focus({ preventScroll: true }); handleSend(); }}
                     disabled={sendStatus === 'sending'}
-                    style={{ alignSelf: 'flex-end', fontSize: '18px', padding: '6px 28px', minWidth: 100 }}
+                    style={{ alignSelf: 'flex-end', fontSize: '21px', padding: '6px 28px', minWidth: 100 }}
                 >
                     {sendButtonLabel}
                 </Button>

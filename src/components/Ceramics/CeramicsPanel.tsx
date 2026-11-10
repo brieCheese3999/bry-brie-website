@@ -38,7 +38,7 @@ export const CeramicsPanel: React.FC<CeramicsPanelProps> = ({ content, selectedP
 
   if (selectedPiece) {
     return (
-      <div className={isMobile ? 'win95-mobile-stack' : ''} style={{ paddingTop: '15px' }}>
+      <div className={`win95-typewriter win95-ceramics${isMobile ? ' win95-mobile-stack' : ''}`}>
         <CeramicDetailView
           piece={selectedPiece}
           otherPieces={otherPieces}
@@ -50,7 +50,7 @@ export const CeramicsPanel: React.FC<CeramicsPanelProps> = ({ content, selectedP
   }
 
   return (
-    <div className={isMobile ? 'win95-mobile-stack' : ''} style={{ paddingTop: '15px' }}>
+    <div className={`win95-typewriter win95-ceramics${isMobile ? ' win95-mobile-stack' : ''}`}>
       <Fieldset
         legend={content.heading}
         className={`win95-pixel-heading ${isMobile ? 'win95-mobile-fieldset' : ''}`}
@@ -70,7 +70,7 @@ export const CeramicsPanel: React.FC<CeramicsPanelProps> = ({ content, selectedP
             key={f.value}
             className={filter === f.value ? 'ceramics-filter-active' : ''}
             onClick={() => setFilter(f.value)}
-            style={{ fontSize: '15px', padding: '4px 16px' }}
+            style={{ fontSize: '18px', padding: '4px 16px' }}
           >
             {f.label}
           </Button>
@@ -84,7 +84,7 @@ export const CeramicsPanel: React.FC<CeramicsPanelProps> = ({ content, selectedP
           p="$12"
           style={{ textAlign: 'center', marginTop: '12px' }}
         >
-          <p style={{ fontSize: '16px', color: '#666' }}>
+          <p style={{ fontSize: '19px', color: '#666' }}>
             No pieces here yet — check back soon!
           </p>
         </Frame>
@@ -122,14 +122,12 @@ const CeramicFeedCard: React.FC<{ piece: CeramicPiece; onClick: () => void }> = 
               muted
               loop
               playsInline
-              style={{ width: '100%', display: 'block' }}
             />
           ) : (
             <img
               src={cover.src}
               alt={cover.alt ?? piece.title}
               loading="lazy"
-              style={{ width: '100%', display: 'block' }}
             />
           )
         ) : (

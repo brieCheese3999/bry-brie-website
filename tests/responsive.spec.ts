@@ -3,8 +3,14 @@ import { test, expect, type Page } from '@playwright/test';
 // Keep the actual artwork and native scheduling. Freeze painted canvas bitmaps
 // and mask only the changing taskbar clock for visual comparison.
 async function openVisualPage(page: Page, route: string) {
+  // With reduced motion, pages hold still for the camera: the entry glass shows
+  // the name whole, About's lines don't retype as it opens, and the gallery's
+  // tiles sit in place instead of springing in.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(route);
   await expect(route === '/' ? page.getByRole('button', { name: "Enter Bryanna's portfolio" }) : page.locator('.seamless-tab-panel.is-active')).toBeVisible();
+  // Enter shows once the name is written and the portfolio has loaded behind it.
+  if (route === '/') await expect(page.getByRole('button', { name: "Enter Bryanna's portfolio" })).toBeEnabled({ timeout: 15000 });
   // Canvas has no HTML load event: don't accept blank backgrounds as baselines.
   await expect.poll(() => page.locator('canvas').evaluateAll(canvases => canvases.every(canvas => {
     const el = canvas as HTMLCanvasElement;
@@ -61,16 +67,16 @@ for (const viewport of [{ name: 'phone', width: 390, height: 844 }, { name: 'des
   test(`visual ${viewport.name} gallery wall`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await openVisualPage(page, '/photos');
-    await page.locator('.seamless-tab-panel.is-active').getByRole('button', { name: /View photo:/ }).first().scrollIntoViewIfNeeded();
+    await page.locator('.seamless-tab-panel.is-active .masonry__card').first().scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot(`${viewport.name}-gallery-wall.png`, { ...screenshotOptions, mask: [page.locator('.win95-taskbar-bar').getByText(/^\d{2}:\d{2}$/)], maskColor: '#dadde2' });
   });
   test(`visual ${viewport.name} lightbox`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await openVisualPage(page, '/photos');
-    await page.locator('.seamless-tab-panel.is-active').getByRole('button', { name: /View photo:/ }).first().click();
-    const overlay = page.locator('.lightbox-wrapper');
+    await page.locator('.seamless-tab-panel.is-active .masonry__card').first().click();
+    const overlay = page.locator('.masonry-lightbox');
     await expect(overlay).toBeVisible();
-    await expect(overlay.locator('img')).toHaveCSS('opacity', '1');
+    await overlay.locator('[data-box-image]').evaluate(async el => { await (el as HTMLImageElement).decode(); });
     await expect(overlay).toHaveScreenshot(`${viewport.name}-lightbox.png`, { ...screenshotOptions, mask: [page.locator('.win95-taskbar-bar').getByText(/^\d{2}:\d{2}$/)], maskColor: '#dadde2' });
   });
   test(`visual ${viewport.name} contact submit area`, async ({ page }) => {

@@ -75,11 +75,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #c0c0c0;
+  background: var(--r95-color-material, #c0c0c0);
 }
 
 .ceramics-feed-card-placeholder-text {
-  font-size: 14px;
+  font-size: 17px;
   color: #666;
 }
 
@@ -89,14 +89,15 @@
   bottom: 12px;
   left: 12px;
   padding: 5px 12px;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.5px;
+  font-family: 'Cutive Mono', 'Courier New', monospace;
 }
 
 .ceramics-feed-card-badge--for-sale {
-  background: #000080;
-  color: #fff;
+  background: var(--titlebar-start, #b276d3);
+  color: #ffffff;
 }
 
 .ceramics-feed-card-badge--showcase {
@@ -111,17 +112,19 @@
 
 .ceramics-feed-card-title {
   display: block;
-  font-size: 15px;
+  font-size: 22px;
   font-weight: 700;
   color: #171717;
   line-height: 1.3;
+  font-family: 'Cutive Mono', 'Courier New', monospace;
 }
 
 .ceramics-feed-card-price {
   display: block;
-  font-size: 14px;
+  font-size: 20px;
   color: #333;
   margin-top: 2px;
+  font-family: 'Cutive Mono', 'Courier New', monospace;
 }
 
 /* Tablet (600–1279px): 2 columns even though win95-mobile-stack is applied */
@@ -141,10 +144,10 @@
 /* Slightly larger text on mobile single-column */
 @media (max-width: 599px) {
   .win95-mobile-stack .ceramics-feed-card-title {
-    font-size: 18px;
+    font-size: 21px;
   }
   .win95-mobile-stack .ceramics-feed-card-price {
-    font-size: 15px;
+    font-size: 18px;
   }
 }
 
@@ -218,7 +221,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #c0c0c0;
+  background: var(--r95-color-material, #c0c0c0);
 }
 
 /* Carousel arrows */
@@ -232,7 +235,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 17px;
   border: none;
   font-family: inherit;
   z-index: 2;
@@ -245,7 +248,7 @@
 .ceramic-detail-indicator {
   text-align: center;
   padding: 8px 0;
-  font-size: 14px;
+  font-size: 17px;
   color: #666;
 }
 
@@ -255,7 +258,7 @@
 }
 
 .ceramic-detail-name {
-  font-size: 40px;
+  font-size: 43px;
   font-weight: 400;
   color: #171717;
   margin: 0 0 4px;
@@ -264,7 +267,7 @@
 
 .ceramic-detail-year {
   display: block;
-  font-size: 14px;
+  font-size: 17px;
   color: #888;
   margin-bottom: 16px;
 }
@@ -277,7 +280,7 @@
 }
 
 .ceramic-detail-price {
-  font-size: 18px;
+  font-size: 21px;
   font-weight: 400;
   color: #171717;
   letter-spacing: 1.3px;
@@ -286,13 +289,13 @@
 .ceramic-detail-status {
   display: inline-block;
   padding: 4px 14px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
 }
 
 .ceramic-detail-status--for-sale {
-  background: #000080;
-  color: #fff;
+  background: var(--titlebar-start, #b276d3);
+  color: #ffffff;
 }
 
 .ceramic-detail-status--showcase {
@@ -301,7 +304,7 @@
 }
 
 .ceramic-detail-description {
-  font-size: 16px;
+  font-size: 19px;
   line-height: 1.8;
   color: rgba(23, 23, 23, 0.75);
   margin: 0 0 25px;
@@ -313,7 +316,7 @@
 }
 
 .ceramic-detail-spec-line {
-  font-size: 16px;
+  font-size: 19px;
   color: rgba(23, 23, 23, 0.75);
   margin: 0 0 16px;
   line-height: 1.8;
@@ -323,7 +326,7 @@
 .ceramic-detail-action-btn {
   display: inline-block;
   padding: 5px 16px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   font-family: inherit;
   color: #fff;
@@ -362,7 +365,7 @@
 }
 
 .ceramic-also-like-heading {
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 700;
   color: #171717;
   margin: 0 0 16px;
