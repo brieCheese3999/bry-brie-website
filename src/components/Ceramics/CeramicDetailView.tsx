@@ -1,5 +1,5 @@
 import React from 'react';
-import { Frame, Button } from '@react95/core';
+import { Button } from '@react95/core';
 import type { CeramicPiece } from '../types';
 import { useResponsiveMode } from '../useResponsiveMode';
 
